@@ -49,5 +49,12 @@
   "Range": "مدى",
   "Name": "الاسم",
   "Type": "النوع",
-  "Value": "القيمة"
+  "Value": "القيمة",
+  "Add": "أضف",
+  "Dense": "تكديس",
+  "of": "من",
+  "New Variable:": "متغير جديد:",
+  "Name is required": "الاسم مطلوب",
+  "Type is required": "النوع مطلوب",
+  "Value is required": "القيمة مطلوبة"
 }

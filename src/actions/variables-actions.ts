@@ -13,17 +13,17 @@ export async function fetchVariables({ page = 1, limit = 5 }: { page?: number; l
       data: [
         {
           name: 'Gender',
-          type: 'LIST',
+          type: 'list',
           value: 'Male',
         },
         {
           name: 'Gender',
-          type: 'LIST',
+          type: 'list',
           value: 'Female',
         },
         {
           name: 'Age',
-          type: 'RANGE',
+          type: 'range',
         },
       ],
       meta: {

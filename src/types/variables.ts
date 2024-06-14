@@ -3,6 +3,6 @@
 export type Variable = {
   id: string;
   name: string;
-  type: 'LIST' | 'RANGE';
+  type: 'list' | 'range';
   value?: string;
 };
