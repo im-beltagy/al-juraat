@@ -120,7 +120,8 @@ const SharedTable = (props: SharedTableProps) => {
   const [value] = useDebounce(query, 1000);
 
   useEffect(() => {
-    if (!disablePagination) router.push(`${pathname}?${createQueryString('search', value ?? '')}`);
+    if (!disablePagination)
+      router.push(`${pathname}?${value ? createQueryString('search', value) : ''}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, router, value]);
 
