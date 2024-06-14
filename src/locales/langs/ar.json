@@ -39,5 +39,15 @@
   "Sorry, Page Not Found!": "عفوا، لم يتم العثور على الصفحة!",
   "Sorry, we couldn’t find the page you’re looking for. Perhaps you’ve mistyped the URL? Be sure to check your spelling.": "عفوا، لم يتم العثور على الصفحة التي تبحث عنها. ربما تم كتابة الرابط الخاطئة؟ تأكد من التدقيق. ",
   "English": "الإنجليزية",
-  "Arabic": "العربية"
+  "Arabic": "العربية",
+  "rows_per_page": "عدد الصفوف في الصفحة",
+  "Columns": "الاعمدة",
+  "Filters": "الفلترة",
+  "Export": "تصدير",
+  "search": "البحث",
+  "List": "قائمة",
+  "Range": "مدى",
+  "Name": "الاسم",
+  "Type": "النوع",
+  "Value": "القيمة"
 }

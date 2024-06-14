@@ -14,14 +14,28 @@ import FileThumbnail, { fileData } from '../file-thumbnail';
 
 // ----------------------------------------------------------------------
 
-export default function MultiFilePreview({ thumbnail, files, onRemove, sx }: UploadProps) {
+export default function MultiFilePreview({
+  thumbnail,
+  files,
+  onRemove,
+  sx,
+  isLogoIndex,
+  setIsLogoIndex,
+}: UploadProps) {
+  const urls: string[] = [];
+
+  if (Array.isArray(files)) {
+    files.forEach((file) => {
+      if (typeof file === 'object' && file && 'url' in file && typeof file.url === 'string') {
+        urls.push(file.url);
+      }
+    });
+  }
   return (
     <AnimatePresence initial={false}>
-      {files?.map((file) => {
+      {files?.map((file, index: number) => {
         const { key, name = '', size = 0 } = fileData(file);
-
         const isNotFormatFile = typeof file === 'string';
-
         if (thumbnail) {
           return (
             <Stack
@@ -38,14 +52,23 @@ export default function MultiFilePreview({ thumbnail, files, onRemove, sx }: Upl
                 borderRadius: 1.25,
                 overflow: 'hidden',
                 position: 'relative',
-                border: (theme) => `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`,
+                cursor: 'pointer',
+                border: (theme) =>
+                  !(isLogoIndex === index)
+                    ? `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`
+                    : `solid 2px ${alpha(theme.palette.success.main, 0.5)}`,
                 ...sx,
+              }}
+              onClick={() => {
+                if (setIsLogoIndex) {
+                  setIsLogoIndex(index);
+                }
               }}
             >
               <FileThumbnail
                 tooltip
                 imageView
-                file={file}
+                file={urls[index] ? urls[index] : file}
                 sx={{ position: 'absolute' }}
                 imgSx={{ position: 'absolute' }}
               />
@@ -53,7 +76,11 @@ export default function MultiFilePreview({ thumbnail, files, onRemove, sx }: Upl
               {onRemove && (
                 <IconButton
                   size="small"
-                  onClick={() => onRemove(file)}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onRemove(file);
+                  }}
                   sx={{
                     p: 0.5,
                     top: 4,
@@ -79,15 +106,24 @@ export default function MultiFilePreview({ thumbnail, files, onRemove, sx }: Upl
             component={m.div}
             {...varFade().inUp}
             spacing={2}
-            direction="row"
+            direction="column"
             alignItems="center"
             sx={{
               my: 1,
               py: 1,
               px: 1.5,
               borderRadius: 1,
-              border: (theme) => `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`,
+              cursor: 'pointer',
+              border: (theme) =>
+                !(isLogoIndex === index)
+                  ? `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`
+                  : `solid 2px ${alpha(theme.palette.success.main, 0.5)}`,
               ...sx,
+            }}
+            onClick={() => {
+              if (setIsLogoIndex) {
+                setIsLogoIndex(index);
+              }
             }}
           >
             <FileThumbnail file={file} />

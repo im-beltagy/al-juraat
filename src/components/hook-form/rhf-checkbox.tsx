@@ -15,14 +15,19 @@ import FormControlLabel, {
 interface RHFCheckboxProps extends Omit<FormControlLabelProps, 'control'> {
   name: string;
   helperText?: React.ReactNode;
+  rules?: {[key:string]: any};
+  value?: any;
+
 }
 
-export function RHFCheckbox({ name, helperText, ...other }: RHFCheckboxProps) {
+export function RHFCheckbox({ name,rules,value, helperText, ...other }: RHFCheckboxProps) {
   const { control } = useFormContext();
 
   return (
     <Controller
       name={name}
+      rules={rules}
+      defaultValue={value}
       control={control}
       render={({ field, fieldState: { error } }) => (
         <div>

@@ -25,6 +25,23 @@ export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
 
 // ----------------------------------------------------------------------
 
+export const getErrorMessage = (error: unknown): string => {
+  let message: string;
+  if (error instanceof Error) {
+    // eslint-disable-next-line prefer-destructuring
+    message = error.message;
+  } else if (error && typeof error === 'object' && 'message' in error) {
+    message = String(error.message);
+  } else if (typeof error === 'string') {
+    message = error;
+  } else {
+    message = 'Something went wrong';
+  }
+  return message;
+};
+
+// ----------------------------------------------------------------------
+
 export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/kanban',
