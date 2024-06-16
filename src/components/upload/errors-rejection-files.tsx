@@ -7,6 +7,8 @@ import Typography from '@mui/material/Typography';
 
 import { fData } from 'src/utils/format-number';
 
+import { useTranslate } from 'src/locales';
+
 import { fileData } from '../file-thumbnail';
 
 // ----------------------------------------------------------------------
@@ -16,10 +18,10 @@ type Props = {
 };
 
 export default function RejectionFiles({ fileRejections }: Props) {
+  const { t } = useTranslate();
   if (!fileRejections.length) {
     return null;
   }
-
   return (
     <Paper
       variant="outlined"
@@ -44,7 +46,7 @@ export default function RejectionFiles({ fileRejections }: Props) {
 
             {errors.map((error) => (
               <Box key={error.code} component="span" sx={{ typography: 'caption' }}>
-                - {error.message}
+                - {t(error.message)}
               </Box>
             ))}
           </Box>

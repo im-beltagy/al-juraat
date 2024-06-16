@@ -5,6 +5,8 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Autocomplete, { AutocompleteProps } from '@mui/material/Autocomplete';
 
+import { useQueryString } from 'src/hooks/use-queryString';
+
 import { countries } from 'src/assets/data';
 
 import Iconify from 'src/components/iconify';
@@ -21,7 +23,11 @@ interface Props<
   label?: string;
   placeholder?: string;
   type?: 'country' | string;
+  value?: any;
+  rules?: { [key: string]: any };
   helperText?: React.ReactNode;
+  onCustomChange?: (value: any) => void;
+  searchQuery?: string;
 }
 
 export default function RHFAutocomplete<
@@ -34,16 +40,22 @@ export default function RHFAutocomplete<
   label,
   type,
   helperText,
+  rules,
+  value,
   placeholder,
+  onCustomChange,
+  searchQuery,
   ...other
 }: Omit<Props<T, Multiple, DisableClearable, FreeSolo>, 'renderInput'>) {
   const { control, setValue } = useFormContext();
-
+  const { createQueryString } = useQueryString();
   const { multiple } = other;
 
   return (
     <Controller
       name={name}
+      defaultValue={value}
+      rules={rules}
       control={control}
       render={({ field, fieldState: { error } }) => {
         if (type === 'country') {
@@ -53,7 +65,9 @@ export default function RHFAutocomplete<
               id={`autocomplete-${name}`}
               autoHighlight={!multiple}
               disableCloseOnSelect={multiple}
-              onChange={(event, newValue) => setValue(name, newValue, { shouldValidate: true })}
+              onChange={(event, newValue) => {
+                setValue(name, newValue, { shouldValidate: true });
+              }}
               renderOption={(props, option) => {
                 const country = getCountry(option as string);
 
@@ -140,7 +154,10 @@ export default function RHFAutocomplete<
           <Autocomplete
             {...field}
             id={`autocomplete-${name}`}
-            onChange={(event, newValue) => setValue(name, newValue, { shouldValidate: true })}
+            onChange={(event, newValue) => {
+              if (onCustomChange) onCustomChange(newValue);
+              setValue(name, newValue, { shouldValidate: true });
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -148,6 +165,11 @@ export default function RHFAutocomplete<
                 placeholder={placeholder}
                 error={!!error}
                 helperText={error ? error?.message : helperText}
+                onChange={(event) => {
+                  if (searchQuery) {
+                    createQueryString([{ name: searchQuery, value: event?.target?.value }], true);
+                  }
+                }}
                 inputProps={{
                   ...params.inputProps,
                   autoComplete: 'new-password',

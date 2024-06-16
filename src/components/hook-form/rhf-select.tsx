@@ -18,6 +18,8 @@ type RHFSelectProps = TextFieldProps & {
   native?: boolean;
   maxHeight?: boolean | number;
   children: React.ReactNode;
+  value?: any;
+  rules?: {[key:string]: any};
   PaperPropsSx?: SxProps<Theme>;
 };
 
@@ -28,6 +30,8 @@ export function RHFSelect({
   helperText,
   children,
   PaperPropsSx,
+  rules,
+  value,
   ...other
 }: RHFSelectProps) {
   const { control } = useFormContext();
@@ -35,6 +39,8 @@ export function RHFSelect({
   return (
     <Controller
       name={name}
+      defaultValue={value}
+      rules={rules}
       control={control}
       render={({ field, fieldState: { error } }) => (
         <TextField

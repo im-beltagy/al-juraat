@@ -14,12 +14,13 @@ import RejectionFiles from './errors-rejection-files';
 
 // ----------------------------------------------------------------------
 
-export default function UploadAvatar({
+export default function UploadProduct({
   error,
   file,
   disabled,
   helperText,
   sx,
+  rules,
   ...other
 }: UploadProps) {
   const { getRootProps, getInputProps, isDragActive, isDragReject, fileRejections } = useDropzone({
@@ -30,9 +31,9 @@ export default function UploadAvatar({
     },
     ...other,
   });
-  const {t} = useTranslate();
-  const hasFile = !!file;
 
+  const { t } = useTranslate();
+  const hasFile = !!file;
   const hasError = isDragReject || !!error;
 
   const imgUrl = typeof file === 'string' ? file : file?.preview;
@@ -44,7 +45,7 @@ export default function UploadAvatar({
       sx={{
         width: 1,
         height: 1,
-        borderRadius: '50%',
+        borderRadius: '14px',
       }}
     />
   );
@@ -60,8 +61,9 @@ export default function UploadAvatar({
         left: 0,
         width: 1,
         height: 1,
+
         zIndex: 9,
-        borderRadius: '50%',
+        borderRadius: '14px',
         position: 'absolute',
         color: 'text.disabled',
         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.08),
@@ -86,7 +88,7 @@ export default function UploadAvatar({
     >
       <Iconify icon="solar:camera-add-bold" width={32} />
 
-      <Typography variant="caption">{t(file ? 'Update photo' : 'Upload photo')}</Typography>
+      <Typography variant="caption">{file ? t('Change photo') : t('Upload photo')}</Typography>
     </Stack>
   );
 
@@ -96,7 +98,8 @@ export default function UploadAvatar({
         width: 1,
         height: 1,
         overflow: 'hidden',
-        borderRadius: '50%',
+
+        borderRadius: '14px',
         position: 'relative',
       }}
     >
@@ -111,12 +114,13 @@ export default function UploadAvatar({
         {...getRootProps()}
         sx={{
           p: 1,
-          m: 'auto',
-          width: 144,
-          height: 144,
+          m: 'none',
+        maxWidth: {xs: 200, md: 240},
+          height: 200,
           cursor: 'pointer',
           overflow: 'hidden',
-          borderRadius: '50%',
+
+          borderRadius: '14px',
           border: (theme) => `1px dashed ${alpha(theme.palette.grey[500], 0.2)}`,
           ...(isDragActive && {
             opacity: 0.72,
@@ -144,9 +148,10 @@ export default function UploadAvatar({
         {renderContent}
       </Box>
 
-      {helperText && helperText}
 
+      {helperText && helperText}
       <RejectionFiles fileRejections={fileRejections} />
+
     </>
   );
 }

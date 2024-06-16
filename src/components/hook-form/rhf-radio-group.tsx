@@ -14,6 +14,8 @@ type Props = RadioGroupProps & {
   options: { label: string; value: any }[];
   label?: string;
   spacing?: number;
+  rules?: {[key:string]: any};
+  value?: any;
   helperText?: React.ReactNode;
 };
 
@@ -24,6 +26,8 @@ export default function RHFRadioGroup({
   options,
   spacing,
   helperText,
+  value,
+  rules,
   ...other
 }: Props) {
   const { control } = useFormContext();
@@ -33,6 +37,8 @@ export default function RHFRadioGroup({
   return (
     <Controller
       name={name}
+      defaultValue={value}
+      rules={rules}
       control={control}
       render={({ field, fieldState: { error } }) => (
         <FormControl component="fieldset">
