@@ -7,7 +7,7 @@ export function useQueryString() {
   const searchParams = useSearchParams();
 
   const createQueryString = useCallback(
-    (queries: { name: string; value: string }[], replace?: boolean) => {
+    (queries: { name: string; value?: string }[], replace?: boolean) => {
       const params = new URLSearchParams(searchParams.toString());
       queries.forEach(({ name, value }) => {
         if (value) {
