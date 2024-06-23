@@ -127,7 +127,7 @@ function ColumnsAction({ defaultTableHead, setTableHead }: ColumnsProps) {
                   onChange={() => handleCheckColumn(column.id)}
                 />
               }
-              label={column.label}
+              label={t(column.label)}
             />
           ))}
         </Stack>

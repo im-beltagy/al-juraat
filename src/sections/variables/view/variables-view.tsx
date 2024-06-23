@@ -192,7 +192,7 @@ export default function VariablesView({ variables, count }: Props) {
           {
             label: t('edit'),
             icon: 'solar:pen-bold',
-            onClick: (item: Variable) => router.push(`/dashboard/banars/edit/${item.id}`),
+            onClick: (item: Variable) => router.push(paths.dashboard.root),
           },
         ]}
       />
