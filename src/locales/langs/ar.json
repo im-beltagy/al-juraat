@@ -87,5 +87,13 @@
   "to": "الي",
   "Final Result": "النتيجة نهائية",
   "Create custom patient": "إنشاء مريض مخصص",
-  "Custom Patient": "مريض مخصص"
+  "Custom Patient": "مريض مخصص",
+  "Price": "السعر",
+  "Duration in days": "المدة بالايام",
+  "Add New Package": "اضافة باقة جديدة",
+  "Duration": "المدة",
+  "Cancel": "الغاء",
+  "Edit Package": "تعديل الباقة",
+  "Edit": "تعديل",
+  "View": "عرض"
 }
