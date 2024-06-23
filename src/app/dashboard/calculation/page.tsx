@@ -3,8 +3,9 @@
 import { fetchAllVariables } from 'src/actions/variables-actions';
 import {
   fetchMedicines,
-  fetchMedicineFormulasAndIndications,
   fetchInitialDosage,
+  fetchCalculationFinalResult,
+  fetchMedicineFormulasAndIndications,
 } from 'src/actions/calculations-actions';
 
 import CalculationView from 'src/sections/calculation/view/calculation-view';
@@ -22,7 +23,7 @@ const convertIntoItems = (data: { id: string; name: string }[]) =>
   }));
 
 type SearchParams = {
-  [key in 'medicine' | 'formula' | 'indication']: string | string[] | undefined;
+  [key in 'medicine' | 'formula' | 'indication' | 'step']: string | string[] | undefined;
 };
 
 export default async function OverviewAppPage({ searchParams }: { searchParams: SearchParams }) {
@@ -30,6 +31,7 @@ export default async function OverviewAppPage({ searchParams }: { searchParams: 
   const formula = typeof searchParams.formula === 'string' ? searchParams.formula : undefined;
   const indication =
     typeof searchParams.indication === 'string' ? searchParams.indication : undefined;
+  const step = typeof searchParams.step === 'string' ? searchParams.step : undefined;
 
   const medicines = await fetchMedicines();
   const variables = await fetchAllVariables();
@@ -50,6 +52,17 @@ export default async function OverviewAppPage({ searchParams }: { searchParams: 
     initialDosage = res?.data;
   }
 
+  let resultsRes: any;
+  if (
+    medicine &&
+    formula &&
+    indication &&
+    ['final-result', 'custom-patient'].includes(step || '')
+  ) {
+    const res = await fetchCalculationFinalResult({ medicine, formula, indication });
+    resultsRes = res;
+  }
+
   return (
     <CalculationView
       medicines={convertIntoItems(medicines?.data || [])}
@@ -57,6 +70,7 @@ export default async function OverviewAppPage({ searchParams }: { searchParams: 
       formulas={formulas ? convertIntoItems(formulas) : undefined}
       indications={indications ? convertIntoItems(indications) : undefined}
       initialDosage={initialDosage}
+      results={{ data: resultsRes?.data || [], count: resultsRes?.count || 0 }}
     />
   );
 }

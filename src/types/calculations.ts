@@ -24,3 +24,15 @@ export interface IDosageItem {
   value: number;
   unit: string;
 }
+
+export interface ICalculationResultItem {
+  id: string;
+  variable: string;
+  value: [number, number] | string;
+  newDose: number;
+}
+
+export interface ICalculationResult {
+  data: { items: ICalculationResultItem[]; primary: string };
+  count: number;
+}

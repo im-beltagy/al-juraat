@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, ReactNode } from 'react';
+import React, { useState, ReactNode, useEffect } from 'react';
 
 import { Container } from '@mui/system';
 import { Box, Step, Button, Stepper, StepLabel } from '@mui/material';
+
+import { useQueryString } from 'src/hooks/use-queryString';
 
 import { useTranslate } from 'src/locales';
 
@@ -11,8 +13,10 @@ import { useSettingsContext } from 'src/components/settings';
 import { ITems } from 'src/components/AutoComplete/CutomAutocompleteView';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
 
-import { IDosageItem, IVariableItem } from 'src/types/calculations';
+import { IDosageItem, IVariableItem, ICalculationResult } from 'src/types/calculations';
 
+import FinalResultStep from '../final-result-step';
+import CustomPatientStep from '../custom-patient-step';
 import { useCalculationStore } from '../calculation-store';
 import DominalVariableStep from '../dominal-variable-step';
 import EquationBuildingStep from '../equation-building-step';
@@ -26,6 +30,7 @@ interface Props {
   indications?: ITems[];
   variables: IVariableItem[];
   initialDosage?: IDosageItem;
+  results: ICalculationResult;
 }
 
 export default function CalculationView({
@@ -34,11 +39,21 @@ export default function CalculationView({
   indications,
   variables,
   initialDosage,
+  results,
 }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
 
   const [activeStep, setActiveStep] = useState(0);
+
+  const { createQueryString } = useQueryString();
+
+  useEffect(() => {
+    const step =
+      activeStep === 3 ? 'custom-patient' : steps[activeStep]?.toLowerCase().replaceAll(' ', '-');
+
+    createQueryString([{ name: 'step', value: step }], true);
+  }, [activeStep, createQueryString]);
 
   return (
     <Container
@@ -63,6 +78,12 @@ export default function CalculationView({
         ) : null}
         {activeStep === 1 ? (
           <DominalVariableStep variables={variables} initialDosage={initialDosage} />
+        ) : null}
+        {activeStep === 2 ? (
+          <FinalResultStep initialDosage={initialDosage} results={results} />
+        ) : null}
+        {activeStep === 3 ? (
+          <CustomPatientStep initialDosage={initialDosage} results={results} />
         ) : null}
       </StepperView>
     </Container>

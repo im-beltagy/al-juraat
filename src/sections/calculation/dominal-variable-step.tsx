@@ -27,19 +27,16 @@ export interface Props {
   initialDosage?: IDosageItem;
 }
 
-export default function DominalVariableStep({ variables, initialDosage: dosage }: Props) {
+export default function DominalVariableStep({ variables, initialDosage }: Props) {
   const { t } = useTranslate();
 
-  const { medicine, formula, indication, variable, setVariable, variableValue, setVariableValue } =
-    useCalculationStore((state) => ({
-      medicine: state.medicine,
-      formula: state.formula,
-      indication: state.indication,
-      variable: state.variable,
-      setVariable: state.setVariable,
-      variableValue: state.variableValue,
-      setVariableValue: state.setVariableValue,
-    }));
+  const { medicine, formula, indication, variable, setVariable } = useCalculationStore((state) => ({
+    medicine: state.medicine,
+    formula: state.formula,
+    indication: state.indication,
+    variable: state.variable,
+    setVariable: state.setVariable,
+  }));
 
   const methods = useForm({
     resolver: yupResolver(
@@ -70,6 +67,9 @@ export default function DominalVariableStep({ variables, initialDosage: dosage }
   } = methods;
 
   // Handle Range Variable Value
+  const [variableValue, setVariableValue] = useState<
+    number[] | { name: string; id: string } | null
+  >([0, 0]);
   const handleChangeVariableValue = (event: Event, newValue: number | number[] | ITems) => {
     if (typeof newValue === 'number') {
       setVariableValue([newValue, newValue]);
@@ -86,12 +86,12 @@ export default function DominalVariableStep({ variables, initialDosage: dosage }
   const calculate = useCallback(() => {
     let val: number;
     if (effectType === 'positive') {
-      val = Number(dosage?.value) * (1 + Number(effect) / 100);
+      val = Number(initialDosage?.value) * (1 + Number(effect) / 100);
     } else {
-      val = Number(dosage?.value) * (1 - Number(effect) / 100);
+      val = Number(initialDosage?.value) * (1 - Number(effect) / 100);
     }
     setResult(Math.round(val));
-  }, [dosage?.value, effect, effectType]);
+  }, [initialDosage?.value, effect, effectType]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -156,8 +156,8 @@ export default function DominalVariableStep({ variables, initialDosage: dosage }
               name="dosage"
               label={t('Dosage')}
               type="number"
-              value={dosage?.value}
-              InputProps={{ endAdornment: dosage?.unit }}
+              value={initialDosage?.value}
+              InputProps={{ endAdornment: initialDosage?.unit }}
               disabled
             />
           </Grid>
@@ -178,7 +178,7 @@ export default function DominalVariableStep({ variables, initialDosage: dosage }
                 } else {
                   setVariable();
                 }
-                setVariableValue();
+                setVariableValue(null);
                 setValue('variable_value', null);
               }}
             />
@@ -213,7 +213,7 @@ export default function DominalVariableStep({ variables, initialDosage: dosage }
                     const { name, id } = item;
                     setVariableValue({ name, id });
                   } else {
-                    setVariableValue();
+                    setVariableValue(null);
                   }
                 }}
               />

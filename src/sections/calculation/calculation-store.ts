@@ -27,18 +27,6 @@ const createMedicineSlice: StateCreator<MedicineSlice, [], [], MedicineSlice> = 
   setInitialDosage: (newVal) => set((state) => ({ initialDosage: newVal })),
 });
 
-type VariableValue = [number, number] | CalculationItem;
-
-interface CalculationState {
-  variableValue?: VariableValue;
-  setVariableValue: (value?: VariableValue) => void;
-}
-
-const createCalculationSlice: StateCreator<CalculationState, [], [], CalculationState> = (set) => ({
-  setVariableValue: (value) => set((state) => ({ variableValue: value })),
-});
-
-export const useCalculationStore = create<MedicineSlice & CalculationState>()((...set) => ({
+export const useCalculationStore = create<MedicineSlice>()((...set) => ({
   ...createMedicineSlice(...set),
-  ...createCalculationSlice(...set),
 }));

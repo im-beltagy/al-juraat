@@ -1,8 +1,8 @@
 'use client';
 
 import * as yup from 'yup';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -38,6 +38,8 @@ export default function EquationBuildingStep({
 
   const searchParams = useSearchParams();
   const medicine = searchParams.get('medicine');
+  const formulaId = searchParams.get('formula');
+  const indicationId = searchParams.get('indication');
 
   const { setMedicine, setFormula, setIndication, setVariable, variable, formula, indication } =
     useCalculationStore(
@@ -53,6 +55,15 @@ export default function EquationBuildingStep({
       })
     );
 
+  const { medicineItem, formulaItem, indicationItem } = useMemo(
+    () => ({
+      medicineItem: medicines.find((m) => m.id === medicine) || null,
+      formulaItem: formulas?.find((f) => f.id === formulaId) || null,
+      indicationItem: indications?.find((i) => i.id === indicationId) || null,
+    }),
+    [formulaId, formulas, indicationId, indications, medicine, medicines]
+  );
+
   const methods = useForm({
     resolver: yupResolver(
       yup.object().shape({
@@ -63,18 +74,25 @@ export default function EquationBuildingStep({
       })
     ),
     defaultValues: {
-      medicine: medicines.find((m) => m.id === medicine) || null,
-      formula: formulas?.find((f) => f.id === formula?.id) || null,
-      indication: indications?.find((i) => i.id === indication?.id) || null,
+      medicine: medicineItem,
+      formula: formulaItem,
+      indication: indicationItem,
       variable: variables.find((v) => v.id === variable?.id) || null,
     },
   });
 
   useEffect(() => {
-    const medicineItem = medicines.find((m) => m.id === medicine);
     if (medicineItem) {
       const { name, id } = medicineItem;
       setMedicine({ name, id });
+    }
+    if (formulaItem) {
+      const { name, id } = formulaItem;
+      setFormula({ name, id });
+    }
+    if (indicationItem) {
+      const { name, id } = indicationItem;
+      setIndication({ name, id });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
