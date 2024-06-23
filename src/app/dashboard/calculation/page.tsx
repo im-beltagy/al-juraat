@@ -26,7 +26,7 @@ type SearchParams = {
   [key in 'medicine' | 'formula' | 'indication' | 'step']: string | string[] | undefined;
 };
 
-export default async function OverviewAppPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function Page({ searchParams }: { searchParams: SearchParams }) {
   const medicine = typeof searchParams.medicine === 'string' ? searchParams.medicine : undefined;
   const formula = typeof searchParams.formula === 'string' ? searchParams.formula : undefined;
   const indication =
