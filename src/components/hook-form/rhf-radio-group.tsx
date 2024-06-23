@@ -14,7 +14,7 @@ type Props = RadioGroupProps & {
   options: { label: string; value: any }[];
   label?: string;
   spacing?: number;
-  rules?: {[key:string]: any};
+  rules?: { [key: string]: any };
   value?: any;
   helperText?: React.ReactNode;
 };
