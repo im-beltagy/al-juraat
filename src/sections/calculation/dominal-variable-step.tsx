@@ -199,7 +199,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
               <>
                 <FormLabel>{t('Value')}</FormLabel>
                 <Slider
-                  step={10}
+                  step={2}
                   value={Array.isArray(variableValue) ? variableValue : [0, 0]}
                   onChange={handleChangeVariableValue}
                   valueLabelDisplay="auto"
