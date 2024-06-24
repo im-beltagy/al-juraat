@@ -3,8 +3,9 @@
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
-import { useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useState, useEffect, useCallback } from 'react';
 
 import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, Grid, Slider, Button, FormLabel, TextField, FormHelperText } from '@mui/material';
@@ -38,6 +39,14 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
     setVariable: state.setVariable,
   }));
 
+  const searchParams = useSearchParams();
+  const currentVariable = variables.find(({ id }) => id === searchParams.get('variable'));
+
+  useEffect(() => {
+    if (currentVariable) setVariable(currentVariable);
+    console.log(currentVariable);
+  }, [currentVariable, setVariable]);
+
   const methods = useForm({
     resolver: yupResolver(
       yup.object().shape({
@@ -54,7 +63,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
       })
     ),
     defaultValues: {
-      variable: variables.find(({ id }) => id === variable?.id),
+      variable: currentVariable || variables.find(({ id }) => id === variable?.id),
     },
   });
 
@@ -168,6 +177,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
               name="variable"
               label={t('Variable')}
               placeholder={t('Variable')}
+              isDisabled={!!currentVariable}
               items={variables.map(
                 (item) => ({ ...item, name_ar: item.name, name_en: item.name }) as ITems
               )}
@@ -274,7 +284,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
           {/* Submit */}
           <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <LoadingButton type="submit" variant="contained" color="primary" loading={isLoading}>
-              {t('Save')}
+              {t(currentVariable ? 'Edit' : 'Save')}
             </LoadingButton>
           </Grid>
         </Grid>

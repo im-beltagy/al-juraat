@@ -1,3 +1,4 @@
 {
-  "rows_per_page": "rows per page"
+  "rows_per_page": "rows per page",
+  "delete_confirm": "Are you sure want to delete?"
 }

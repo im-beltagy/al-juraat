@@ -27,6 +27,7 @@ export interface IDosageItem {
 
 export interface ICalculationResultItem {
   id: string;
+  variable_id: string;
   variable: string;
   value: [number, number] | string;
   newDose: number;
