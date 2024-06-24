@@ -34,7 +34,7 @@ export async function fetchMedicines() {
   }
 }
 
-export async function fetchMedicineFormulasAndIndications({ id }: { id: string }) {
+export async function fetchFormulasAndIndications({ medicine_id }: { medicine_id?: string }) {
   const lang = cookies().get('Language')?.value;
   const accessToken = cookies().get('accessToken')?.value;
 
@@ -124,18 +124,21 @@ export async function fetchCalculationFinalResult({
         items: [
           {
             id: '1',
+            variable_id: 'age',
             variable: 'Age',
             value: [0, 15],
             newDose: 25,
           },
           {
             id: '2',
+            variable_id: 'age',
             variable: 'Age',
             value: [16, 190],
             newDose: 35,
           },
           {
             id: '3',
+            variable_id: 'gender',
             variable: 'Gender',
             value: 'Male',
             newDose: 40,

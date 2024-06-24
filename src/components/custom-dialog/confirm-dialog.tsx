@@ -1,34 +1,54 @@
+import { useTranslation } from 'react-i18next';
+
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
+import { Box, Typography } from '@mui/material';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
-import { useTranslate } from 'src/locales';
-
 import { ConfirmDialogProps } from './types';
+import CloseButton from '../dialog/CloseButton';
 
 // ----------------------------------------------------------------------
 
 export default function ConfirmDialog({
   title,
   content,
+  buttonTitle,
+  buttonColor,
   action,
   open,
   onClose,
+  handleConfirmDelete,
   ...other
 }: ConfirmDialogProps) {
-  const { t } = useTranslate();
-
+  const { t } = useTranslation();
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose} {...other}>
-      <DialogTitle sx={{ pb: 2 }}>{title}</DialogTitle>
+      <CloseButton onClose={onClose} />
+      <DialogTitle sx={{ pb: 0.5 }}>{title || t('Delete')}</DialogTitle>
 
-      {content && <DialogContent sx={{ typography: 'body2' }}> {content} </DialogContent>}
-
+      <DialogContent
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Box sx={{ py: 1 }}>
+          {content ? (
+            <Typography variant="body1"> {content} </Typography>
+          ) : (
+            <Typography variant="body1" color="disabled">
+              {t('delete_confirm')}
+            </Typography>
+          )}
+        </Box>
+      </DialogContent>
       <DialogActions>
-        {action}
-
+        <Button variant="contained" color={buttonColor || 'error'} onClick={handleConfirmDelete}>
+          {typeof buttonTitle === 'string' ? buttonTitle : t('Delete')}
+        </Button>
         <Button variant="outlined" color="inherit" onClick={onClose}>
           {t('Cancel')}
         </Button>

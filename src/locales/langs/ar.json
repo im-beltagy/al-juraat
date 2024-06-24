@@ -95,5 +95,11 @@
   "Cancel": "الغاء",
   "Edit Package": "تعديل الباقة",
   "Edit": "تعديل",
-  "View": "عرض"
+  "View": "عرض",
+  "delete_confirm": "هل انت متأكد من الحذف؟",
+  "Delete": "حذف",
+  "Deleted Successfully": "تم الحذف بنجاح",
+  "Failed to delete": "فشل في الحذف",
+  "View Trade names": "عرض الاسماء التجارية",
+  "Details": "التفاصيل"
 }

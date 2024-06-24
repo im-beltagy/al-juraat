@@ -5,7 +5,7 @@ import {
   fetchMedicines,
   fetchInitialDosage,
   fetchCalculationFinalResult,
-  fetchMedicineFormulasAndIndications,
+  fetchFormulasAndIndications,
 } from 'src/actions/calculations-actions';
 
 import CalculationView from 'src/sections/calculation/view/calculation-view';
@@ -40,7 +40,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   let indications;
 
   if (medicine) {
-    const res = await fetchMedicineFormulasAndIndications({ id: medicine });
+    const res = await fetchFormulasAndIndications({ medicine_id: medicine });
     formulas = res?.data?.formulas;
     indications = res?.data?.indications;
   }

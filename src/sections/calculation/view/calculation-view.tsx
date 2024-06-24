@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 import { Container } from '@mui/system';
 import { Box, Step, Button, Stepper, StepLabel } from '@mui/material';
@@ -22,7 +23,13 @@ import DominalVariableStep from '../dominal-variable-step';
 import EquationBuildingStep from '../equation-building-step';
 
 const titles = ['Equation Building', 'Calculation', 'Final Result', 'Custom Patient'];
-const steps = ['Selection of medication', 'Dominal variables', 'Final result'];
+const stepsTitles = [
+  'Selection of medication',
+  'Dominal variables',
+  'Final result',
+  'Custom Patient',
+];
+const steps = stepsTitles.map((title) => title.toLowerCase().replaceAll(' ', '-'));
 
 interface Props {
   medicines: ITems[];
@@ -44,16 +51,36 @@ export default function CalculationView({
   const { t } = useTranslate();
   const settings = useSettingsContext();
 
-  const [activeStep, setActiveStep] = useState(0);
+  const searchParams = useSearchParams();
 
-  const { createQueryString } = useQueryString();
+  const activeStep = searchParams.get('step') || steps[0];
+  const stepIndex = steps.indexOf(activeStep);
+
+  const { setMedicine, setFormula, setIndication } = useCalculationStore(
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    ({ setMedicine, setFormula, setIndication }) => ({ setMedicine, setFormula, setIndication })
+  );
 
   useEffect(() => {
-    const step =
-      activeStep === 3 ? 'custom-patient' : steps[activeStep]?.toLowerCase().replaceAll(' ', '-');
-
-    createQueryString([{ name: 'step', value: step }], true);
-  }, [activeStep, createQueryString]);
+    const medicine = medicines.find((item) => item.id === searchParams.get('medicine'));
+    if (medicine) {
+      setMedicine({ name: medicine.name, id: medicine.id });
+    } else {
+      setMedicine();
+    }
+    const formula = formulas?.find((item) => item.id === searchParams.get('formula'));
+    if (formula) {
+      setFormula({ name: formula.name, id: formula.id });
+    } else {
+      setFormula();
+    }
+    const indication = indications?.find((item) => item.id === searchParams.get('indication'));
+    if (indication) {
+      setIndication({ name: indication.name, id: indication.id });
+    } else {
+      setIndication();
+    }
+  }, [formulas, indications, medicines, searchParams, setFormula, setIndication, setMedicine]);
 
   return (
     <Container
@@ -64,11 +91,11 @@ export default function CalculationView({
         flexDirection: 'column',
       }}
     >
-      <CustomBreadcrumbs heading={t(titles[activeStep])} links={[{}]} sx={{ mb: 3 }} />
+      <CustomBreadcrumbs heading={t(titles[stepIndex])} links={[{}]} sx={{ mb: 3 }} />
 
-      <StepperView activeStep={activeStep} setActiveStep={(val) => setActiveStep(val)}>
+      <StepperView activeStep={activeStep}>
         <Box mt={3} />
-        {activeStep === 0 ? (
+        {stepIndex === 0 ? (
           <EquationBuildingStep
             medicines={medicines}
             formulas={formulas}
@@ -76,13 +103,13 @@ export default function CalculationView({
             variables={variables}
           />
         ) : null}
-        {activeStep === 1 ? (
+        {stepIndex === 1 ? (
           <DominalVariableStep variables={variables} initialDosage={initialDosage} />
         ) : null}
-        {activeStep === 2 ? (
+        {stepIndex === 2 ? (
           <FinalResultStep initialDosage={initialDosage} results={results} />
         ) : null}
-        {activeStep === 3 ? (
+        {stepIndex === 3 ? (
           <CustomPatientStep initialDosage={initialDosage} results={results} />
         ) : null}
       </StepperView>
@@ -91,20 +118,23 @@ export default function CalculationView({
 }
 
 interface StepperViewProps {
-  activeStep: number;
-  setActiveStep: (step: any) => void;
+  activeStep: string;
   children: ReactNode;
 }
 
-function StepperView({ activeStep, setActiveStep, children }: StepperViewProps) {
+function StepperView({ activeStep, children }: StepperViewProps) {
+  const stepIndex = steps.indexOf(activeStep);
+
   const { t } = useTranslate();
 
+  const { createQueryString } = useQueryString();
+
   const handleNext = () => {
-    setActiveStep((prevActiveStep: number) => prevActiveStep + 1);
+    createQueryString([{ name: 'step', value: steps[stepIndex + 1] }], true);
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep: number) => prevActiveStep - 1);
+    createQueryString([{ name: 'step', value: steps[stepIndex - 1] }], true);
   };
 
   const isNextValid = useCalculationStore(
@@ -113,8 +143,8 @@ function StepperView({ activeStep, setActiveStep, children }: StepperViewProps) 
 
   return (
     <>
-      <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map((label) => {
+      <Stepper activeStep={stepIndex} alternativeLabel>
+        {stepsTitles.slice(0, 3).map((label) => {
           const stepProps: { completed?: boolean } = {};
           const labelProps: {
             optional?: React.ReactNode;
@@ -129,20 +159,20 @@ function StepperView({ activeStep, setActiveStep, children }: StepperViewProps) 
 
       {children}
 
-      {activeStep < steps.length ? (
+      {stepIndex < steps.length - 1 ? (
         <Box display="flex" mt={3}>
           <Box sx={{ flexGrow: 1 }} />
           <Button
             variant="contained"
             color="primary"
-            disabled={activeStep === 0}
+            disabled={stepIndex === 0}
             onClick={handleBack}
             sx={{ mr: 1 }}
           >
             {t('Prev')}
           </Button>
           <Button variant="contained" color="primary" disabled={!isNextValid} onClick={handleNext}>
-            {t(activeStep === steps.length - 1 ? 'Create custom patient' : 'Next')}
+            {t(stepIndex === steps.length - 2 ? 'Create custom patient' : 'Next')}
           </Button>
         </Box>
       ) : null}

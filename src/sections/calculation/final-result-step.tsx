@@ -7,6 +7,7 @@ import { Grid, Radio } from '@mui/material';
 import { paths } from 'src/routes/paths';
 
 import { useDebounce } from 'src/hooks/use-debounce';
+import { useQueryString } from 'src/hooks/use-queryString';
 
 import { useTranslate } from 'src/locales';
 import { invalidatePath } from 'src/actions/cache-invalidation';
@@ -40,6 +41,8 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
     formula: state.formula,
     indication: state.indication,
   }));
+
+  const { createQueryString } = useQueryString();
 
   const methods = useForm();
 
@@ -129,6 +132,18 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
         additionalTableProps={additionalTableProps}
         disablePagination
         showFromClients
+        enableActions
+        actions={[
+          {
+            label: t('Edit'),
+            icon: 'solar:pen-bold',
+            onClick: (item: ICalculationResultItem) =>
+              createQueryString([
+                { name: 'step', value: 'dominal-variables' },
+                { name: 'variable', value: item.variable_id },
+              ]),
+          },
+        ]}
       />
     </>
   );
