@@ -134,11 +134,12 @@ function StepperView({ activeStep, children }: StepperViewProps) {
   };
 
   const handleBack = () => {
-    createQueryString([{ name: 'step', value: steps[stepIndex - 1] }], true);
+    createQueryString([{ name: 'step', value: steps[stepIndex - 1] }, { name: 'variable' }], true);
   };
 
   const isNextValid = useCalculationStore(
-    ({ medicine, formula, indication }) => medicine && formula && indication
+    ({ medicine, formula, indication, allVariables }) =>
+      medicine && formula && indication && allVariables
   );
 
   return (
