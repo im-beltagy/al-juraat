@@ -101,5 +101,16 @@
   "Deleted Successfully": "تم الحذف بنجاح",
   "Failed to delete": "فشل في الحذف",
   "View Trade names": "عرض الاسماء التجارية",
-  "Details": "التفاصيل"
+  "Details": "التفاصيل",
+  "Trade Names": "الاسماء التجارية",
+  "Medicine": "الدواء",
+  "Description": "الوصف",
+  "Add New": "اضافة",
+  "Trade Name": "الاسم التجاري",
+  "Create New Trade Name": "اضافة اسم تجاري جديد ",
+  "Edit Trade Name": "تعديل الاسم التجاري",
+  "Allowed": "مسموح",
+  "Max Size": "الحجم الاقصى",
+  "Update photo": "تحديث الصورة",
+  "Upload photo": "اضافة صورة"
 }

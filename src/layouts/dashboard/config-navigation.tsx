@@ -41,12 +41,12 @@ export function useNavData() {
           },
           {
             title: t('Calculation'),
-            path: paths.dashboard.calculation,
+            path: paths.dashboard.calculation.root,
             icon: ICONS.calculation,
           },
           {
             title: t('Results'),
-            path: paths.dashboard.results,
+            path: paths.dashboard.results.root,
             icon: ICONS.results,
           },
           {

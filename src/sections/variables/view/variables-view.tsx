@@ -18,6 +18,7 @@ import { invalidatePath } from 'src/actions/cache-invalidation';
 
 import { useTable } from 'src/components/table';
 import { useSettingsContext } from 'src/components/settings';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 import FormProvider from 'src/components/hook-form/form-provider';
 import SharedTable, { TableHeader } from 'src/components/shared-table';
 import RHFTextField from 'src/components/hook-form/rhf-text-field-form';
@@ -109,6 +110,12 @@ export default function VariablesView({ variables, count }: Props) {
 
   const router = useRouter();
 
+  const [deleteItemId, setDeleteItemId] = useState('');
+  const handleConfirmDelete = useCallback(() => {
+    console.log(deleteItemId);
+    setDeleteItemId('');
+  }, [deleteItemId]);
+
   return (
     <Container
       maxWidth={settings.themeStretch ? false : 'xl'}
@@ -190,12 +197,27 @@ export default function VariablesView({ variables, count }: Props) {
         enableActions
         actions={[
           {
-            label: t('edit'),
+            label: t('Edit'),
             icon: 'solar:pen-bold',
             onClick: (item: Variable) => router.push(paths.dashboard.root),
           },
+          {
+            label: t('Delete'),
+            icon: 'heroicons:trash-solid',
+            onClick: (item: Variable) => setDeleteItemId(item.id),
+          },
         ]}
       />
+
+      {deleteItemId && (
+        <ConfirmDialog
+          open={!!deleteItemId}
+          onClose={() => setDeleteItemId('')}
+          title={t('Delete')}
+          content={t('delete_confirm')}
+          handleConfirmDelete={handleConfirmDelete}
+        />
+      )}
     </Container>
   );
 }
