@@ -18,8 +18,22 @@ export const paths = {
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
-    calculation: `${ROOTS.DASHBOARD}/calculation`,
-    results: `${ROOTS.DASHBOARD}/results`,
+    calculation: {
+      root: `${ROOTS.DASHBOARD}/calculation`,
+      selectionOfMedication: `${ROOTS.DASHBOARD}/calculation?step=selection-of-medication`,
+      dominalVariables: `${ROOTS.DASHBOARD}/calculation?step=dominal-variables`,
+      finalResult: `${ROOTS.DASHBOARD}/calculation?step=final-result`,
+      customPatient: `${ROOTS.DASHBOARD}/calculation?step=custom-patient`,
+    },
+    results: {
+      root: `${ROOTS.DASHBOARD}/results`,
+      tradeNames: {
+        root: `${ROOTS.DASHBOARD}/results/trade-names`,
+        new: `${ROOTS.DASHBOARD}/results/trade-names/new`,
+        view: `${ROOTS.DASHBOARD}/results/trade-names/view`,
+        edit: `${ROOTS.DASHBOARD}/results/trade-names/edit`,
+      },
+    },
     users: `${ROOTS.DASHBOARD}/users`,
     packages: `${ROOTS.DASHBOARD}/packages`,
     privacyPolicy: `${ROOTS.DASHBOARD}/privacy-policy`,

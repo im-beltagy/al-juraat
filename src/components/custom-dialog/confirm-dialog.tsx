@@ -46,11 +46,11 @@ export default function ConfirmDialog({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" color={buttonColor || 'error'} onClick={handleConfirmDelete}>
-          {typeof buttonTitle === 'string' ? buttonTitle : t('Delete')}
-        </Button>
         <Button variant="outlined" color="inherit" onClick={onClose}>
           {t('Cancel')}
+        </Button>
+        <Button variant="contained" color={buttonColor || 'error'} onClick={handleConfirmDelete}>
+          {typeof buttonTitle === 'string' ? buttonTitle : t('Delete')}
         </Button>
       </DialogActions>
     </Dialog>

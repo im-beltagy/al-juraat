@@ -12,16 +12,19 @@ export async function fetchVariables({ page = 1, limit = 5 }: { page?: number; l
     const res = await {
       data: [
         {
+          id: 'gender-male',
           name: 'Gender',
           type: 'list',
           value: 'Male',
         },
         {
+          id: 'gender-female',
           name: 'Gender',
           type: 'list',
           value: 'Female',
         },
         {
+          id: 'age',
           name: 'Age',
           type: 'range',
         },

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { ReactNode, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import React, { ReactNode, useEffect } from 'react';
 
 import { Container } from '@mui/system';
 import { Box, Step, Button, Stepper, StepLabel } from '@mui/material';

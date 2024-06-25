@@ -81,7 +81,7 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
   useEffect(() => {
     if (primaryResultDebounce && primaryResultDebounce !== results.data.primary) {
       console.log('Send Successfuly');
-      invalidatePath(paths.dashboard.calculation);
+      invalidatePath(paths.dashboard.calculation.root);
     }
   }, [primaryResultDebounce, results.data.primary]);
 

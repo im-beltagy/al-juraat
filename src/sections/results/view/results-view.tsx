@@ -166,21 +166,19 @@ export default function ResultsView({
             label: t('View Trade names'),
             icon: 'mdi:eye',
             onClick: (item: IFinalResult) =>
-              router.push(
-                `${paths.dashboard.calculation}/trade-names?medicine=${item.medicine.id}&indication=${item.indication.id}&formula=${item.formula.id}`
-              ),
+              router.push(`${paths.dashboard.results.tradeNames.root}/${item.id}`),
           },
           {
             label: t('Details'),
             icon: 'mdi:eye',
             onClick: (item: IFinalResult) =>
               router.push(
-                `${paths.dashboard.calculation}/?step=final-result&medicine=${item.medicine.id}&indication=${item.indication.id}&formula=${item.formula.id}`
+                `${paths.dashboard.calculation.finalResult}&medicine=${item.medicine.id}&indication=${item.indication.id}&formula=${item.formula.id}`
               ),
           },
           {
             label: t('Delete'),
-            icon: 'mdi:eye',
+            icon: 'heroicons:trash-solid',
             onClick: (item: IFinalResult) => setDeleteItemId(item.id),
           },
         ]}
