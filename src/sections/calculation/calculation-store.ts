@@ -15,6 +15,9 @@ interface MedicineSlice {
   variable?: IVariableItem;
   setVariable: (newVal?: IVariableItem) => void;
 
+  allVariables?: IVariableItem[];
+  setAllVariables: (newVal?: IVariableItem[]) => void;
+
   initialDosage?: IDosageItem;
   setInitialDosage: (newVal?: IDosageItem) => void;
 }
@@ -25,6 +28,7 @@ const createMedicineSlice: StateCreator<MedicineSlice, [], [], MedicineSlice> = 
   setIndication: (newVal) => set((state) => ({ indication: newVal })),
   setVariable: (newVal) => set((state) => ({ variable: newVal })),
   setInitialDosage: (newVal) => set((state) => ({ initialDosage: newVal })),
+  setAllVariables: (newVal) => set((state) => ({ allVariables: newVal })),
 });
 
 export const useCalculationStore = create<MedicineSlice>()((...set) => ({

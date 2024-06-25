@@ -31,13 +31,15 @@ export interface Props {
 export default function DominalVariableStep({ variables, initialDosage }: Props) {
   const { t } = useTranslate();
 
-  const { medicine, formula, indication, variable, setVariable } = useCalculationStore((state) => ({
-    medicine: state.medicine,
-    formula: state.formula,
-    indication: state.indication,
-    variable: state.variable,
-    setVariable: state.setVariable,
-  }));
+  const { medicine, formula, indication, variable, setVariable, allVariables } =
+    useCalculationStore((state) => ({
+      medicine: state.medicine,
+      formula: state.formula,
+      indication: state.indication,
+      variable: state.variable,
+      setVariable: state.setVariable,
+      allVariables: state.allVariables,
+    }));
 
   const searchParams = useSearchParams();
   const currentVariable = variables.find(({ id }) => id === searchParams.get('variable'));
@@ -178,9 +180,9 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
               label={t('Variable')}
               placeholder={t('Variable')}
               isDisabled={!!currentVariable}
-              items={variables.map(
-                (item) => ({ ...item, name_ar: item.name, name_en: item.name }) as ITems
-              )}
+              items={(
+                (currentVariable ? [currentVariable] : allVariables || []) as IVariableItem[]
+              ).map((item) => ({ ...item, name_ar: item.name, name_en: item.name }) as ITems)}
               onCustomChange={(item) => {
                 if (item) {
                   const { name, id, type, options } = item;

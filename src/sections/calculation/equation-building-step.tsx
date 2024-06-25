@@ -12,6 +12,7 @@ import { useQueryString } from 'src/hooks/use-queryString';
 
 import { useTranslate } from 'src/locales';
 
+import { RHFAutocomplete } from 'src/components/hook-form';
 import FormProvider from 'src/components/hook-form/form-provider';
 import CustomAutocompleteView, { ITems } from 'src/components/AutoComplete/CutomAutocompleteView';
 
@@ -41,19 +42,14 @@ export default function EquationBuildingStep({
   const formulaId = searchParams.get('formula');
   const indicationId = searchParams.get('indication');
 
-  const { setMedicine, setFormula, setIndication, setVariable, variable, formula, indication } =
-    useCalculationStore(
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      ({ setMedicine, setFormula, setIndication, setVariable, variable, formula, indication }) => ({
-        setMedicine,
-        setFormula,
-        setIndication,
-        setVariable,
-        variable,
-        formula,
-        indication,
-      })
-    );
+  const { setMedicine, setFormula, setIndication, setAllVariables, allVariables } =
+    useCalculationStore((store) => ({
+      setMedicine: store.setMedicine,
+      setFormula: store.setFormula,
+      setIndication: store.setIndication,
+      setAllVariables: store.setAllVariables,
+      allVariables: store.allVariables,
+    }));
 
   const { medicineItem, formulaItem, indicationItem } = useMemo(
     () => ({
@@ -70,16 +66,28 @@ export default function EquationBuildingStep({
         medicine: yupCalculationItem,
         formula: yupCalculationItem,
         indication: yupCalculationItem,
-        variable: yupCalculationItem,
+        variables: yup.array(yupCalculationItem).nullable(),
       })
     ),
     defaultValues: {
       medicine: medicineItem,
       formula: formulaItem,
       indication: indicationItem,
-      variable: variables.find((v) => v.id === variable?.id) || null,
+      variables:
+        variables
+          .filter((v) => allVariables?.some(({ id }) => id === v.id))
+          .map((item) => ({ ...item, name_ar: item.name, name_en: item.name }) as ITems) || null,
     },
   });
+
+  const choosenVariables = methods.watch('variables');
+
+  useEffect(() => {
+    const refactoredVariables = variables.filter(
+      (v) => choosenVariables?.some((item) => item?.id === v.id)
+    );
+    setAllVariables(refactoredVariables.length > 0 ? refactoredVariables : undefined);
+  }, [choosenVariables, setAllVariables, variables]);
 
   useEffect(() => {
     if (medicineItem) {
@@ -158,20 +166,28 @@ export default function EquationBuildingStep({
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <CustomAutocompleteView
-              name="variable"
-              label={t('Variable')}
-              placeholder={t('Variable')}
-              items={variables.map(
+            <RHFAutocomplete
+              name="variables"
+              label={t('Variables')}
+              placeholder={t('Choose one or more variable')}
+              multiple
+              options={variables.map(
                 (item) => ({ ...item, name_ar: item.name, name_en: item.name }) as ITems
               )}
-              onCustomChange={(item) => {
-                if (item) {
-                  const { name, id, type, options } = item;
-                  setVariable({ name, id, type, options });
-                } else {
-                  setVariable();
+              getOptionLabel={(option) => {
+                if (typeof option !== 'string') {
+                  return option.name_en;
                 }
+                return '';
+              }}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              filterSelectedOptions
+              ChipProps={{
+                variant: 'soft',
+                color: 'info',
+                sx: {
+                  letterSpacing: 1,
+                },
               }}
             />
           </Grid>
