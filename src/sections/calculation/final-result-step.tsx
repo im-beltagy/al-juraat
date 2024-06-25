@@ -1,16 +1,12 @@
 import { useForm } from 'react-hook-form';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 
 import { Box } from '@mui/system';
 import { Grid, Radio } from '@mui/material';
 
-import { paths } from 'src/routes/paths';
-
-import { useDebounce } from 'src/hooks/use-debounce';
 import { useQueryString } from 'src/hooks/use-queryString';
 
 import { useTranslate } from 'src/locales';
-import { invalidatePath } from 'src/actions/cache-invalidation';
 
 import { useTable } from 'src/components/table';
 import SharedTable from 'src/components/shared-table';
@@ -52,11 +48,6 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
 
   const table = useTable();
 
-  const [primaryResult, setPrimaryResult] = useState('');
-  useEffect(() => {
-    setPrimaryResult(results.data.primary);
-  }, [results.data.primary]);
-
   const additionalTableProps = useMemo(
     () => ({
       onRendervalue: (item: ICalculationResultItem) => {
@@ -65,25 +56,11 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
         }
         return `${t('from')} ${item.value[0]} ${t('to')} ${item.value[1]}`;
       },
-      onRenderprimary: (item: ICalculationResultItem) => (
-        <Radio
-          name="primary"
-          checked={item.id === primaryResult}
-          onChange={() => setPrimaryResult(item.id)}
-        />
-      ),
+      onRenderprimary: (item: ICalculationResultItem) =>
+        item.id === results.data.primary ? <Radio checked /> : null,
     }),
-    [primaryResult, t]
+    [results.data.primary, t]
   );
-
-  // Debounce primary and post value
-  const primaryResultDebounce = useDebounce(primaryResult);
-  useEffect(() => {
-    if (primaryResultDebounce && primaryResultDebounce !== results.data.primary) {
-      console.log('Send Successfuly');
-      invalidatePath(paths.dashboard.calculation.root);
-    }
-  }, [primaryResultDebounce, results.data.primary]);
 
   return (
     <>
