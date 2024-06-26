@@ -114,5 +114,12 @@
   "Update photo": "تحديث الصورة",
   "Upload photo": "اضافة صورة",
   "Privacy Policy (English)": "سياسة الخصوصية (الإنجليزي)",
-  "Privacy Policy (Arabic)": "سياسة الخصوصية (العربي)"
+  "Privacy Policy (Arabic)": "سياسة الخصوصية (العربي)",
+  "Edit FAQ": "تعديل السؤال",
+  "Question": "السؤال",
+  "Answer": "الاجابة",
+  "FAQs": "إجابات الاسئلة الشائعة",
+  "Privacy policy is required": "سياسة الخصوصية مطلوبة",
+  "Question is required": "السؤال مطلوب",
+  "Answer is required": "الاجابة مطلوبة"
 }
