@@ -86,7 +86,7 @@ export default function UsersView({ users, count }: Props) {
           {
             label: t('View'),
             icon: 'mdi:eye',
-            onClick: (item: Variable) => router.push(`${paths.dashboard.users}`),
+            onClick: (item: Variable) => router.push(`${paths.dashboard.users}/${item.id}`),
           },
         ]}
       />

@@ -16,5 +16,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
 
   const users = await fetchUsers({ page, limit });
 
-  return <UsersView users={users?.data as unknown as IUser[]} count={users.count as number} />;
+  return (
+    <UsersView users={(users?.data || []) as unknown as IUser[]} count={Number(users.count)} />
+  );
 }
