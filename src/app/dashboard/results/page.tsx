@@ -1,10 +1,14 @@
-import { fetchFormulasAndIndications, fetchMedicines } from 'src/actions/calculations-actions';
 import { fetchResults } from 'src/actions/results-actions';
 import { fetchAllVariables } from 'src/actions/variables-actions';
+import { fetchMedicines, fetchFormulasAndIndications } from 'src/actions/calculations-actions';
 
 import ResultsView from 'src/sections/results/view/results-view';
 
 import { IFinalResult } from 'src/types/results';
+
+export const metadata = {
+  title: 'Results | Al-Juraat Al-Tibbiya',
+};
 
 const convertIntoItems = (data: { id: string; name: string }[]) =>
   data?.map((item) => ({

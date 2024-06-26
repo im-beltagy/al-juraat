@@ -4,6 +4,10 @@ import PackagesView from 'src/sections/packages/view/packages-view';
 
 import { Package } from 'src/types/packages';
 
+export const metadata = {
+  title: 'Packages | Al-Juraat Al-Tibbiya',
+};
+
 type SearchParams = {
   [key in 'page' | 'limit']: string | string[] | undefined;
 };

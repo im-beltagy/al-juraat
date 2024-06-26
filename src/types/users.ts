@@ -1,7 +1,7 @@
 'use server';
 
 export interface IUser {
-  id: string;
+  id?: string;
   name: string;
   phone: string;
   medical_id: string;
