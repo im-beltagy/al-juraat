@@ -1,3 +1,5 @@
+'use server';
+
 import { cookies } from 'next/headers';
 
 import { getErrorMessage } from 'src/utils/axios';
