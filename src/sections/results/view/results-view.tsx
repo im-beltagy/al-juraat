@@ -88,6 +88,8 @@ export default function ResultsView({
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Faild to delete', { variant: 'error' });
+    } finally {
+      setDeleteItemId('');
     }
   }, [enqueueSnackbar]);
 
