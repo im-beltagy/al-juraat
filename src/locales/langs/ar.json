@@ -119,5 +119,12 @@
   "User Name": "اسم المستخدم",
   "Phone Number": "رقم الهاتف",
   "Email Adress": "البريد الالكتروني",
-  "Medical Information": "المعلومات الطبية"
+  "Medical Information": "المعلومات الطبية",
+  "Edit FAQ": "تعديل السؤال",
+  "Question": "السؤال",
+  "Answer": "الاجابة",
+  "FAQs": "إجابات الاسئلة الشائعة",
+  "Privacy policy is required": "سياسة الخصوصية مطلوبة",
+  "Question is required": "السؤال مطلوب",
+  "Answer is required": "الاجابة مطلوبة"
 }

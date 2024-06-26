@@ -39,5 +39,6 @@ export const paths = {
     privacyPolicy: `${ROOTS.DASHBOARD}/privacy-policy`,
     termsAndConditions: `${ROOTS.DASHBOARD}/terms-and-conditions`,
     supportTickets: `${ROOTS.DASHBOARD}/support-tickets`,
+    faq: `${ROOTS.DASHBOARD}/faq`,
   },
 };

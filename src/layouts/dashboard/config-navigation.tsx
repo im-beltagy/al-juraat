@@ -65,6 +65,11 @@ export function useNavData() {
             icon: ICONS.packages,
           },
           {
+            title: t('FAQs'),
+            path: paths.dashboard.faq,
+            icon: ICONS.packages,
+          },
+          {
             title: t('Terms And Conditions'),
             path: paths.dashboard.termsAndConditions,
             icon: ICONS.packages,
