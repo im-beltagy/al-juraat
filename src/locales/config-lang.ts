@@ -2,14 +2,14 @@
 
 import merge from 'lodash/merge';
 // date fns
-import { enUS as enUSAdapter, arSA as arSAAdapter } from 'date-fns/locale';
+import { enUS as enUSAdapter } from 'date-fns/locale';
 
+// core (MUI)
+import { enUS as enUSCore } from '@mui/material/locale';
+// data grid (MUI)
+import { enUS as enUSDataGrid } from '@mui/x-data-grid';
 // date pickers (MUI)
 import { enUS as enUSDate } from '@mui/x-date-pickers/locales';
-// core (MUI)
-import { enUS as enUSCore, arSA as arSACore } from '@mui/material/locale';
-// data grid (MUI)
-import { enUS as enUSDataGrid, arSD as arSDDataGrid } from '@mui/x-data-grid';
 
 // PLEASE REMOVE `LOCAL STORAGE` WHEN YOU CHANGE SETTINGS.
 // ----------------------------------------------------------------------
@@ -23,17 +23,6 @@ export const allLangs = [
     icon: 'flagpack:gb-nir',
     numberFormat: {
       code: 'en-US',
-      currency: 'SAR',
-    },
-  },
-  {
-    label: 'Arabic',
-    value: 'ar',
-    systemValue: merge(arSDDataGrid, arSACore),
-    adapterLocale: arSAAdapter,
-    icon: 'flagpack:sa',
-    numberFormat: {
-      code: 'ar',
       currency: 'SAR',
     },
   },
