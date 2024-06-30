@@ -114,7 +114,7 @@ export function SingleSupportTicketsView({ ticket }: Props) {
 
       <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
         <Stack direction="row" spacing={2} alignItems="flex-end">
-          <RHFTextarea rows={3} name="response" label="Response" placeholder="Response" />
+          <RHFTextarea rows={3} name="response" label="Your Answer" placeholder="Your Answer" />
           <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
             Submit
           </LoadingButton>
