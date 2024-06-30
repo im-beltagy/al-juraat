@@ -70,13 +70,14 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
 
   // Handle Save
   const [newDosage, setNewDosage] = useState('');
+  const [description, setDescription] = useState('');
   const choosenIds = useMemo(
     () => Object.values(choosenResults).filter((id) => id),
     [choosenResults]
   );
   const isDisabled = useMemo(
-    () => choosenIds.length < 2 || !newDosage,
-    [choosenIds.length, newDosage]
+    () => choosenIds.length < 2 || !newDosage || !description,
+    [choosenIds.length, description, newDosage]
   );
   const [isLoading, setIsLoading] = useState(false);
 
@@ -86,7 +87,7 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
     setIsLoading(true);
     (async () => {
       try {
-        console.log(newDosage, choosenIds);
+        console.log(newDosage, description, choosenIds);
         enqueueSnackbar(t('Successfully saved'), { variant: 'success' });
       } catch (error) {
         enqueueSnackbar(t('Failed to save'), { variant: 'error' });
@@ -94,7 +95,7 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
         setIsLoading(false);
       }
     })();
-  }, [choosenIds, enqueueSnackbar, newDosage, t]);
+  }, [choosenIds, description, enqueueSnackbar, newDosage, t]);
 
   return (
     <>
@@ -133,12 +134,29 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
         </Grid>
       </FormProvider>
 
-      <Stack direction="row" spacing={1} my={3} alignItems="center" justifyContent="space-between">
-        <TextField
-          label={t('New Dosage')}
-          placeholder={t('New Dosage')}
-          onChange={(e) => setNewDosage(e.target.value)}
-        />
+      <Stack
+        direction="row"
+        spacing={1}
+        my={3}
+        alignItems="flex-start"
+        justifyContent="space-between"
+      >
+        <Stack direction="row" spacing={1} alignItems="flex-start">
+          <TextField
+            label={t('New Dosage')}
+            placeholder={t('New Dosage')}
+            type="number"
+            onChange={(e) => setNewDosage(e.target.value)}
+          />
+          <TextField
+            multiline
+            rows={3}
+            fullWidth
+            label={t('Description')}
+            placeholder={t('Description')}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </Stack>
         <LoadingButton
           variant="contained"
           color="primary"
