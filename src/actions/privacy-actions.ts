@@ -9,8 +9,7 @@ export async function fetchPrivacy() {
   try {
     const res = await {
       data: {
-        privacy_ar: 'صفحه سياسه الخصوصيه الخاصه بتطبيق الجرعات الطبيرة',
-        privacy_en: 'Privacy Policy Page of the Al-Juraat App',
+        privacy: 'Privacy Policy Page of the Al-Juraat App',
       },
     };
 
