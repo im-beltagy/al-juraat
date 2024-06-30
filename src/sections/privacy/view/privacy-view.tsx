@@ -17,24 +17,21 @@ import FormProvider from 'src/components/hook-form/form-provider';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
 
 interface Props {
-  privacy_en?: string;
-  privacy_ar?: string;
+  privacy?: string;
 }
 
-export default function PrivacyView({ privacy_en, privacy_ar }: Props) {
+export default function PrivacyView({ privacy }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
 
   const methods = useForm({
     resolver: yupResolver(
       yup.object().shape({
-        privacy_en: yup.string().required('Privacy policy is required'),
-        privacy_ar: yup.string().required('Privacy policy is required'),
+        privacy: yup.string().required('Privacy policy is required'),
       })
     ),
     defaultValues: {
-      privacy_en: privacy_en || '',
-      privacy_ar: privacy_ar || '',
+      privacy: privacy || '',
     },
   });
 
@@ -60,17 +57,10 @@ export default function PrivacyView({ privacy_en, privacy_ar }: Props) {
           <Stack spacing={2} p={2}>
             <RHFTextarea
               rows={5}
-              name="privacy_en"
-              label={t('Privacy Policy (English)')}
-              placeholder={t('Privacy Policy (English)')}
+              name="privacy"
+              label={t('Privacy Policy')}
+              placeholder={t('Privacy Policy')}
               dir="ltr"
-            />
-            <RHFTextarea
-              rows={5}
-              name="privacy_ar"
-              label={t('Privacy Policy (Arabic)')}
-              placeholder={t('Privacy Policy (Arabic)')}
-              dir="rtl"
             />
 
             <LoadingButton
