@@ -1,8 +1,4 @@
-import { useMemo } from 'react';
-
 import { paths } from 'src/routes/paths';
-
-import { useTranslate } from 'src/locales';
 
 import SvgColor from 'src/components/svg-color';
 
@@ -26,64 +22,54 @@ const ICONS = {
 
 // ----------------------------------------------------------------------
 
-export function useNavData() {
-  const { t } = useTranslate();
-
-  const data = useMemo(
-    () => [
+const data = [
+  {
+    subheader: 'Management',
+    items: [
       {
-        subheader: t('Management'),
-        items: [
-          {
-            title: t('Variables'),
-            path: paths.dashboard.root,
-            icon: ICONS.dashboard,
-          },
-          {
-            title: t('Calculation'),
-            path: paths.dashboard.calculation.root,
-            icon: ICONS.calculation,
-          },
-          {
-            title: t('Results'),
-            path: paths.dashboard.results.root,
-            icon: ICONS.results,
-          },
-          {
-            title: t('Users'),
-            path: paths.dashboard.users,
-            icon: ICONS.users,
-          },
-          {
-            title: t('Packages'),
-            path: paths.dashboard.packages,
-            icon: ICONS.packages,
-          },
-          {
-            title: t('Privacy Policy'),
-            path: paths.dashboard.privacyPolicy,
-            icon: ICONS.packages,
-          },
-          {
-            title: t('FAQs'),
-            path: paths.dashboard.faq,
-            icon: ICONS.packages,
-          },
-          {
-            title: t('Terms And Conditions'),
-            path: paths.dashboard.termsAndConditions,
-            icon: ICONS.packages,
-          },
-          {
-            title: t('Support-Tickets'),
-            path: paths.dashboard.supportTickets,
-            icon: ICONS.packages,
-          },
-        ],
+        title: 'Variables',
+        path: paths.dashboard.root,
+        icon: ICONS.dashboard,
+      },
+      {
+        title: 'Calculation',
+        path: paths.dashboard.calculation.root,
+        icon: ICONS.calculation,
+      },
+      {
+        title: 'Results',
+        path: paths.dashboard.results.root,
+        icon: ICONS.results,
+      },
+      {
+        title: 'Users',
+        path: paths.dashboard.users,
+        icon: ICONS.users,
+      },
+      {
+        title: 'Packages',
+        path: paths.dashboard.packages,
+        icon: ICONS.packages,
+      },
+      {
+        title: 'Privacy Policy',
+        path: paths.dashboard.privacyPolicy,
+        icon: ICONS.packages,
+      },
+      {
+        title: 'FAQs',
+        path: paths.dashboard.faq,
+        icon: ICONS.packages,
+      },
+      {
+        title: 'Support Tickets',
+        path: paths.dashboard.supportTickets,
+        icon: ICONS.packages,
       },
     ],
-    [t]
-  );
+  },
+];
 
+export function useNavData() {
   return data;
 }
