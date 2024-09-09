@@ -1,17 +1,23 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback } from 'react';
+import { useSnackbar } from 'notistack';
+import { useState, useCallback } from 'react';
 
 import { Container } from '@mui/system';
-import { Card, Typography } from '@mui/material';
+import { Card, Button, Typography } from '@mui/material';
+
+import { paths } from 'src/routes/paths';
 
 import { fDate } from 'src/utils/format-time';
+import { getErrorMessage } from 'src/utils/axios';
 
 import { useTranslate } from 'src/locales';
+import { invalidatePath } from 'src/actions/cache-invalidation';
 
 import Label from 'src/components/label';
 import { useSettingsContext } from 'src/components/settings';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 import TwoColsTable from 'src/components/shared-table/twoColsTable';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
 
@@ -32,6 +38,7 @@ interface Props {
 export default function SingleUserView({ user }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
+  const { enqueueSnackbar } = useSnackbar();
 
   // eslint-disable-next-line react/no-unused-prop-types
   const renderItemValue = useCallback(({ value, type }: { value: any; type?: string }) => {
@@ -50,6 +57,21 @@ export default function SingleUserView({ user }: Props) {
         return value;
     }
   }, []);
+
+  const [isAcceptDialogOpen, setIsAcceptDialogOpen] = useState(false);
+
+  const handleConfirmAccept = useCallback(() => {
+    (async () => {
+      try {
+        await 'process';
+        setIsAcceptDialogOpen(false);
+        enqueueSnackbar('Accepted successfully');
+        invalidatePath(`${paths.dashboard.users}/${user.id}`);
+      } catch (error) {
+        enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
+      }
+    })();
+  }, [enqueueSnackbar, user.id]);
 
   return (
     <Container
@@ -99,6 +121,27 @@ export default function SingleUserView({ user }: Props) {
           ]}
         />
       </Card>
+
+      {!user.accepted && (
+        <Button
+          variant="contained"
+          color="warning"
+          sx={{ mt: 3, ml: 'auto', color: 'white' }}
+          onClick={() => setIsAcceptDialogOpen(true)}
+        >
+          Accept User
+        </Button>
+      )}
+
+      <ConfirmDialog
+        open={isAcceptDialogOpen}
+        onClose={() => setIsAcceptDialogOpen(false)}
+        title="Accept User"
+        content="Are you sure you want to accept this user?"
+        buttonTitle="Accept User"
+        buttonColor="warning"
+        handleConfirmDelete={() => handleConfirmAccept()}
+      />
     </Container>
   );
 }

@@ -49,7 +49,12 @@ export default function ConfirmDialog({
         <Button variant="outlined" color="inherit" onClick={onClose}>
           {t('Cancel')}
         </Button>
-        <Button variant="contained" color={buttonColor || 'error'} onClick={handleConfirmDelete}>
+        <Button
+          variant="contained"
+          color={buttonColor || 'error'}
+          onClick={handleConfirmDelete}
+          sx={{ color: buttonColor === 'warning' ? 'white' : undefined }}
+        >
           {typeof buttonTitle === 'string' ? buttonTitle : t('Delete')}
         </Button>
       </DialogActions>

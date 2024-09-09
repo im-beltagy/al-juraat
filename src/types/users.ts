@@ -9,4 +9,5 @@ export interface IUser {
   created_at: string;
   email: string;
   package_name: string;
+  accepted: boolean;
 }

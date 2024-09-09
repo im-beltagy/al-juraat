@@ -29,9 +29,21 @@ const TABLE_HEAD = [
   { id: 'created_at', label: 'Created At' },
   { id: 'email', label: 'Email' },
   { id: 'package_name', label: 'Package Name' },
+  { id: 'accepted', label: 'Accepted' },
 ];
 
-const filters: TableFilter[] = [{ name: 'email', label: 'Email', type: 'text' }];
+const filters: TableFilter[] = [
+  { name: 'email', label: 'Email', type: 'text' },
+  {
+    name: 'accepted',
+    label: 'Accepted',
+    type: 'list',
+    options: [
+      { label: 'Accepted', value: 'true' },
+      { label: 'Not Accepted', value: 'false' },
+    ],
+  },
+];
 
 interface Props {
   users: IUser[];
@@ -52,6 +64,11 @@ export default function UsersView({ users, count }: Props) {
     onRendermedical_id_photo: (item: IUser) => <Avatar src={item.medical_id_photo} />,
     onRendercreated_at: (item: IUser) => fDate(item.created_at, 'dd-MM-yyyy'),
     onRenderpackage_name: (item: IUser) => <Label color="info">{item.package_name}</Label>,
+    onRenderaccepted: (item: IUser) => (
+      <Label color={item.accepted ? 'success' : 'error'}>
+        {item.accepted ? 'Accepted' : 'Not Accepted'}
+      </Label>
+    ),
   };
 
   const router = useRouter();
