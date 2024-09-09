@@ -18,6 +18,7 @@ export interface IVariableItem {
   name: string;
   type: string;
   options?: { id: string; name: string }[];
+  max_value?: number;
 }
 
 export interface IDosageItem {

@@ -27,6 +27,7 @@ export async function fetchVariables({ page = 1, limit = 5 }: { page?: number; l
           id: 'age',
           name: 'Age',
           type: 'range',
+          max_value: '50',
         },
       ],
       meta: {
@@ -61,6 +62,7 @@ export async function fetchAllVariables() {
           name: 'Age',
           id: 'age',
           type: 'range',
+          max_value: 120,
         },
       ],
       meta: {

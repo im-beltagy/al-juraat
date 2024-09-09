@@ -13,7 +13,6 @@ import { paths } from 'src/routes/paths';
 
 import { useQueryString } from 'src/hooks/use-queryString';
 
-import { useTranslate } from 'src/locales';
 import { invalidatePath } from 'src/actions/cache-invalidation';
 
 import { useTable } from 'src/components/table';
@@ -31,7 +30,7 @@ import { Variable } from 'src/types/variables';
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', static: true },
   { id: 'type', label: 'Type' },
-  { id: 'value', label: 'Value' },
+  { id: 'value', label: '(Max) Value' },
 ];
 
 const filters: TableFilter[] = [
@@ -59,7 +58,6 @@ interface Props {
 }
 
 export default function VariablesView({ variables, count }: Props) {
-  const { t } = useTranslate();
   const settings = useSettingsContext();
 
   const { createQueryString } = useQueryString();
@@ -69,34 +67,33 @@ export default function VariablesView({ variables, count }: Props) {
   const methods = useForm({
     resolver: yupResolver(
       yup.object().shape({
-        name: yup.string().required(t('Name is required')),
+        name: yup.string().required('Name is required'),
         type: yup
           .object()
           .shape({
-            id: yup.string().required(t('Type is required')),
-            name: yup.string().required(t('Type is required')),
-            name_ar: yup.string().required(t('Type is required')),
-            name_en: yup.string().required(t('Type is required')),
+            id: yup.string().required('Type is required'),
+            name: yup.string().required('Type is required'),
+            name_ar: yup.string().required('Type is required'),
+            name_en: yup.string().required('Type is required'),
           })
-          .required(t('Type is required')),
-        value:
-          searchParams.get('type') === 'range'
-            ? yup.string()
-            : yup.string().required(t('Value is required')),
+          .required('Type is required'),
+
+        ...(variableType === 'range'
+          ? { max_value: yup.number().required('Max value is required') }
+          : { value: yup.string().required('Value is required') }),
       })
     ),
   });
 
-  const { handleSubmit } = methods;
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
-  const [isLoading, setIsloading] = useState(false);
-
-  const onSubmit = useCallback((data: any) => {
-    setIsloading(true);
+  const onSubmit = handleSubmit(async (data) => {
     console.log(data);
     invalidatePath(paths.dashboard.root);
-    setIsloading(false);
-  }, []);
+  });
 
   // Table
   const table = useTable();
@@ -104,8 +101,8 @@ export default function VariablesView({ variables, count }: Props) {
   const [tableHead, setTableHead] = useState<TableHeader[]>(TABLE_HEAD);
 
   const additionalTableProps = {
-    onRendervalue: (item: Variable) => item.value ?? '-----',
-    onRendertype: (item: Variable) => t(item.type === 'list' ? 'List' : 'Range'),
+    onRendervalue: (item: Variable) => ('max_value' in item ? item.max_value : item.value),
+    onRendertype: (item: Variable) => (item.type === 'list' ? 'List' : 'Range'),
   };
 
   const router = useRouter();
@@ -125,26 +122,26 @@ export default function VariablesView({ variables, count }: Props) {
         flexDirection: 'column',
       }}
     >
-      <CustomBreadcrumbs heading={t('Variables')} links={[{}]} sx={{ mb: 3 }} />
+      <CustomBreadcrumbs heading="Variables" links={[{}]} sx={{ mb: 3 }} />
 
-      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      <FormProvider methods={methods} onSubmit={onSubmit}>
         <Grid container spacing={1} mb={1}>
           <Grid item xs={6} md={3}>
-            <Typography variant="h5">{t('New Variable:')}</Typography>
+            <Typography variant="h5">New Variable:</Typography>
           </Grid>
           <Grid item xs={6} md={3}>
-            <RHFTextField name="name" label={t('Name')} placeholder={t('Name')} />
+            <RHFTextField name="name" label="Name" placeholder="Name" />
           </Grid>
           <Grid item xs={6} md={3}>
             <CustomAutocompleteView
               name="type"
-              label={t('Type')}
-              placeholder={t('Type')}
+              label="Type"
+              placeholder="Type"
               items={VARIABLE_TYPES.map((item) => ({
                 id: item.value,
-                name: t(item.label),
-                name_ar: t(item.label),
-                name_en: t(item.label),
+                name: item.label,
+                name_ar: item.label,
+                name_en: item.label,
               }))}
               onCustomChange={(item: ITems) => {
                 createQueryString([{ name: 'type', value: item?.id }], true);
@@ -152,19 +149,23 @@ export default function VariablesView({ variables, count }: Props) {
             />
           </Grid>
           <Grid item xs={6} md={3}>
-            <RHFTextField
-              name="value"
-              label={t('Value')}
-              placeholder={t('Value')}
-              disabled={variableType === 'range'}
-            />
+            {variableType === 'range' ? (
+              <RHFTextField
+                name="max_value"
+                label="Max Value"
+                placeholder="Max Value"
+                type="number"
+              />
+            ) : (
+              <RHFTextField name="value" label="Value" placeholder="Value" />
+            )}
 
             <LoadingButton
               type="submit"
               variant="contained"
               color="primary"
               size="large"
-              loading={isLoading}
+              loading={isSubmitting}
               fullWidth
               sx={{
                 display: 'block',
@@ -174,7 +175,7 @@ export default function VariablesView({ variables, count }: Props) {
                 mb: 5,
               }}
             >
-              {t('Add')}
+              Add
             </LoadingButton>
           </Grid>
         </Grid>
@@ -185,7 +186,7 @@ export default function VariablesView({ variables, count }: Props) {
           <TableHeadActions
             defaultTableHead={TABLE_HEAD}
             setTableHead={(newTableHead: TableHeader[]) => setTableHead(newTableHead)}
-            filters={filters.map((item) => ({ ...item, label: t(item.label) }) as TableFilter)}
+            filters={filters.map((item) => ({ ...item, label: item.label }) as TableFilter)}
             handleExport={() => {}}
           />
         }
@@ -197,12 +198,12 @@ export default function VariablesView({ variables, count }: Props) {
         enableActions
         actions={[
           {
-            label: t('Edit'),
+            label: 'Edit',
             icon: 'solar:pen-bold',
             onClick: (item: Variable) => router.push(paths.dashboard.root),
           },
           {
-            label: t('Delete'),
+            label: 'Delete',
             icon: 'heroicons:trash-solid',
             onClick: (item: Variable) => setDeleteItemId(item.id),
           },
@@ -213,8 +214,8 @@ export default function VariablesView({ variables, count }: Props) {
         <ConfirmDialog
           open={!!deleteItemId}
           onClose={() => setDeleteItemId('')}
-          title={t('Delete')}
-          content={t('delete_confirm')}
+          title="Delete"
+          content="delete_confirm"
           handleConfirmDelete={handleConfirmDelete}
         />
       )}

@@ -3,6 +3,13 @@
 export type Variable = {
   id: string;
   name: string;
-  type: 'list' | 'range';
-  value?: string;
-};
+} & (
+  | {
+      type: 'list';
+      value: string;
+    }
+  | {
+      type: 'range';
+      max_value: string;
+    }
+);

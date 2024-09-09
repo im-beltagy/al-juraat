@@ -46,7 +46,6 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
 
   useEffect(() => {
     if (currentVariable) setVariable(currentVariable);
-    console.log(currentVariable);
   }, [currentVariable, setVariable]);
 
   const methods = useForm({
@@ -185,8 +184,8 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
               ).map((item) => ({ ...item, name_ar: item.name, name_en: item.name }) as ITems)}
               onCustomChange={(item) => {
                 if (item) {
-                  const { name, id, type, options } = item;
-                  setVariable({ name, id, type, options });
+                  const { name, id, type, options, max_value } = item;
+                  setVariable({ name, id, type, options, max_value });
                 } else {
                   setVariable();
                 }
@@ -197,22 +196,30 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
           </Grid>
 
           <Grid item xs={12} sm={6} sx={{ alignSelf: 'center' }}>
-            {variable?.type === 'range' ? (
-              <>
-                <FormLabel>{t('Value')}</FormLabel>
-                <Slider
-                  step={2}
-                  value={Array.isArray(variableValue) ? variableValue : [0, 0]}
-                  onChange={handleChangeVariableValue}
-                  valueLabelDisplay="auto"
-                />
-              </>
-            ) : null}
+            {variable?.type === 'range'
+              ? (() => {
+                  const value = Array.isArray(variableValue)
+                    ? variableValue
+                    : [0, variable.max_value || 100];
+                  return (
+                    <>
+                      <FormLabel>{`Value (${value.join(', ')})`}</FormLabel>
+                      <Slider
+                        step={2}
+                        value={value}
+                        max={variable.max_value || 100}
+                        onChange={handleChangeVariableValue}
+                        valueLabelDisplay="auto"
+                      />
+                    </>
+                  );
+                })()
+              : null}
             {variable?.type === 'list' ? (
               <CustomAutocompleteView
                 name="variable_value"
-                label={t('Value')}
-                placeholder={t('Value')}
+                label="Value"
+                placeholder="Value"
                 items={
                   (variable?.options?.map((item) => ({
                     ...item,
