@@ -1,13 +1,14 @@
 'use server';
 
 export interface IUser {
-  id?: string;
-  name: string;
-  phone: string;
-  medical_id: string;
-  medical_id_photo: string;
-  created_at: string;
-  email: string;
-  package_name: string;
-  accepted: boolean;
+  id: String;
+  name: String;
+  phoneNumber:String;
+  email: String;
+  medicalId: String;
+  medicalIdImageUrl: String;
+  packageName: String;
+  packageId: String;
+  creationTime: String;
+  isAccepted: Boolean
 }

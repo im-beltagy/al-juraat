@@ -11,6 +11,7 @@ import { AuthContext } from './auth-context';
 import { setSession, isValidToken } from './utils';
 import { USER_KEY, ACCESS_TOKEN } from '../../constants';
 import { AuthUserType, ActionMapType, AuthStateType } from '../../types';
+import { deleteCookie, getCookie } from 'cookies-next';
 
 // ----------------------------------------------------------------------
 /**
@@ -88,13 +89,13 @@ export function AuthProvider({ children }: Readonly<Props>) {
 
   const initialize = useCallback(async () => {
     try {
-      const lang: string = Cookie.get('Language') || 'en';
-      Cookie.set('Language', lang);
-      const accessToken = sessionStorage.getItem(ACCESS_TOKEN);
-      const user: IUser | {} = sessionStorage.getItem(USER_KEY) ?? {};
+     const lang: string = Cookie.get('Language') || 'en';
+       Cookie.set('Language', lang);
+      const accessToken = getCookie(ACCESS_TOKEN);
+      const user: IUser | {} = JSON.parse(getCookie(USER_KEY) as string) ?? {};
 
       if (accessToken && isValidToken(accessToken)) {
-        setSession(accessToken);
+    //    setSession(accessToken);
 
         dispatch({
           type: Types.INITIAL,
@@ -131,31 +132,28 @@ export function AuthProvider({ children }: Readonly<Props>) {
   // LOGIN
   const login = useCallback(async (username: string, password: string) => {
     const credentials = {
-      username,
-      password,
+      "phoneNumber": "+20123456",
+      "role": "admin",
+      "password": "Admin@12345"
     };
+  /*   const res = {
+      id: "748b4681-4ca2-4f3d-99ad-e6f75b546e2a",
+      name: "admin",
+      phoneNumber: "+20123456",
+      email: "admin@Medical.com",
+      accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NDhiNDY4MS00Y2EyLTRmM2QtOTlhZC1lNmY3NWI1NDZlMmEiLCJqdGkiOiI3MThkZGE3Ni1hZmNkLTQyNTUtYmU2Ni1jYTVmODIzYjM4ZWMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9tb2JpbGVwaG9uZSI6IisyMDEyMzQ1NiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwiZXhwIjoxNzI2NDg3NzcxLCJpc3MiOiJNZWRpY2FsRG9zZXMiLCJhdWQiOiJNZWRpY2FsRG9zZXMifQ.GGiM2YIiIc_rHic_rGgmCjtPfbUc9Sym-PpCMUmGP6Y",
+      refreshToken: "7KvyyKGhICkd+U4cqdU6QdsCI2Fdkc+ZOh0lFnfq13k=",
+      accessTokenTtlInMinutes: 30,
+      refreshTokenExpiraAt: "2024-09-25T08:55:21.5516416"
+    }; */
 
-    const res: { data: any } = {
-      data: {
-        id: '1fade818-7c9a-4736-9deb-d424af31ebe1',
-        account: '15922046',
-        name: null,
-        avatar: 'https://symlink.live/api//v1/null',
-        username: 'nahakygozo@mailinator.com',
-        email: 'nahakygozo@mailinator.com',
-        email_verified_at: null,
-        phone: null,
-        phone_verified_at: null,
-        role: 'CLIENT',
-        access_token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5haGFreWdvem9AbWFpbGluYXRvci5jb20iLCJzdWIiOiIxZmFkZTgxOC03YzlhLTQ3MzYtOWRlYi1kNDI0YWYzMWViZTEiLCJpYXQiOjE3MTUxNDYyOTYsImV4cCI6MTczMDY5ODI5Nn0.5mK1zKeYt7Askn7CCpnuvDZlouWm3zbcxMpLJH_pUGE',
-      },
-    };
 
-    const { data } = res;
-    const accessToken = res.data?.access_token;
-    setSession(accessToken);
-    axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+
+   const res = await axios.post(endpoints.auth.login,credentials );
+    const accessToken = res.data?.accessToken;
+    const {data} = res;
+    //setSession(accessToken);
+   axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     sessionStorage.setItem(USER_KEY, JSON.stringify(data));
     Cookie.set(ACCESS_TOKEN, accessToken);
     Cookie.set(USER_KEY, JSON.stringify(data));
@@ -202,6 +200,8 @@ export function AuthProvider({ children }: Readonly<Props>) {
   // LOGOUT
   const logout = useCallback(async () => {
     setSession(null);
+    deleteCookie('accessToken');
+    deleteCookie('user')
     dispatch({
       type: Types.LOGOUT,
     });

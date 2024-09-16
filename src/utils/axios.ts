@@ -1,10 +1,29 @@
 import axios, { AxiosRequestConfig } from 'axios';
-
+import {getCookie} from "cookies-next";
 import { HOST_API } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
-const axiosInstance = axios.create({ baseURL: HOST_API });
+const axiosInstance = axios.create({ baseURL: "https://api.medicaldosages.com/" });
+
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = getCookie("access_token");
+    const lang = getCookie("lang") || "ar";
+
+    // Attach headers
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    config.headers["Accept-Language"] = lang;
+    config.headers["Content-Type"] = "application/json";
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 axiosInstance.interceptors.response.use(
   (res) => res,
@@ -48,7 +67,7 @@ export const endpoints = {
   calendar: '/api/calendar',
   auth: {
     me: '/api/auth/me',
-    login: '/api/auth/login',
+    login: 'api/v1/auth/login',
     register: '/api/auth/register',
   },
   mail: {
@@ -62,9 +81,9 @@ export const endpoints = {
     latest: '/api/post/latest',
     search: '/api/post/search',
   },
-  product: {
-    list: '/api/product/list',
-    details: '/api/product/details',
-    search: '/api/product/search',
+  users: {
+    list: (page:number,limit:number)=>`api/v1/Admin/users?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}`,
+    details: (id:string)=>`/api/v1/Admin/users/${id}`,
+
   },
 };
