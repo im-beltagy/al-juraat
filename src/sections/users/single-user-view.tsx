@@ -25,10 +25,10 @@ import { IUser } from 'src/types/users';
 
 const PERSONAL_INFO = [
   { id: 'name', label: 'User Name' },
-  { id: 'phone', label: 'Phone Number' },
-  { id: 'created_at', label: 'Created At', type: 'date' },
+  { id: 'phoneNumber', label: 'Phone Number' },
+  { id: 'creationTime', label: 'Created At', type: 'date' },
   { id: 'email', label: 'Email Adress' },
-  { id: 'package_name', label: 'Package Name', type: 'label' },
+  { id: 'packageName', label: 'Package Name', type: 'label' },
 ];
 
 interface Props {
@@ -39,7 +39,6 @@ export default function SingleUserView({ user }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
   const { enqueueSnackbar } = useSnackbar();
-
   // eslint-disable-next-line react/no-unused-prop-types
   const renderItemValue = useCallback(({ value, type }: { value: any; type?: string }) => {
     if (!type) return value;
@@ -60,7 +59,7 @@ export default function SingleUserView({ user }: Props) {
 
   const [isAcceptDialogOpen, setIsAcceptDialogOpen] = useState(false);
 
-  const handleConfirmAccept = useCallback(() => {
+ /*  const handleConfirmAccept = useCallback(() => {
     (async () => {
       try {
         await 'process';
@@ -72,7 +71,7 @@ export default function SingleUserView({ user }: Props) {
       }
     })();
   }, [enqueueSnackbar, user.id]);
-
+ */
   return (
     <Container
       maxWidth={settings.themeStretch ? false : 'xl'}
@@ -82,7 +81,7 @@ export default function SingleUserView({ user }: Props) {
         flexDirection: 'column',
       }}
     >
-      <CustomBreadcrumbs heading={user.name} links={[{}]} sx={{ mb: 3 }} />
+      <CustomBreadcrumbs heading={user.name as string} links={[{}]} sx={{ mb: 3 }} />
 
       <Card sx={{ p: 3, mb: 3 }}>
         <Typography variant="h5" paddingInlineStart={2} gutterBottom>
@@ -92,7 +91,7 @@ export default function SingleUserView({ user }: Props) {
         <TwoColsTable
           rows={PERSONAL_INFO.map((item) => ({
             label: t(item.label),
-            value: renderItemValue({ value: user[item.id as keyof IUser], type: item.type }),
+            value: renderItemValue({ value: user[item.id as keyof IUser] || '. . .', type: item.type }),
           }))}
         />
       </Card>
@@ -104,12 +103,12 @@ export default function SingleUserView({ user }: Props) {
 
         <TwoColsTable
           rows={[
-            { label: t('Medical ID'), value: user.medical_id },
+            { label: t('Medical ID'), value: user.medicalId || '. . .' },
             {
               label: t('Medical ID Photo'),
               value: (
                 <Image
-                  src={user.medical_id_photo}
+                  src={`${user.medicalIdImageUrl || '/assets/users/medical.jpeg'}`}
                   alt="Medical ID Photo"
                   width={200}
                   height={200}
@@ -122,7 +121,7 @@ export default function SingleUserView({ user }: Props) {
         />
       </Card>
 
-      {!user.accepted && (
+   {/*    {!user.isAccepted && (
         <Button
           variant="contained"
           color="warning"
@@ -141,7 +140,17 @@ export default function SingleUserView({ user }: Props) {
         buttonTitle="Accept User"
         buttonColor="warning"
         handleConfirmDelete={() => handleConfirmAccept()}
-      />
+      /> */}
     </Container>
   );
 }
+
+/* { id: "2b22c9d5-d1b9-4b46-8051-fb85cecda3e5",
+name: "Yousef Ali",
+ phoneNumber: "1234567891",
+email: "ya16540@fayoum.edu.eg",
+ medicalId: null,
+  medicalIdImageUrl: null,
+ packageName: null, packageId: null,
+  creationTime: "2024-09-15T05:53:24.9684381",
+isAccepted: false } */

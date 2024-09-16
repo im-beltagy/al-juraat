@@ -20,11 +20,12 @@ import TableHeadActions, { TableFilter } from 'src/components/shared-table/table
 
 import { IUser } from 'src/types/users';
 import { Variable } from 'src/types/variables';
+import { getCookie } from 'cookies-next';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', static: true },
   { id: 'phone', label: 'Phone' },
-  { id: 'medical_id', label: 'Medical ID', static: true },
+  { id: 'medicalId', label: 'Medical ID', static: true },
   { id: 'medical_id_photo', label: 'Medical ID Photo' },
   { id: 'created_at', label: 'Created At' },
   { id: 'email', label: 'Email' },
@@ -53,20 +54,18 @@ interface Props {
 export default function UsersView({ users, count }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
-
   // Table
   const table = useTable();
-
   const [tableHead, setTableHead] = useState<TableHeader[]>(TABLE_HEAD);
 
   const additionalTableProps = {
-    onRenderphone: (item: IUser) => <span dir="ltr">{item.phone}</span>,
-    onRendermedical_id_photo: (item: IUser) => <Avatar src={item.medical_id_photo} />,
-    onRendercreated_at: (item: IUser) => fDate(item.created_at, 'dd-MM-yyyy'),
-    onRenderpackage_name: (item: IUser) => <Label color="info">{item.package_name}</Label>,
+    onRenderphone: (item: IUser) => <span dir="ltr">{item.phoneNumber}</span>,
+    onRendermedical_id_photo: (item: IUser) => <Avatar src={`${item.medicalIdImageUrl}`} />,
+    onRendercreated_at: (item: IUser) => fDate((item.creationTime as string), 'dd-MM-yyyy'),
+    onRenderpackage_name: (item: IUser) => <Label color="info">{item.packageName || ". . ."}</Label>,
     onRenderaccepted: (item: IUser) => (
-      <Label color={item.accepted ? 'success' : 'error'}>
-        {item.accepted ? 'Accepted' : 'Not Accepted'}
+      <Label color={item.isAccepted ? 'success' : 'error'}>
+        {item.isAccepted ? 'Accepted' : 'Not Accepted'}
       </Label>
     ),
   };
@@ -88,9 +87,9 @@ export default function UsersView({ users, count }: Props) {
         additionalComponent={
           <TableHeadActions
             defaultTableHead={TABLE_HEAD}
-            setTableHead={(newTableHead: TableHeader[]) => setTableHead(newTableHead)}
+          /*   setTableHead={(newTableHead: TableHeader[]) => setTableHead(newTableHead)}
             filters={filters.map((item) => ({ ...item, label: t(item.label) }) as TableFilter)}
-            handleExport={() => {}}
+            handleExport={() => {}} */
           />
         }
         dataFiltered={users}

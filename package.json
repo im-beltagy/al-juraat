@@ -47,6 +47,7 @@
     "axios": "^1.6.2",
     "caniuse-lite": "^1.0.30001634",
     "date-fns": "^2.30.0",
+    "cookies-next": "^4.2.1",
     "firebase": "^10.7.1",
     "framer-motion": "^10.16.16",
     "highlight.js": "^11.9.0",
