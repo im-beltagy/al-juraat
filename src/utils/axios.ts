@@ -86,4 +86,9 @@ export const endpoints = {
     details: (id:string)=>`/api/v1/Admin/users/${id}`,
 
   },
+  variables: {
+    list: (page:number,limit:number)=>`api/v1/Admin/variables?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}`,
+    delete: (id:string)=>`/api/v1/Admin/variables/${id}`,
+
+  },
 };

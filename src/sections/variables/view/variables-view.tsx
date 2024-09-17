@@ -5,13 +5,13 @@ import { Box, Container } from '@mui/material';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
 
-import { Variable } from 'src/types/variables';
+import { IVariable } from 'src/types/variables';
 
 import { VariablesList } from '../variables-list';
 import { VariablesNewForm } from '../variables-new-form';
 
 interface Props {
-  variables: Variable[];
+  variables: IVariable[];
   count: number;
 }
 

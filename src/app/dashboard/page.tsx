@@ -2,7 +2,7 @@ import { fetchVariables } from 'src/actions/variables-actions';
 
 import VariablesView from 'src/sections/variables/view/variables-view';
 
-import { Variable } from 'src/types/variables';
+import { IVariable } from 'src/types/variables';
 
 // ----------------------------------------------------------------------
 
@@ -19,12 +19,12 @@ interface Props {
 }
 
 export default async function OverviewAppPage({ searchParams }: Props) {
-  const page = typeof searchParams.page === 'string' ? Number(searchParams.page) : undefined;
-  const limit = typeof searchParams.limit === 'string' ? Number(searchParams.limit) : undefined;
+  const page = typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
+  const limit = typeof searchParams.limit === 'string' ? Number(searchParams.limit) : 5;
 
-  const variables = await fetchVariables({ page, limit });
+  const variables = await fetchVariables( page, limit );
 
   return (
-    <VariablesView variables={variables?.data as Variable[]} count={Number(variables?.count)} />
+    <VariablesView variables={variables?.items as IVariable[]} count={Number(variables?.totalCount)} />
   );
 }
