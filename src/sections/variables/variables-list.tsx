@@ -10,7 +10,11 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import SharedTable, { TableHeader } from 'src/components/shared-table';
 import TableHeadActions, { TableFilter } from 'src/components/shared-table/table-head-actions';
 
-import { Variable } from 'src/types/variables';
+import { IVariable } from 'src/types/variables';
+import { Typography } from '@mui/material';
+import ViewValuesDialog from 'src/components/dialog/view-values-dialog';
+import { deleteVariable } from 'src/actions/variables-actions';
+import { enqueueSnackbar } from 'notistack';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', static: true },
@@ -33,7 +37,7 @@ const filters: TableFilter[] = [
 ];
 
 interface Props {
-  variables: Variable[];
+  variables: IVariable[];
   count: number;
 }
 
@@ -43,15 +47,32 @@ export function VariablesList({ variables, count }: Props) {
   const [tableHead, setTableHead] = useState<TableHeader[]>(TABLE_HEAD);
 
   const additionalTableProps = {
-    onRendervalue: (item: Variable) => ('max_value' in item ? item.max_value : item.value),
-    onRendertype: (item: Variable) => (item.type === 'list' ? 'List' : 'Range'),
+    onRendervalue: (item: IVariable) =>  (item?.maxValue ? item?.maxValue : `${item?.values[0]} . . .`),
+    onRendertype: (item: IVariable) => (item.type === 'List' ? 'List' : 'Range'),
   };
 
   const router = useRouter();
 
   const [deleteItemId, setDeleteItemId] = useState('');
-  const handleConfirmDelete = useCallback(() => {
-    console.log(deleteItemId);
+  const [listValues, setListValues] = useState(['']);
+  const [openView, setOpenView] = useState(false);
+  const handleListValuesClose = useCallback(() => {
+    setOpenView(false);
+
+    setListValues(['']);
+  }, [openView]);
+  const handleConfirmDelete = useCallback(async() => {
+
+    const res = await deleteVariable(deleteItemId);
+    console.log(res);
+
+    if (res?.error) {
+      enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+    } else {
+      enqueueSnackbar('Deleted success!', {
+        variant: 'success',
+      });
+    }
     setDeleteItemId('');
   }, [deleteItemId]);
   return (
@@ -60,9 +81,9 @@ export function VariablesList({ variables, count }: Props) {
         additionalComponent={
           <TableHeadActions
             defaultTableHead={TABLE_HEAD}
-            setTableHead={(newTableHead: TableHeader[]) => setTableHead(newTableHead)}
+           /*  setTableHead={(newTableHead: TableHeader[]) => setTableHead(newTableHead)}
             filters={filters.map((item) => ({ ...item, label: item.label }) as TableFilter)}
-            handleExport={() => {}}
+            handleExport={() => {}} */
           />
         }
         dataFiltered={variables}
@@ -75,23 +96,42 @@ export function VariablesList({ variables, count }: Props) {
           {
             label: 'Edit',
             icon: 'solar:pen-bold',
-            onClick: (item: Variable) => router.push(paths.dashboard.root),
+            onClick: (item: IVariable) => router.push(paths.dashboard.root),
           },
           {
             label: 'Delete',
             icon: 'heroicons:trash-solid',
-            onClick: (item: Variable) => setDeleteItemId(item.id),
+            onClick: (item: IVariable) => setDeleteItemId(item.id),
+          },
+          {
+            label: 'view',
+            icon:'mdi:eye',
+            hideActionIf: (item: IVariable) => item?.type === 'List' ? false : true,
+            onClick: (item: IVariable) => {
+              setListValues(item.values);
+              setOpenView(true);
+            },
           },
         ]}
       />
 
-      {deleteItemId && (
+
+    {deleteItemId && (
         <ConfirmDialog
           open={!!deleteItemId}
           onClose={() => setDeleteItemId('')}
           title="Delete"
-          content="delete_confirm"
+          content="Are you sure you want to delete this item?"
           handleConfirmDelete={handleConfirmDelete}
+        />
+      )}
+          {listValues && (
+        <ViewValuesDialog
+          open={openView}
+          onClose={() => setOpenView(false)}
+          title="Values"
+          content={listValues}
+          handleClose={handleListValuesClose}
         />
       )}
     </>

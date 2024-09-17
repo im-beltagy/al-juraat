@@ -1,46 +1,48 @@
 'use server';
 
+import { getCookie } from 'cookies-next';
 import { cookies } from 'next/headers';
 
-import { getErrorMessage } from 'src/utils/axios';
+import axiosInstance, { endpoints, getErrorMessage } from 'src/utils/axios';
+import { invalidatePath } from './cache-invalidation';
 
-export async function fetchVariables({ page = 1, limit = 5 }: { page?: number; limit?: number }) {
-  const lang = cookies().get('Language')?.value;
-  const accessToken = cookies().get('accessToken')?.value;
+export const fetchVariables = async (page:number, limit:number): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
 
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
   try {
-    const res = await {
-      data: [
-        {
-          id: 'gender-male',
-          name: 'Gender',
-          type: 'list',
-          value: 'Male',
-        },
-        {
-          id: 'gender-female',
-          name: 'Gender',
-          type: 'list',
-          value: 'Female',
-        },
-        {
-          id: 'age',
-          name: 'Age',
-          type: 'range',
-          max_value: '50',
-        },
-      ],
-      meta: {
-        itemCount: 3,
-      },
-    };
-    return { data: res?.data, count: res?.meta?.itemCount };
+    const res = await axiosInstance.get(`${endpoints.variables.list(page, limit)}`, headers);
+ //   invalidatePath(`/dashboard`);
+    return res.data;
   } catch (error) {
     return {
       error: getErrorMessage(error),
     };
   }
-}
+};
+
+
+export const deleteVariable = async (id:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
+  try {
+    const res = await axiosInstance.delete(`${endpoints.variables.delete(id)}`, headers);
+    invalidatePath(`/dashboard`);
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
 
 export async function fetchAllVariables() {
   const lang = cookies().get('Language')?.value;

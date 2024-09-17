@@ -13,3 +13,13 @@ export type Variable = {
       max_value: string;
     }
 );
+
+export type IVariable =  {
+  id: string,
+  name: string,
+  type: string,
+  maxValue: number,
+  values: [
+    string
+  ]
+}
