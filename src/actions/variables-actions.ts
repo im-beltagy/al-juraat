@@ -46,7 +46,7 @@ export const addVariable = async (data:{name:string,type:string,maxValue:number|
   }
 };
 
-export const editVariable = async (data:{name:string,type:string,maxValue:number|null,values:string[]|null}): Promise<any> => {
+export const editVariable = async (id:string,data:{name:string,type:string,maxValue:number|null,values:string[]|null}): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
 
@@ -56,7 +56,7 @@ export const editVariable = async (data:{name:string,type:string,maxValue:number
     }
   };
   try {
-    const res = await axiosInstance.put(`${endpoints.variables.add()}`,data, headers);
+    const res = await axiosInstance.put(`${endpoints.variables.edit(id)}`,data, headers);
    invalidatePath(`/dashboard`);
     return res.data;
   } catch (error) {

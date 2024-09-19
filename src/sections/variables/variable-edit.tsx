@@ -82,17 +82,18 @@ export function VariablesEditForm({ variable, open, onClose }: Props) {
   },[ watching.type, ])
     useEffect(()=> {
     reset({name:variable.name,type:variable.type, values:variable.values, maxValue:variable.maxValue})
-    }, [ variable,open])
+    }, [ variable,open]);
+
 const onSubmit = handleSubmit(async (data: any) => {
+      const id = variable.id || getValues('id');
       const dataForm = {
         "name":  getValues('name'),
         "type": getValues('type'),
         "maxValue":  getValues('type') === 'Range' ?  getValues('maxValue') || variable.maxValue : null,
         "values":  getValues('type') === 'List' ?getValues('values') || variable.values : null
       }
-      console.log(dataForm)
 
-      const res = await editVariable(dataForm);
+      const res = await editVariable(id,dataForm);
       if (res?.error) {
         enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
       } else {
