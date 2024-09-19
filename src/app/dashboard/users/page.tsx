@@ -10,13 +10,13 @@ type SearchParams = {
 
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
   const page =
-    typeof searchParams.page === 'number' ? Number(searchParams.page) : 1  ;
+    typeof searchParams.page === 'string' ? Number(searchParams.page) : 1  ;
   const limit =
-    typeof searchParams.limit === 'number' ? Number(searchParams.limit) : 5;
+    typeof searchParams.limit === 'string' ? Number(searchParams.limit) : 5;
 
   const users = await fetchUsers( page, limit );
 
   return (
-    <UsersView users={(users?.items || []) as unknown as IUser[]} count={Number(users?.totalCount)} />
+    <UsersView users={users?.items as IUser[]} count={Number(users?.totalCount)} />
   );
 }
