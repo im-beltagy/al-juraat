@@ -150,7 +150,7 @@ const onSubmit = handleSubmit(async (data: any) => {
           />
             </Grid>
             <Grid item xs={12} >
-            <MultiValuesTextField required={getValues('type')=== 'List'}   disabled={getValues("type")==="Range"} name="values" label="Values" placeholder="Values" helperText=" " />
+            <MultiValuesTextField required={getValues('type')=== 'List' && !getValues('values') }   disabled={getValues("type")==="Range"} name="values" label="Values" placeholder="Values" helperText=" " />
             </Grid>
 
           </Grid>
