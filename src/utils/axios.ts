@@ -89,6 +89,6 @@ export const endpoints = {
   variables: {
     list: (page:number,limit:number)=>`api/v1/Admin/variables?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}`,
     delete: (id:string)=>`/api/v1/Admin/variables/${id}`,
-
+    add: () => `/api/v1/Admin/variables`
   },
 };
