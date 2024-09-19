@@ -18,6 +18,8 @@ import FormProvider from 'src/components/hook-form/form-provider';
 import RHFTextField from 'src/components/hook-form/rhf-text-field-form';
 import { MultiValuesTextField } from 'src/components/hook-form/multi-values-text-field';
 import CustomAutocompleteView, { ITems } from 'src/components/AutoComplete/CutomAutocompleteView';
+import { addVariable } from 'src/actions/variables-actions';
+import { enqueueSnackbar } from 'notistack';
 
 const VARIABLE_TYPES = [
   { label: 'Range', value: 'range' },
@@ -60,9 +62,23 @@ export function VariablesNewForm() {
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
+  const onSubmit = handleSubmit(async (data:any) => {
     console.log(data);
-    invalidatePath(paths.dashboard.root);
+    const dataForm = {
+      "name": data?.name,
+      "type": data?.type?.name,
+      "maxValue":data?.type?.name === 'Range' ? data?.max_value : null,
+      "values":data?.type?.name === 'List' ? data?.value : null
+    }
+   const res = await addVariable(dataForm);
+    if (res?.error) {
+      enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+    } else {
+      enqueueSnackbar('Added success!', {
+        variant: 'success',
+      });
+    }
+  //  invalidatePath(paths.dashboard.root);
   });
 
   const renderValueInput = (type: string | null) => {

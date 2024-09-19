@@ -15,6 +15,7 @@ import { Typography } from '@mui/material';
 import ViewValuesDialog from 'src/components/dialog/view-values-dialog';
 import { deleteVariable } from 'src/actions/variables-actions';
 import { enqueueSnackbar } from 'notistack';
+import { VariablesEditForm } from './variable-edit';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', static: true },
@@ -56,6 +57,8 @@ export function VariablesList({ variables, count }: Props) {
   const [deleteItemId, setDeleteItemId] = useState('');
   const [listValues, setListValues] = useState(['']);
   const [openView, setOpenView] = useState(false);
+  const [selectedVariable, setSelectedVariable] = useState<any>();
+  const [openEdit, setOpenEdit] = useState(false);
   const handleListValuesClose = useCallback(() => {
     setOpenView(false);
 
@@ -96,7 +99,10 @@ export function VariablesList({ variables, count }: Props) {
           {
             label: 'Edit',
             icon: 'solar:pen-bold',
-            onClick: (item: IVariable) => router.push(paths.dashboard.root),
+            onClick: async(item: IVariable) => {
+             await setSelectedVariable(item);
+              setOpenEdit(true);
+            },
           },
           {
             label: 'Delete',
@@ -115,7 +121,6 @@ export function VariablesList({ variables, count }: Props) {
         ]}
       />
 
-
     {deleteItemId && (
         <ConfirmDialog
           open={!!deleteItemId}
@@ -132,6 +137,13 @@ export function VariablesList({ variables, count }: Props) {
           title="Values"
           content={listValues}
           handleClose={handleListValuesClose}
+        />
+      )}
+         {selectedVariable?.name && (
+        <VariablesEditForm
+          open={openEdit}
+          onClose={() => setOpenEdit(false)}
+          variable={selectedVariable}
         />
       )}
     </>
