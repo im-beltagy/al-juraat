@@ -82,12 +82,12 @@ export const endpoints = {
     search: '/api/post/search',
   },
   users: {
-    list: (page:number,limit:number)=>`api/v1/Admin/users?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}`,
+    list: (page:number,limit:number,search:string)=>`api/v1/Admin/users?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&FilterByName=${search}`,
     details: (id:string)=>`/api/v1/Admin/users/${id}`,
 
   },
   variables: {
-    list: (page:number,limit:number)=>`api/v1/Admin/variables?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}`,
+    list: (page:number,limit:number,search:string)=>`api/v1/Admin/variables?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&FilterByName=${search}`,
     delete: (id:string)=>`/api/v1/Admin/variables/${id}`,
     add: () => `/api/v1/Admin/variables`,
     edit: (id:string) => `/api/v1/Admin/variables/${id}`,

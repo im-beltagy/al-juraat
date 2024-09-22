@@ -57,8 +57,7 @@ export default function PackagesView({ packages, count }: Props) {
       <SharedTable
         additionalComponent={
           <TableHeadActions
-            filters={filters.map((item) => ({ ...item, label: t(item.label) }) as TableFilter)}
-            handleExport={() => {}}
+
           />
         }
         dataFiltered={packages}

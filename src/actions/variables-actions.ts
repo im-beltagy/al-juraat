@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 import axiosInstance, { endpoints, getErrorMessage } from 'src/utils/axios';
 import { invalidatePath } from './cache-invalidation';
 
-export const fetchVariables = async (page:number, limit:number): Promise<any> => {
+export const fetchVariables = async (page:number, limit:number,search:string): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
 
@@ -15,7 +15,7 @@ export const fetchVariables = async (page:number, limit:number): Promise<any> =>
     }
   };
   try {
-    const res = await axiosInstance.get(`${endpoints.variables.list(page, limit)}`, headers);
+    const res = await axiosInstance.get(`${endpoints.variables.list(page, limit,search)}`, headers);
  //   invalidatePath(`/dashboard`);
     return res.data;
   } catch (error) {
