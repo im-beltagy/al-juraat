@@ -8,7 +8,7 @@ import { invalidatePath } from './cache-invalidation';
 
 
 
-export const fetchUsers = async (page:number, limit:number): Promise<any> => {
+export const fetchUsers = async (page:number, limit:number, search:string): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
 
@@ -17,7 +17,7 @@ export const fetchUsers = async (page:number, limit:number): Promise<any> => {
     }
   };
   try {
-    const res = await axiosInstance.get(`${endpoints.users.list(page, limit)}`, headers);
+    const res = await axiosInstance.get(`${endpoints.users.list(page, limit, search)}`, headers);
  //   invalidatePath(`/dashboard/users/`);
     return res.data;
   } catch (error) {
