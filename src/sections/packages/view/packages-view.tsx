@@ -21,7 +21,7 @@ import PackagesDialog from '../packages-dialog';
 const TABLE_HEAD = [
   { id: 'name', label: 'Name' },
   { id: 'price', label: 'Price' },
-  { id: 'duration', label: 'Duration in days' },
+  { id: 'durationInDays', label: 'Duration in days' },
 ];
 
 const filters: TableFilter[] = [{ name: 'duration', label: 'Duration in days', type: 'number' }];
