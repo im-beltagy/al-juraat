@@ -36,7 +36,7 @@ export default function PackagesDialog({ open, onClose, choosenPackage }: Props)
     defaultValues: {
       name: choosenPackage?.name || '',
       price: choosenPackage?.price || 0,
-      duration: choosenPackage?.duration || 0,
+      duration: choosenPackage?.durationInDays || 0,
     },
   });
   const { handleSubmit, setValue, clearErrors, reset } = methods;
@@ -48,7 +48,7 @@ export default function PackagesDialog({ open, onClose, choosenPackage }: Props)
   useEffect(() => {
     setValue('name', choosenPackage?.name || '');
     setValue('price', choosenPackage?.price || 0);
-    setValue('duration', choosenPackage?.duration || 0);
+    setValue('duration', choosenPackage?.durationInDays || 0);
     clearErrors();
   }, [choosenPackage, clearErrors, open, reset, setValue]);
   console.log(choosenPackage);

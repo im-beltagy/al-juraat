@@ -92,4 +92,7 @@ export const endpoints = {
     add: () => `/api/v1/Admin/variables`,
     edit: (id:string) => `/api/v1/Admin/variables/${id}`,
   },
+  packages: {
+    list: (page:number,limit:number,search:string)=>`/api/v1/Admin/packages?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&FilterByName=${search}`
+  }
 };

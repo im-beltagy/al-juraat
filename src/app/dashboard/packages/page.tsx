@@ -1,4 +1,4 @@
-import { fetchPackages } from 'src/actions/packages-actions';
+import { fetchAllPackages, fetchPackages } from 'src/actions/packages-actions';
 
 import PackagesView from 'src/sections/packages/view/packages-view';
 
@@ -9,21 +9,22 @@ export const metadata = {
 };
 
 type SearchParams = {
-  [key in 'page' | 'limit']: string | string[] | undefined;
+  [key in 'page' | 'limit' | 'search']: string | string[] | undefined;
 };
 
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
   const page =
-    typeof searchParams.page === 'string' ? Number(searchParams.page) || undefined : undefined;
+    typeof searchParams.page === 'string' ? Number(searchParams.page)  : 1;
   const limit =
-    typeof searchParams.limit === 'string' ? Number(searchParams.limit) || undefined : undefined;
+    typeof searchParams.limit === 'string' ? Number(searchParams.limit)  : 5;
+    const search = typeof searchParams.search === 'string' ? searchParams.search : '';
 
-  const packages = await fetchPackages({ page, limit });
+  const packages = await fetchAllPackages( page, limit, search );
 
   return (
     <PackagesView
-      packages={packages?.data as unknown as Package[]}
-      count={packages.count as number}
+      packages={packages?.items as  Package[]}
+      count={packages.totalCount as number}
     />
   );
 }
