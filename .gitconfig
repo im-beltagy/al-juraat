@@ -1,3 +1,6 @@
-[user]
+[core]
+	editor = \"C:\\Users\\hp\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\code\" --wait
 
-	name = imbeltagy@gmail.com
+[user]
+  email = imbeltagy@gmail.com
+	name = imbeltagy
