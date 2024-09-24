@@ -1,5 +1,15 @@
 module.exports = {
   trailingSlash: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'api.medicaldosages.com',
+        port: '',
+        pathname: '/uploads/users/**',
+      },
+    ],
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
