@@ -12,9 +12,11 @@ import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
 import { useTranslate } from 'src/locales';
 
 import FormProvider from 'src/components/hook-form/form-provider';
-import RHFTextField from 'src/components/hook-form/rhf-text-field-form';
+import RHFTextField from 'src/components/hook-form/rhf-text-field2';
 
 import { Package } from 'src/types/packages';
+import { addPackage, editPackage } from 'src/actions/packages-actions';
+import { enqueueSnackbar } from 'notistack';
 
 interface Props {
   open: boolean;
@@ -24,33 +26,60 @@ interface Props {
 
 export default function PackagesDialog({ open, onClose, choosenPackage }: Props) {
   const { t } = useTranslate();
-
-  const methods = useForm({
-    resolver: yupResolver(
-      yup.object().shape({
-        name: yup.string().required(t('Name is required')),
-        price: yup.number().required(t('Price is required')),
-        duration: yup.number().required(t('Duration is required')),
-      })
-    ),
-    defaultValues: {
-      name: choosenPackage?.name || '',
+  const defaultValues = {
+    name: choosenPackage?.name || '',
       price: choosenPackage?.price || 0,
       duration: choosenPackage?.durationInDays || 0,
-    },
+  };
+  const variableSchema =  yup.object().shape({
+    name: yup.string().required(t('Name is required')),
+    price: yup.number().required(t('Price is required')),
+    duration: yup.number().required(t('Duration is required')),
   });
-  const { handleSubmit, setValue, clearErrors, reset } = methods;
-  const onSubmit = useCallback((data: any) => {
-    console.log(data);
+
+
+  const methods = useForm({
+    resolver: yupResolver(variableSchema ),
+    defaultValues,
+  });
+  const { handleSubmit, setValue, clearErrors,getValues, reset } = methods;
+  const onSubmit = useCallback( async(data: any) => {
+    const dataForm = {
+      "name": data?.name,
+      "price": data?.price,
+      "durationInDays":data?.duration,
+    }
+    if(choosenPackage) {
+      const res = await editPackage(choosenPackage.id,dataForm);
+      if (res?.error) {
+        enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+      } else {
+        enqueueSnackbar('Updated success!', {
+          variant: 'success',
+        });
+      }
+
+    } else {
+      const res = await addPackage(dataForm);
+      if (res?.error) {
+        enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+      } else {
+        enqueueSnackbar('Added success!', {
+          variant: 'success',
+        });
+      }
+    }
   }, []);
 
   // Reset Form
   useEffect(() => {
-    setValue('name', choosenPackage?.name || '');
-    setValue('price', choosenPackage?.price || 0);
-    setValue('duration', choosenPackage?.durationInDays || 0);
-    clearErrors();
-  }, [choosenPackage, clearErrors, open, reset, setValue]);
+    if(open){
+
+      reset({name:choosenPackage?.name, price:choosenPackage?.price,duration:choosenPackage?.durationInDays});
+    }
+
+
+  }, [open ]);
   console.log(choosenPackage);
 
   return (

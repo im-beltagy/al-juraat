@@ -8,6 +8,7 @@ export { default as RHFSwitch } from './rhf-switch';
 export { default as RHFSlider } from './rhf-slider';
 export { default as RHFTextarea } from './rhf-textarea';
 export { default as RHFTextField } from './rhf-text-field';
+export { default as RHFTextField2 } from './rhf-text-field2';
 export { default as RHFRadioGroup } from './rhf-radio-group';
 export { default as RHFAutocomplete } from './rhf-autocomplete';
 export { default as RHFTextFieldForm } from './rhf-text-field-form';

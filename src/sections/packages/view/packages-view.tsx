@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Container } from '@mui/material';
 
@@ -17,6 +17,9 @@ import TableHeadActions, { TableFilter } from 'src/components/shared-table/table
 import { Package } from 'src/types/packages';
 
 import PackagesDialog from '../packages-dialog';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { enqueueSnackbar } from 'notistack';
+import { deletePackage } from 'src/actions/packages-actions';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name' },
@@ -34,6 +37,7 @@ interface Props {
 export default function PackagesView({ packages, count }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
+  const [deleteItemId, setDeleteItemId] = useState('');
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [choosenPackage, setChoosenPackage] = useState<Package | undefined>(undefined);
@@ -42,6 +46,20 @@ export default function PackagesView({ packages, count }: Props) {
   const table = useTable();
 
   const additionalTableProps = { onRenderprice: (item: Package) => fCurrency(item.price) };
+  const handleConfirmDelete = useCallback(async() => {
+
+    const res = await deletePackage(deleteItemId);
+    console.log(res);
+
+    if (res?.error) {
+      enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+    } else {
+      enqueueSnackbar('Deleted success!', {
+        variant: 'success',
+      });
+    }
+    setDeleteItemId('');
+  }, [deleteItemId]);
 
   return (
     <Container
@@ -81,9 +99,23 @@ export default function PackagesView({ packages, count }: Props) {
               setIsDialogOpen(true);
             },
           },
+          {
+            label: 'Delete',
+            icon: 'heroicons:trash-solid',
+            onClick: (item: Package) => setDeleteItemId(item.id),
+          },
+
         ]}
       />
-
+  {deleteItemId && (
+        <ConfirmDialog
+          open={!!deleteItemId}
+          onClose={() => setDeleteItemId('')}
+          title="Delete"
+          content="Are you sure you want to delete this item?"
+          handleConfirmDelete={handleConfirmDelete}
+        />
+      )}
       {isDialogOpen ? (
         <PackagesDialog
           open={isDialogOpen}

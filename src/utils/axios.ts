@@ -93,6 +93,9 @@ export const endpoints = {
     edit: (id:string) => `/api/v1/Admin/variables/${id}`,
   },
   packages: {
-    list: (page:number,limit:number,search:string)=>`/api/v1/Admin/packages?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&FilterByName=${search}`
+    list: (page:number,limit:number,search:string)=>`/api/v1/Admin/packages?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&FilterByName=${search}`,
+    add: ()=> `/api/v1/Admin/packages`,
+    edit: (id:string)=> `/api/v1/Admin/packages/${id}`,
+    delete: (id:string)=>`/api/v1/Admin/packages/${id}`,
   }
 };
