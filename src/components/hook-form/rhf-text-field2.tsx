@@ -6,6 +6,7 @@ import TextField, { TextFieldProps } from '@mui/material/TextField';
 
 type Props = TextFieldProps & {
   name: string;
+
 };
 
 export default function RHFTextField2({ name, helperText, type, ...other }: Props) {
