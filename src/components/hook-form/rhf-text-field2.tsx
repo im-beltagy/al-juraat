@@ -19,7 +19,7 @@ export default function RHFTextField2({ name, helperText, type, ...other }: Prop
         <TextField
           {...field}
           fullWidth
-          type={type}
+          type={type === 'number' ? 'tel' : 'text'}
           value={type === 'number' && field.value === 0 ? '' : field.value}
           onChange={(event) => {
             if (type === 'number') {
