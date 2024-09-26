@@ -95,7 +95,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
       const user: IUser | {} = JSON.parse(getCookie(USER_KEY) as string) ?? {};
 
       if (accessToken && isValidToken(accessToken)) {
-    //    setSession(accessToken);
+   //   setSession(accessToken, user);
 
         dispatch({
           type: Types.INITIAL,
@@ -152,7 +152,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
    const res = await axios.post(endpoints.auth.login,credentials );
     const accessToken = res.data?.accessToken;
     const {data} = res;
-    //setSession(accessToken);
+ //   setSession(accessToken, data);
    axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     sessionStorage.setItem(USER_KEY, JSON.stringify(data));
     Cookie.set(ACCESS_TOKEN, accessToken);
@@ -199,7 +199,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
 
   // LOGOUT
   const logout = useCallback(async () => {
-    setSession(null);
+    setSession(null, null);
     deleteCookie('accessToken');
     deleteCookie('user')
     dispatch({

@@ -36,6 +36,7 @@ export const paths = {
     },
     users: `${ROOTS.DASHBOARD}/users`,
     packages: `${ROOTS.DASHBOARD}/packages`,
+    articles: `${ROOTS.DASHBOARD}/articles`,
     privacyPolicy: `${ROOTS.DASHBOARD}/privacy-policy`,
     termsAndConditions: `${ROOTS.DASHBOARD}/terms-and-conditions`,
     supportTickets: `${ROOTS.DASHBOARD}/support-tickets`,
