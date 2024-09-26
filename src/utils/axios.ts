@@ -69,6 +69,7 @@ export const endpoints = {
     me: '/api/auth/me',
     login: 'api/v1/auth/login',
     register: '/api/auth/register',
+    refreshToken:`/api/v1/auth/refresh-token`
   },
   mail: {
     list: '/api/mail/list',
@@ -97,5 +98,8 @@ export const endpoints = {
     add: ()=> `/api/v1/Admin/packages`,
     edit: (id:string)=> `/api/v1/Admin/packages/${id}`,
     delete: (id:string)=>`/api/v1/Admin/packages/${id}`,
+  },
+  articles: {
+    list:(page:number, limit:number, search:string)=>`/api/v1/Admin/articles?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&FilterByName=${search}`
   }
 };

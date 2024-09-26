@@ -18,6 +18,7 @@ const ICONS = {
   results: icon('ic_job'),
   users: icon('ic_tour'),
   packages: icon('ic_folder'),
+  articles: icon('ic_file'),
 };
 
 // ----------------------------------------------------------------------
@@ -52,6 +53,11 @@ const data = [
         icon: ICONS.packages,
       },
       {
+        title: 'Articles',
+        path: paths.dashboard.articles,
+        icon: ICONS.articles,
+      },
+      {
         title: 'Privacy Policy',
         path: paths.dashboard.privacyPolicy,
         icon: ICONS.packages,
@@ -66,6 +72,7 @@ const data = [
         path: paths.dashboard.supportTickets,
         icon: ICONS.packages,
       },
+
     ],
   },
 ];
