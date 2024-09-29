@@ -54,7 +54,7 @@ const data = [
       },
       {
         title: 'Articles',
-        path: paths.dashboard.articles,
+        path: paths.dashboard.articles.root,
         icon: ICONS.articles,
       },
       {

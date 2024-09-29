@@ -44,3 +44,44 @@ export const fetchSingleUser = async (id:string): Promise<any> => {
     };
   }
 };
+
+
+
+export const addArticle = async (data:FormData): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'multipart/form-data'
+    }
+  };
+  try {
+
+    const res = await axiosInstance.post(endpoints.articles.add(),data, headers);
+
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
+
+export const deleteArticle = async (id:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+
+    }
+  };
+  try {
+    const res = await axiosInstance.delete(`${endpoints.articles.delete(id)}`, headers);
+    invalidatePath(`/articles`);
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};

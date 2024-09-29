@@ -15,8 +15,6 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
-    config.headers["Accept-Language"] = lang;
-    config.headers["Content-Type"] = "application/json";
 
     return config;
   },
@@ -100,6 +98,8 @@ export const endpoints = {
     delete: (id:string)=>`/api/v1/Admin/packages/${id}`,
   },
   articles: {
-    list:(page:number, limit:number, search:string)=>`/api/v1/Admin/articles?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&FilterByName=${search}`
+    list:(page:number, limit:number, search:string)=>`/api/v1/Admin/articles?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&Filter=${search}`,
+    add:()=> `/api/v1/Admin/articles`,
+    delete:(id:string)=> `/api/v1/Admin/articles/${id}`,
   }
 };
