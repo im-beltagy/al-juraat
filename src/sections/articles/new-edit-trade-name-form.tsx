@@ -54,6 +54,7 @@ export default function NewEditTradeNameForm({ article }: Props) {
   const onSubmit = useCallback(
     async(data: any) => {
       const formData = new FormData();
+
       toFormData(data, formData);
 
         if (article?.id) {
