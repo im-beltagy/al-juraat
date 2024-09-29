@@ -19,13 +19,13 @@ import FormProvider from 'src/components/hook-form/form-provider';
 import { RHFTextarea, RHFTextField, RHFUploadAvatar } from 'src/components/hook-form';
 
 import { Article } from 'src/types/articles';
-import { addArticle } from 'src/actions/articles-actions';
+import { addArticle, editArticle } from 'src/actions/articles-actions';
 
 interface Props {
   article?: Article;
 }
 
-export default function NewEditTradeNameForm({ article }: Props) {
+export default function NewEditArticleForm({ article }: Props) {
   const { t } = useTranslate();
 
   const methods = useForm({
@@ -58,8 +58,8 @@ export default function NewEditTradeNameForm({ article }: Props) {
       toFormData(data, formData);
 
         if (article?.id) {
-          formData.set('id', article?.id);
-          const res = { error: undefined };
+          formData.append('id', article?.id);
+          const res = await editArticle(article?.id,formData);
           if (res?.error) {
             enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
           } else {
@@ -120,13 +120,14 @@ export default function NewEditTradeNameForm({ article }: Props) {
         </Box>
 
         <RHFTextField name="Title" label={t('Title')} placeholder={t('Title')} />
+        <RHFTextField
+         rows={5}
+         name="Content"
+         multiline
+         label={t('Content')}
+         placeholder={t('Content')}
+         />
 
-        <RHFTextarea
-          rows={5}
-          name="Content"
-          label={t('Content')}
-          placeholder={t('Content')}
-        />
 
         <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
           {t(article ? 'Edit' : 'Save')}

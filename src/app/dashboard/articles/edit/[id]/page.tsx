@@ -1,11 +1,11 @@
-import { fetchSingleTradeName } from 'src/actions/trade-names-actions';
+import { fetchSingleArticle } from 'src/actions/articles-actions';
 
-import EditTradeNameView from 'src/sections/results/view/edit-trade-name-view';
+import EditArticleView from 'src/sections/articles/edit-article';
 
-import { TradeName } from 'src/types/results';
+import { Article } from 'src/types/articles';
 
 export default async function Page({ params: { id } }: { params: { id: string } }) {
-  const tradeName = await fetchSingleTradeName({ id });
+  const article = await fetchSingleArticle(id);
 
-  return <EditTradeNameView tradeName={tradeName as unknown as TradeName} />;
+  return <EditArticleView article={article as unknown as Article} />;
 }

@@ -27,7 +27,7 @@ export const fetchArticles = async (page:number, limit:number, search:string): P
   }
 };
 
-export const fetchSingleUser = async (id:string): Promise<any> => {
+export const fetchSingleArticle= async (id:string): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
 
@@ -36,7 +36,7 @@ export const fetchSingleUser = async (id:string): Promise<any> => {
     }
   };
   try {
-    const res = await axiosInstance.get(`${endpoints.users.details(id)}`, headers);
+    const res = await axiosInstance.get(`${endpoints.articles.details(id)}`, headers);
     return res.data;
   } catch (error) {
     return {
@@ -46,6 +46,26 @@ export const fetchSingleUser = async (id:string): Promise<any> => {
 };
 
 
+export const editArticle = async (id:string,data:FormData): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'multipart/form-data'
+    }
+  };
+  try {
+
+    const res = await axiosInstance.put(endpoints.articles.edit(id),data, headers);
+    invalidatePath(`/articles`);
+
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
 
 export const addArticle = async (data:FormData): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });

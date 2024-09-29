@@ -99,6 +99,12 @@ export default function ArticlesView({ articles, count }: Props) {
         additionalTableProps={additionalTableProps}
         enableActions
         actions={[
+          {
+            label: t('Edit'),
+            icon: 'solar:pen-bold',
+            onClick: (item: Article) =>
+              router.push(`${paths.dashboard.articles.edit}/${item.id}`),
+          },
        /*    {
             label: t('View'),
             icon: 'mdi:eye',
