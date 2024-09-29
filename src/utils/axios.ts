@@ -101,5 +101,7 @@ export const endpoints = {
     list:(page:number, limit:number, search:string)=>`/api/v1/Admin/articles?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&Filter=${search}`,
     add:()=> `/api/v1/Admin/articles`,
     delete:(id:string)=> `/api/v1/Admin/articles/${id}`,
+    edit:(id:string)=> `/api/v1/Admin/articles/${id}`,
+    details:(id:string)=> `/api/v1/Admin/articles/${id}`,
   }
 };
