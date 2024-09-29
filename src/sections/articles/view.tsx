@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Avatar, Container, Typography } from '@mui/material';
@@ -21,6 +21,10 @@ import TableHeadActions, { TableFilter } from 'src/components/shared-table/table
 import { Article } from 'src/types/articles';
 import { Variable } from 'src/types/variables';
 import { getCookie } from 'cookies-next';
+import { deleteVariable } from 'src/actions/variables-actions';
+import { enqueueSnackbar } from 'notistack';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import { deleteArticle } from 'src/actions/articles-actions';
 
 const TABLE_HEAD = [
   { id: 'title', label: 'Title', static: true },
@@ -41,6 +45,7 @@ export default function ArticlesView({ articles, count }: Props) {
   // Table
   const table = useTable();
   const [tableHead, setTableHead] = useState<TableHeader[]>(TABLE_HEAD);
+  const [deleteItemId, setDeleteItemId] = useState('');
 
   const additionalTableProps = {
     onRendertitle: (item: Article) => <Typography variant="body2">{item.title || ". . ."}</Typography>,
@@ -50,7 +55,20 @@ export default function ArticlesView({ articles, count }: Props) {
   };
 
   const router = useRouter();
+  const handleConfirmDelete = useCallback(async() => {
 
+    const res = await deleteArticle(deleteItemId);
+    console.log(res);
+
+    if (res?.error) {
+      enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+    } else {
+      enqueueSnackbar('Deleted success!', {
+        variant: 'success',
+      });
+    }
+    setDeleteItemId('');
+  }, [deleteItemId]);
   return (
     <Container
       maxWidth={settings.themeStretch ? false : 'xl'}
@@ -74,17 +92,34 @@ export default function ArticlesView({ articles, count }: Props) {
         dataFiltered={articles}
         table={table}
         count={count}
+        enableAdd
+        custom_add_title={t('Add New')}
+        handleAdd={() => router.push(paths.dashboard.articles.new)}
         tableHeaders={tableHead}
         additionalTableProps={additionalTableProps}
         enableActions
         actions={[
-          {
+       /*    {
             label: t('View'),
             icon: 'mdi:eye',
             onClick: (item: Variable) => router.push(`${paths.dashboard.articles}/${item.id}`),
+          }, */
+          {
+            label: 'Delete',
+            icon: 'heroicons:trash-solid',
+            onClick: (item: Article) => setDeleteItemId(item.id),
           },
         ]}
       />
+       {deleteItemId && (
+        <ConfirmDialog
+          open={!!deleteItemId}
+          onClose={() => setDeleteItemId('')}
+          title="Delete"
+          content="Are you sure you want to delete this item?"
+          handleConfirmDelete={handleConfirmDelete}
+        />
+      )}
     </Container>
   );
 }
