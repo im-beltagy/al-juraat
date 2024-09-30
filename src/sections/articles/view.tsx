@@ -105,11 +105,11 @@ export default function ArticlesView({ articles, count }: Props) {
             onClick: (item: Article) =>
               router.push(`${paths.dashboard.articles.edit}/${item.id}`),
           },
-       /*    {
+          {
             label: t('View'),
             icon: 'mdi:eye',
-            onClick: (item: Variable) => router.push(`${paths.dashboard.articles}/${item.id}`),
-          }, */
+            onClick: (item: Variable) => router.push(`${paths.dashboard.articles.view}/${item.id}`),
+          },
           {
             label: 'Delete',
             icon: 'heroicons:trash-solid',
