@@ -16,6 +16,8 @@ import { RHFTextarea } from 'src/components/hook-form';
 import FormProvider from 'src/components/hook-form/form-provider';
 
 import { FAQItem } from 'src/types/faq';
+import { addFAQ, editFAQ } from 'src/actions/faq-actions';
+import React from 'react';
 
 interface Props {
   item?: FAQItem;
@@ -45,31 +47,30 @@ export default function NewEditFaqForm({ item, row, onClose }: Props) {
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
-  const onSubmit = useCallback(
-    (data: any) => {
-      (async () => {
-        if (item) {
-          const res = await { error: undefined };
+  const onSubmit = useCallback( async(data: any) => {
+    const formData = {
+      "question": data?.question,
+      "answer": data?.answer
+       };
+        if (item?.id) {
+
+          const res = await editFAQ(item?.id, data);
           if (res?.error) {
-            enqueueSnackbar(`${res?.error}`, { variant: 'error' });
+            enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
           } else {
             enqueueSnackbar(t('Update success!'));
-            if (onClose) onClose();
-            methods.reset();
           }
         } else {
-          const res = await { error: undefined };
+          const res = await addFAQ(formData);
           if (res?.error) {
-            enqueueSnackbar(`${res?.error}`, { variant: 'error' });
+            enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
           } else {
             enqueueSnackbar(t('Added success!'));
-            if (onClose) onClose();
-            methods.reset();
           }
         }
-      })();
+
     },
-    [enqueueSnackbar, item, methods, onClose, t]
+    [ item]
   );
 
   return (
@@ -89,7 +90,7 @@ export default function NewEditFaqForm({ item, row, onClose }: Props) {
               <RHFTextarea name="answer" label={t('Answer')} placeholder={t('Answer')} dir="rtl" />
             </Grid>
           </Grid>
-        ) : (
+        ) :
           <>
             <RHFTextarea
               name="question"
@@ -99,7 +100,7 @@ export default function NewEditFaqForm({ item, row, onClose }: Props) {
             />
             <RHFTextarea name="answer" label={t('Answer')} placeholder={t('Answer')} dir="rtl" />
           </>
-        )}
+        }
 
         <LoadingButton
           type="submit"
