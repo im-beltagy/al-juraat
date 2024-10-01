@@ -24,6 +24,7 @@ import { FAQItem } from 'src/types/faq';
 
 import EditFaqDialog from '../edit-faq-dialog';
 import NewEditFaqForm from '../new-edit-faq-form';
+import { deleteFQA } from 'src/actions/faq-actions';
 
 interface Props {
   items: FAQItem[];
@@ -32,7 +33,6 @@ interface Props {
 export default function FAQView({ items }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
-
   const { enqueueSnackbar } = useSnackbar();
 
   const [deleteItemId, setDeleteItemId] = useState('');
@@ -50,17 +50,19 @@ export default function FAQView({ items }: Props) {
     },
     []
   );
+  const handleConfirmDelete = useCallback(async() => {
 
-  const handleConfirmDelete = useCallback(() => {
-    try {
-      enqueueSnackbar('Deleted Successfully', { variant: 'success' });
-    } catch (error) {
-      console.error(error);
-      enqueueSnackbar('Faild to delete', { variant: 'error' });
-    } finally {
-      setDeleteItemId('');
+    const res = await deleteFQA(deleteItemId);
+
+    if (res?.error) {
+      enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+    } else {
+      enqueueSnackbar('Deleted success!', {
+        variant: 'success',
+      });
     }
-  }, [enqueueSnackbar]);
+    setDeleteItemId('');
+  }, [deleteItemId]);
 
   return (
     <Container
@@ -102,12 +104,12 @@ export default function FAQView({ items }: Props) {
       </Stack>
 
       {deleteItemId && (
-        <ConfirmDialog
-          open={!!deleteItemId}
-          onClose={() => setDeleteItemId('')}
-          title={t('Delete')}
-          content={t('delete_confirm')}
-          handleConfirmDelete={handleConfirmDelete}
+         <ConfirmDialog
+         open={!!deleteItemId}
+         onClose={() => setDeleteItemId('')}
+         title="Delete"
+         content="Are you sure you want to delete this item?"
+         handleConfirmDelete={handleConfirmDelete}
         />
       )}
 

@@ -103,5 +103,11 @@ export const endpoints = {
     delete:(id:string)=> `/api/v1/Admin/articles/${id}`,
     edit:(id:string)=> `/api/v1/Admin/articles/${id}`,
     details:(id:string)=> `/api/v1/Admin/articles/${id}`,
+  },
+  FQA: {
+    list : ()=>`/api/v1/Admin/faqs`,
+    delete: (id:string)=>`/api/v1/Admin/faqs/${id}`,
+    add: ()=> `/api/v1/Admin/faqs`,
+    edit: (id:string)=> `/api/v1/Admin/faqs/${id}`,
   }
 };

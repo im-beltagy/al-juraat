@@ -1,28 +1,106 @@
+'use server';
+
+import { getCookie } from 'cookies-next';
 import { cookies } from 'next/headers';
 
-import { getErrorMessage } from 'src/utils/axios';
+import axiosInstance, { endpoints, getErrorMessage } from 'src/utils/axios';
+import { invalidatePath } from './cache-invalidation';
 
-export async function fetchFAQ() {
-  const lang = cookies().get('Language')?.value;
-  const accessToken = cookies().get('accessToken')?.value;
 
+
+export const fetchFQA = async (): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
   try {
-    const res = await {
-      data: Array.from({ length: 5 }).map((_, index) => ({
-        id: index + 1,
-        question: `Question ${index + 1}`,
-        answer:
-          'Donec id justo. Curabitur blandit mollis lacus. Vivamus quis mi. In ut quam vitae odio lacinia tincidunt. In consectetuer turpis ut velit. Donec id justo. Curabitur blandit mollis lacus. Vivamus quis mi. In ut quam vitae odio lacinia tincidunt. In consectetuer turpis ut velit.',
-      })),
-      meta: {
-        itemsCount: 10,
-      },
-    };
-
-    return { data: res?.data, count: res?.meta.itemsCount };
+    const res = await axiosInstance.get(`${endpoints.FQA.list()}`, headers);
+    return res.data;
   } catch (error) {
     return {
       error: getErrorMessage(error),
     };
   }
-}
+};
+
+export const fetchSingleArticle= async (id:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
+  try {
+    const res = await axiosInstance.get(`${endpoints.articles.details(id)}`, headers);
+    return res.data;
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
+
+
+export const editFAQ = async (id:string,data:{question:string,answer:string}): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': `application/json`
+    }
+  };
+  try {
+
+    const res = await axiosInstance.put(endpoints.FQA.edit(id),data, headers);
+    invalidatePath(`/faq`);
+
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
+
+export const addFAQ = async (data:{question:string,answer:string}): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': `application/json`
+    }
+  };
+  try {
+
+    const res = await axiosInstance.post(endpoints.FQA.add(),data, headers);
+    invalidatePath(`/faq`);
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
+
+export const deleteFQA = async (id:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+
+    }
+  };
+  try {
+    const res = await axiosInstance.delete(`${endpoints.FQA.delete(id)}`, headers);
+    invalidatePath(`/faq`);
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};

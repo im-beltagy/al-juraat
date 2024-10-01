@@ -1,11 +1,11 @@
-import { fetchFAQ } from 'src/actions/faq-actions';
+import { fetchFQA } from 'src/actions/faq-actions';
 
 import FAQView from 'src/sections/faq/view/faq-view';
 
 import { FAQItem } from 'src/types/faq';
 
 export default async function Page() {
-  const items = await fetchFAQ();
+  const questions = await fetchFQA();
 
-  return <FAQView items={(items?.data || []) as unknown as FAQItem[]} />;
+  return <FAQView items={(questions?.items || []) as unknown as FAQItem[]} />;
 }
