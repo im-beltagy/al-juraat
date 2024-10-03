@@ -63,6 +63,16 @@ const data = [
         icon: ICONS.packages,
       },
       {
+        title: 'Terms And Conditions',
+        path: paths.dashboard.termsAndConditions,
+        icon: ICONS.packages,
+      },
+      {
+        title: 'About Us',
+        path: paths.dashboard.aboutUs,
+        icon: ICONS.packages,
+      },
+      {
         title: 'FAQs',
         path: paths.dashboard.faq,
         icon: ICONS.packages,

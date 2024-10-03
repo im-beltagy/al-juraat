@@ -26,23 +26,6 @@ export const fetchFQA = async (): Promise<any> => {
   }
 };
 
-export const fetchSingleArticle= async (id:string): Promise<any> => {
-  const access_token = getCookie('accessToken', { cookies });
-  const headers = {
-
-    headers: {
-      'Authorization': `Bearer ${access_token}`
-    }
-  };
-  try {
-    const res = await axiosInstance.get(`${endpoints.articles.details(id)}`, headers);
-    return res.data;
-  } catch (error) {
-    return {
-      error: getErrorMessage(error),
-    };
-  }
-};
 
 
 export const editFAQ = async (id:string,data:{question:string,answer:string}): Promise<any> => {

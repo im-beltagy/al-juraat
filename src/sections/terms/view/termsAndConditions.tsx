@@ -15,24 +15,24 @@ import { RHFTextarea } from 'src/components/hook-form';
 import { useSettingsContext } from 'src/components/settings';
 import FormProvider from 'src/components/hook-form/form-provider';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
-import { editPrivacy } from 'src/actions/pages-actions';
+import {  editTerms } from 'src/actions/pages-actions';
 import { enqueueSnackbar } from 'notistack';
 
 interface Props {
-  privacy?: {description:string,slug:string,title:string};
+  terms?: {description:string,slug:string,title:string};
 }
 
-export default function PrivacyView({ privacy }: Props) {
+export default function TermsAndConditionsView({ terms }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
   const methods = useForm({
     resolver: yupResolver(
       yup.object().shape({
-        description: yup.string().required('Privacy policy is required'),
+        description: yup.string().required('Terms And Conditions is required'),
       })
     ),
     defaultValues: {
-      description: privacy?.description || '',
+      description: terms?.description || '',
     },
   });
 
@@ -42,7 +42,7 @@ export default function PrivacyView({ privacy }: Props) {
   } = methods;
   const onSubmit = useCallback( async(data: any) => {
 
-          const res = await editPrivacy(data);
+          const res = await editTerms(data);
           if (res?.error) {
             enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
           } else {
@@ -50,7 +50,7 @@ export default function PrivacyView({ privacy }: Props) {
           }
 
     },
-    [ privacy]
+    [ terms]
   );
 
   return (
@@ -62,7 +62,7 @@ export default function PrivacyView({ privacy }: Props) {
         flexDirection: 'column',
       }}
     >
-      <CustomBreadcrumbs heading={t('Privacy Policy')} links={[{}]} sx={{ mb: 3 }} />
+      <CustomBreadcrumbs heading={t('Terms And Conditions')} links={[{}]} sx={{ mb: 3 }} />
 
       <Card>
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -70,8 +70,8 @@ export default function PrivacyView({ privacy }: Props) {
             <RHFTextarea
               rows={5}
               name="description"
-              label={t('Privacy Policy')}
-              placeholder={t('Privacy Policy')}
+              label={t('Terms And Conditions')}
+              placeholder={t('Terms And Conditions')}
               dir="ltr"
             />
 
