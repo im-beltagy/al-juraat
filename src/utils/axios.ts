@@ -29,7 +29,11 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
+/* slugs :
 
+privacy_policy
+terms_and_conditions
+about_us */
 // ----------------------------------------------------------------------
 
 export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
@@ -109,5 +113,9 @@ export const endpoints = {
     delete: (id:string)=>`/api/v1/Admin/faqs/${id}`,
     add: ()=> `/api/v1/Admin/faqs`,
     edit: (id:string)=> `/api/v1/Admin/faqs/${id}`,
-  }
-};
+  },
+  privacyPolicy: ()=> `/api/v1/Admin/pages/privacy_policy`,
+  termsAndConditions: ()=> `/api/v1/Admin/pages/terms_and_conditions`,
+  aboutUs: ()=> `/api/v1/Admin/pages/about_us`,
+
+}
