@@ -1,5 +1,6 @@
-import { deleteCookie, getCookie } from 'cookies-next';
+import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 import { paths } from 'src/routes/paths';
+import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import axios from 'src/utils/axios';
 
@@ -21,50 +22,46 @@ function jwtDecode(token: string) {
 
 // ----------------------------------------------------------------------
 
-export const isValidToken = (accessToken: string) => {
-  if (!accessToken) {
+export const isValidToken = (refreshTokenExpireAt: string) => {
+ // const user = JSON.parse(getCookie('user') as string);
+  if (!refreshTokenExpireAt) {
     return false;
   }
 
-  const decoded = jwtDecode(accessToken);
-
-  const currentTime = Date.now() / 1000;
-  console.log(decoded.exp > currentTime , 'llll')
-  return decoded.exp > currentTime;
+//  const decoded = jwtDecode(accessToken);
+const TokenExpireAt = new Date(refreshTokenExpireAt);
+const now = new Date();
+console.log(TokenExpireAt <  now, 'e')
+  if(TokenExpireAt < now) {
+    refreshToken('ert')
+  }
+  return TokenExpireAt <  now;
 };
 
 // ----------------------------------------------------------------------
 
-export const tokenExpired = (exp: number) => {
+export const tokenExpired = (accessTokenExpireAt: string) => {
   // eslint-disable-next-line prefer-const
   let expiredTimer;
-
-  const currentTime = Date.now() / 1000;
-  const now = new Date();
-  /*  const timenow = now.getTime();
-  const exp_number = Number(new Date(exp)); */
-  const logintTime = Number(localStorage.getItem('loginTime'));
-  if (!logintTime) {
+  if (!accessTokenExpireAt) {
     return;
   }
-  const logoutTime = localStorage.getItem('logoutTime');
-  // Test token expires after 10s
-  // const timeLeft = currentTime + 10000 - currentTime; // ~10s
- //  const timeLeft =Math.floor( exp_number - currentTime)  ;
-  console.log(logoutTime && currentTime > Number(logoutTime))
+  const TokenExpireAt = new Date(accessTokenExpireAt);
+  const now = new Date();
+  console.log(TokenExpireAt <  now, 'c')
+
   clearTimeout(expiredTimer);
+  if (TokenExpireAt < now) {
+    expiredTimer = setTimeout(() => {
+      alert('Token expired');
+      sessionStorage.removeItem('accessToken');
+      sessionStorage.removeItem('user');
+      deleteCookie("accessToken");
+      deleteCookie("user");
+      window.location.href = paths.auth.jwt.login;
 
-  expiredTimer = setTimeout(() => {
-    alert('Token expired');
-
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('user');
-    deleteCookie("accessToken");
-    deleteCookie("user");
-
-    window.location.href = paths.auth.jwt.login;
-
-  }, 30000);
+    }, 10000);
+  }
 };
 
 // ----------------------------------------------------------------------
@@ -72,13 +69,9 @@ export const tokenExpired = (exp: number) => {
 export const setSession = (accessToken: string | null, user:any) => {
   if (accessToken) {
     sessionStorage.setItem('accessToken', accessToken);
-    const exp = user?.refreshTokenExpiraAt
-   console.log(user, 'here');
-   const now = new Date();
-   const loginTime = now.getTime();
-   localStorage.setItem('loginTime', String(loginTime));
-   const logoutTime = now.getTime() + 30000;
-   localStorage.setItem('logoutTime', `${logoutTime}`);
+    const exp = user?.accessTokenExpireAt
+    isValidToken(user?.refreshTokenExpireAt)
+
     axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     // This function below will handle when token is expired
    // const { exp } = jwtDecode(accessToken); // ~3 days by minimals server
@@ -91,6 +84,23 @@ export const setSession = (accessToken: string | null, user:any) => {
 
     delete axios.defaults.headers.common.Authorization;
   }
+};
+
+export const refreshToken = async (token:string) => {
+  sessionStorage.removeItem('accessToken');
+  sessionStorage.removeItem('user');
+  deleteCookie("accessToken");
+  deleteCookie("user");
+const res = await axiosInstance.post(endpoints.auth.refreshToken, {
+  refreshToken: token,
+  });
+  console.log(res.data);
+  const {accessToken } = res.data;
+  axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+  sessionStorage.setItem('accessToken', accessToken);
+  sessionStorage.setItem('user', res.data);
+  setCookie("accessToken", accessToken);
+  setCookie("user", res.data);
 };
 
 export const getAccessToken = () => {};

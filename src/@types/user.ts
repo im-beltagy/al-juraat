@@ -6,6 +6,7 @@ export interface IUser {
     email: string
     email_verified_at: any
     phone: string
+    refreshToken?:string;
     phone_verified_at: any
     roles: string[]
   }
