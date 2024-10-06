@@ -92,10 +92,10 @@ export function AuthProvider({ children }: Readonly<Props>) {
      const lang: string = Cookie.get('Language') || 'en';
        Cookie.set('Language', lang);
       const accessToken = getCookie(ACCESS_TOKEN);
-      const user: IUser | {} = JSON.parse(getCookie(USER_KEY) as string) ?? {};
+      const user = JSON.parse(getCookie(USER_KEY) as string) ?? {};
 
-      if (accessToken && isValidToken(accessToken)) {
-   //   setSession(accessToken, user);
+      if (accessToken && isValidToken(user?.refreshTokenExpireAt)) {
+       setSession(accessToken, user);
 
         dispatch({
           type: Types.INITIAL,
@@ -152,7 +152,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
    const res = await axios.post(endpoints.auth.login,credentials );
     const accessToken = res.data?.accessToken;
     const {data} = res;
- //   setSession(accessToken, data);
+    setSession(accessToken, data);
    axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     sessionStorage.setItem(USER_KEY, JSON.stringify(data));
     Cookie.set(ACCESS_TOKEN, accessToken);
