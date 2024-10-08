@@ -23,59 +23,63 @@ function jwtDecode(token: string) {
 // ----------------------------------------------------------------------
 
 export const isValidToken = (refreshTokenExpireAt: string) => {
- // const user = JSON.parse(getCookie('user') as string);
+ //  const user = JSON.parse(getCookie('user') as string);
   if (!refreshTokenExpireAt) {
     return false;
   }
 
 //  const decoded = jwtDecode(accessToken);
-const TokenExpireAt = new Date(refreshTokenExpireAt);
-const now = new Date();
-console.log(TokenExpireAt <  now, 'e')
-  if(TokenExpireAt < now) {
-    refreshToken('ert')
-  }
-  return TokenExpireAt <  now;
+  const TokenExpireAt = new Date(refreshTokenExpireAt);
+  const now = new Date();
+  const check = TokenExpireAt <  now;
+  return !check;
 };
 
 // ----------------------------------------------------------------------
 
-export const tokenExpired = (accessTokenExpireAt: string) => {
+export const tokenExpired = (user: any) => {
   // eslint-disable-next-line prefer-const
-  let expiredTimer;
-  if (!accessTokenExpireAt) {
+  if (!user?.accessTokenExpireAt) {
     return;
   }
-  const TokenExpireAt = new Date(accessTokenExpireAt);
-  const now = new Date();
-  console.log(TokenExpireAt <  now, 'c')
 
-  clearTimeout(expiredTimer);
-  if (TokenExpireAt < now) {
-    expiredTimer = setTimeout(() => {
+  const TokenExpireAt = new Date(user?.accessTokenExpireAt);
+  const refreshTokenExpireAt = new Date(user?.refreshTokenExpireAt);
+  const now = new Date();
+ // clearInterval(expiredTimer);
+ const expiredTimer = setInterval (()=>{
+
+    if(now < refreshTokenExpireAt) {
+      if (now > TokenExpireAt) {
+        refreshToken(user?.refreshToken);
+        window.location.reload()
+      }
+    }else {
       alert('Token expired');
       sessionStorage.removeItem('accessToken');
       sessionStorage.removeItem('user');
       deleteCookie("accessToken");
       deleteCookie("user");
       window.location.href = paths.auth.jwt.login;
+    }
+  }, 120000)
 
-    }, 10000);
-  }
 };
 
 // ----------------------------------------------------------------------
 
-export const setSession = (accessToken: string | null, user:any) => {
-  if (accessToken) {
-    sessionStorage.setItem('accessToken', accessToken);
-    const exp = user?.accessTokenExpireAt
-    isValidToken(user?.refreshTokenExpireAt)
+export const setSession = (accessToken: string , user:any) => {
+
+
+  sessionStorage.setItem('accessToken', accessToken  );
+
+  if (accessToken  ) {
+
 
     axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     // This function below will handle when token is expired
    // const { exp } = jwtDecode(accessToken); // ~3 days by minimals server
-    tokenExpired(exp); // TODO: uncomment this line when deploy
+    tokenExpired(user); // TODO: uncomment this line when deploy
   } else {
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('user');
@@ -87,20 +91,45 @@ export const setSession = (accessToken: string | null, user:any) => {
 };
 
 export const refreshToken = async (token:string) => {
-  sessionStorage.removeItem('accessToken');
-  sessionStorage.removeItem('user');
-  deleteCookie("accessToken");
-  deleteCookie("user");
-const res = await axiosInstance.post(endpoints.auth.refreshToken, {
+
+  const res = await axiosInstance.post(endpoints.auth.refreshToken, {
   refreshToken: token,
   });
   console.log(res.data);
   const {accessToken } = res.data;
   axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
   sessionStorage.setItem('accessToken', accessToken);
-  sessionStorage.setItem('user', res.data);
+  sessionStorage.setItem('user', JSON.stringify(res.data));
   setCookie("accessToken", accessToken);
-  setCookie("user", res.data);
+  setCookie("user", JSON.stringify(res.data));
 };
 
 export const getAccessToken = () => {};
+
+/* function checkTokenExpiration() {
+  // Get the current time in milliseconds
+  const currentTime = Date.now();
+
+  // Retrieve the token expiration time from local storage (adjust as needed)
+  const tokenExpirationTime = localStorage.getItem('tokenExpirationTime');
+
+  // If the token expiration time is not stored, return false (token is considered expired)
+  if (!tokenExpirationTime) {
+    return false;
+  }
+
+  // Parse the token expiration time as a number
+  const expirationTime = parseInt(tokenExpirationTime);
+
+  // Check if the current time is past the expiration time
+  if (currentTime >= expirationTime) {
+    // Token has expired
+    return false;
+  }
+
+  // Token is not expired, schedule the next check in 2 minutes
+  setTimeout(checkTokenExpiration, 2 * 60 * 1000);
+
+  // Return true to indicate that the token is valid
+  return true;
+} */
