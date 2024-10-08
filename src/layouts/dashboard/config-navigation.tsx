@@ -33,6 +33,11 @@ const data = [
         icon: ICONS.dashboard,
       },
       {
+        title: 'Medicine',
+        path: paths.dashboard.medicine,
+        icon: ICONS.results,
+      },
+      {
         title: 'Calculation',
         path: paths.dashboard.calculation.root,
         icon: ICONS.calculation,

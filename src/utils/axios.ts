@@ -114,6 +114,9 @@ export const endpoints = {
     add: ()=> `/api/v1/Admin/faqs`,
     edit: (id:string)=> `/api/v1/Admin/faqs/${id}`,
   },
+  medicine: {
+    list: (page:number,limit:number,scientific_name?:string, formula?:string, indication?:string,pharmacological_group?:string)=>`/api/v1/Admin/medicines?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&ScientificName=${scientific_name}&Formula=${formula}&Indication=${indication}&PharmacologicalGroup=${pharmacological_group}`
+  },
   privacyPolicy: ()=> `/api/v1/Admin/pages/privacy_policy`,
   termsAndConditions: ()=> `/api/v1/Admin/pages/terms_and_conditions`,
   aboutUs: ()=> `/api/v1/Admin/pages/about_us`,

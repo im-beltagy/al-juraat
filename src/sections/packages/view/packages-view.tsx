@@ -48,7 +48,7 @@ export default function PackagesView({ packages, count }: Props) {
   const additionalTableProps = { onRenderprice: (item: Package) => fCurrency(item.price) };
   const handleConfirmDelete = useCallback(async() => {
 
-    const res = await deletePackage(deleteItemId);
+    const res:any = await deletePackage(deleteItemId);
     console.log(res);
 
     if (res?.error) {

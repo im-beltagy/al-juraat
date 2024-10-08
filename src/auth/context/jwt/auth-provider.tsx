@@ -93,7 +93,6 @@ export function AuthProvider({ children }: Readonly<Props>) {
        Cookie.set('Language', lang);
       const accessToken = getCookie(ACCESS_TOKEN);
       const user = JSON.parse(getCookie(USER_KEY) as string) ?? {};
-
       if (accessToken && isValidToken(user?.refreshTokenExpireAt)) {
        setSession(accessToken, user);
 
@@ -199,7 +198,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
 
   // LOGOUT
   const logout = useCallback(async () => {
-    setSession(null, null);
+    setSession('', null);
     deleteCookie('accessToken');
     deleteCookie('user')
     dispatch({
