@@ -28,6 +28,7 @@ import { Medicine } from 'src/types/medicine';
 import CustomAutocompleteView, { ITems } from 'src/components/AutoComplete/CutomAutocompleteView';
 import RHFTextField from 'src/components/hook-form/rhf-text-field2';
 import MedicineDialog from '../medicine-dialog';
+import { paths } from 'src/routes/paths';
 
 const TABLE_HEAD = [
   { id: 'scientificName', label: 'Scientific Name' },
@@ -171,12 +172,12 @@ export default function MedicineView({ medicines, count }: Props) {
         enableActions
         actions={[
           {
-            label: t('Edit'),
-            icon: 'solar:pen-bold',
-            onClick: (item: Medicine) => {
-              setChoosenMedicine(item);
-              setIsDialogOpen(true);
-            },
+            label: t('Details'),
+            icon: 'mdi:eye',
+            onClick: (item: Medicine) =>
+              router.push(
+                `${paths.dashboard.medicine}/${item.id}`
+              ),
           },
           {
             label: 'Delete',
