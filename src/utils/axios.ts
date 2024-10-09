@@ -117,6 +117,7 @@ export const endpoints = {
   medicine: {
     list: (page:number,limit:number,scientific_name?:string, formula?:string, indication?:string,pharmacological_group?:string)=>`/api/v1/Admin/medicines?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&ScientificName=${scientific_name}&Formula=${formula}&Indication=${indication}&PharmacologicalGroup=${pharmacological_group}`,
     add: ()=> `/api/v1/Admin/medicines/create`,
+    details: (id:string)=> `/api/v1/Admin/medicines/${id}`,
     edit: (id:string)=>`/api/v1/Admin/medicines/${id}`,
   },
   privacyPolicy: ()=> `/api/v1/Admin/pages/privacy_policy`,

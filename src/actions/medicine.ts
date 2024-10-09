@@ -27,6 +27,24 @@ export const fetchMedicines = async (page:number, limit:number,scientific_name:s
 };
 
 
+export const fetchSingleMedicine = async (id:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
+  try {
+    const res = await axiosInstance.get(`${endpoints.medicine.details(id)}`, headers);
+    return res.data;
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
+
 export const addMedicine = async (data:any): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
