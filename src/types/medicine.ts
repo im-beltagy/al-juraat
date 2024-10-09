@@ -8,5 +8,11 @@ export type Medicine = {
   notes: string;
   preCautions: string;
   sideEffects: string;
-  tradNames: Array<any>;
+  tradNames: Array<TradeNames>;
+}
+export type TradeNames = {
+  id: string;
+  imageUrl: string;
+  name: string;
+  description: string;
 }

@@ -88,12 +88,11 @@ export default function SingleMedicineView({ medicine }: Props) {
             sm: 'repeat(2, 1fr)',
           }}
         >
-          <Box
-            component="img"
-            alt="logo"
-            src="/logo/logo_single.svg"
-            sx={{ width: 48, height: 48 }}
-          />
+          <Stack>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+            Medicine Details
+            </Typography>
+          </Stack>
 
           <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
           {/*   <Label

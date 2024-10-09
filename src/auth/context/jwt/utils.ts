@@ -43,7 +43,7 @@ export const tokenExpired = (user?: any) => {
     return;
   }
 //const user_ = JSON.parse(JSON.stringify(getCookie('user')));
-console.log(user) ;
+// console.log(user) ;
 const TokenExpireAt = new Date(user?.accessTokenExpireAt) ;
   const refreshTokenExpireAt = new Date(user?.refreshTokenExpireAt) ;
   const now = new Date();
