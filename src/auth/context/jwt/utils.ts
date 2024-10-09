@@ -37,22 +37,22 @@ export const isValidToken = (refreshTokenExpireAt: string) => {
 
 // ----------------------------------------------------------------------
 
-export const tokenExpired = (user: any) => {
+export const tokenExpired = (user?: any) => {
   // eslint-disable-next-line prefer-const
   if (!user?.accessTokenExpireAt) {
     return;
   }
-
-  const TokenExpireAt = new Date(user?.accessTokenExpireAt);
-  const refreshTokenExpireAt = new Date(user?.refreshTokenExpireAt);
+//const user_ = JSON.parse(JSON.stringify(getCookie('user')));
+console.log(user) ;
+const TokenExpireAt = new Date(user?.accessTokenExpireAt) ;
+  const refreshTokenExpireAt = new Date(user?.refreshTokenExpireAt) ;
   const now = new Date();
- // clearInterval(expiredTimer);
- const expiredTimer = setInterval (()=>{
+
 
     if(now < refreshTokenExpireAt) {
       if (now > TokenExpireAt) {
-        refreshToken(user?.refreshToken);
-        window.location.reload()
+        refreshToken(user?.refreshToken ) ;
+      //  window.location.reload()
       }
     }else {
       alert('Token expired');
@@ -62,7 +62,8 @@ export const tokenExpired = (user: any) => {
       deleteCookie("user");
       window.location.href = paths.auth.jwt.login;
     }
-  }, 120000)
+  //  setTimeout(tokenExpired, 2 * 60 * 1000);
+
 
 };
 
@@ -99,9 +100,9 @@ export const refreshToken = async (token:string) => {
   const {accessToken } = res.data;
   axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
   sessionStorage.setItem('accessToken', accessToken);
-  sessionStorage.setItem('user', JSON.stringify(res.data));
+  sessionStorage.setItem('user', res.data);
   setCookie("accessToken", accessToken);
-  setCookie("user", JSON.stringify(res.data));
+  setCookie("user", res.data);
 };
 
 export const getAccessToken = () => {};
