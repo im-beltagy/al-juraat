@@ -280,7 +280,7 @@ const SharedTable = (props: SharedTableProps) => {
               headLabel={enableActions ? [...tableHeaders, { id: '', label: '' }] : tableHeaders}
               rowCount={dataFiltered?.length}
               numSelected={table.selected.length}
-              onSort={table.onSort}
+
             />
 
             <TableBody>

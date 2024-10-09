@@ -164,12 +164,12 @@ export default function ResultsView({
         additionalTableProps={additionalTableProps}
         enableActions
         actions={[
-          {
+        /*   {
             label: t('View Trade names'),
             icon: 'mdi:eye',
             onClick: (item: IFinalResult) =>
               router.push(`${paths.dashboard.results.tradeNames.root}/${item.id}`),
-          },
+          }, */
           {
             label: t('Details'),
             icon: 'mdi:eye',

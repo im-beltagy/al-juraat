@@ -180,9 +180,18 @@ export default function MedicineView({ medicines, count }: Props) {
               ),
           },
           {
-            label: 'Delete',
-            icon: 'heroicons:trash-solid',
-            onClick: (item: Medicine) => setDeleteItemId(item.id),
+            label: t('Edit'),
+            icon: 'solar:pen-bold',
+            onClick: (item: Medicine) => {
+              setChoosenMedicine(item);
+              setIsDialogOpen(true);
+            }
+          },
+          {
+            label: t('View Trade names'),
+            icon: 'mdi:eye',
+            onClick: (item: Medicine) =>
+              router.push(`${paths.dashboard.medicine}/trade-names/${item.id}`),
           },
 
         ]}

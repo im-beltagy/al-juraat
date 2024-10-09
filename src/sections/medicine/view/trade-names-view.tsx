@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useCallback } from 'react';
 
-import { TextField } from '@mui/material';
+import { Avatar, TextField } from '@mui/material';
 import { Stack, Container } from '@mui/system';
 
 import { paths } from 'src/routes/paths';
@@ -17,31 +17,27 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import TableHeadActions from 'src/components/shared-table/table-head-actions';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
 
-import { TradeName } from 'src/types/results';
+import { TradeNames } from 'src/types/medicine';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name' },
+  { id: 'imageUrl', label: 'Image' },
   { id: 'description', label: 'Description' },
 ];
 
 interface Props {
-  medicine: string;
-  formula: string;
-  indication: string;
-  tradeNames: TradeName[];
+  tradeNames: TradeNames[];
   count: number;
 }
 
 export default function TradeNamesView({
-  medicine,
-  formula,
-  indication,
+
   tradeNames,
   count,
 }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
-
+  console.log(tradeNames)
   const table = useTable();
 
   const router = useRouter();
@@ -51,7 +47,10 @@ export default function TradeNamesView({
     console.log(deleteItemId);
     setDeleteItemId('');
   }, [deleteItemId]);
+  const additionalTableProps = {
+    onRenderimageUrl: (item: TradeNames) => <Avatar src={item?.imageUrl} />,
 
+   };
   return (
     <Container
       maxWidth={settings.themeStretch ? false : 'xl'}
@@ -63,42 +62,27 @@ export default function TradeNamesView({
     >
       <CustomBreadcrumbs heading={t('Trade Names')} links={[{}]} sx={{ mb: 3 }} />
 
-      <Stack spacing={2} mb={3}>
-        {[
-          ['Medicine', medicine],
-          ['Formula', formula],
-          ['Indication', indication],
-        ].map(([label, value]) => (
-          <TextField
-            label={t(label)}
-            value={value}
-            fullWidth
-            sx={{ maxWidth: '20rem' }}
-            InputProps={{ readOnly: true }}
-            key={label}
-          />
-        ))}
-      </Stack>
-
       <SharedTable
-        additionalComponent={<TableHeadActions handleExport={() => {}} />}
+        additionalComponent={<TableHeadActions />}
         dataFiltered={tradeNames}
         table={table}
         count={count}
+        disablePagination
         tableHeaders={TABLE_HEAD}
-        additionalTableProps={{}}
+        additionalTableProps={additionalTableProps}
+
         enableAdd
         custom_add_title={t('Add New')}
-        handleAdd={() => router.push(paths.dashboard.results.tradeNames.new)}
+        handleAdd={() =>  console.log("add")/* router.push(paths.dashboard.results.tradeNames.new) */}
         enableActions
         actions={[
           {
             label: t('View'),
             icon: 'mdi:eye',
-            onClick: (item: TradeName) =>
+            onClick: (item: TradeNames) =>
               router.push(`${paths.dashboard.results.tradeNames.view}/${item.id}`),
           },
-          {
+        /*   {
             label: t('Edit'),
             icon: 'solar:pen-bold',
             onClick: (item: TradeName) =>
@@ -108,7 +92,7 @@ export default function TradeNamesView({
             label: t('Delete'),
             icon: 'heroicons:trash-solid',
             onClick: (item: TradeName) => setDeleteItemId(item.id),
-          },
+          }, */
         ]}
       />
 
