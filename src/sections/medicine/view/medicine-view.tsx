@@ -27,6 +27,7 @@ import { deletePackage } from 'src/actions/packages-actions';
 import { Medicine } from 'src/types/medicine';
 import CustomAutocompleteView, { ITems } from 'src/components/AutoComplete/CutomAutocompleteView';
 import RHFTextField from 'src/components/hook-form/rhf-text-field2';
+import MedicineDialog from '../medicine-dialog';
 
 const TABLE_HEAD = [
   { id: 'scientificName', label: 'Scientific Name' },
@@ -50,7 +51,7 @@ export default function MedicineView({ medicines, count }: Props) {
   const router = useRouter();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [choosenPackage, setChoosenPackage] = useState<Medicine | undefined>(undefined);
+  const [choosenMedicine, setChoosenMedicine] = useState<Medicine | undefined>(undefined);
 
   const { createQueryString } = useQueryString();
 
@@ -164,7 +165,7 @@ export default function MedicineView({ medicines, count }: Props) {
         enableAdd
         custom_add_title={t('Add New Medicine')}
         handleAdd={() => {
-          setChoosenPackage(undefined);
+          setChoosenMedicine(undefined);
           setIsDialogOpen(true);
         }}
         enableActions
@@ -173,7 +174,7 @@ export default function MedicineView({ medicines, count }: Props) {
             label: t('Edit'),
             icon: 'solar:pen-bold',
             onClick: (item: Medicine) => {
-              setChoosenPackage(item);
+              setChoosenMedicine(item);
               setIsDialogOpen(true);
             },
           },
@@ -194,16 +195,16 @@ export default function MedicineView({ medicines, count }: Props) {
           handleConfirmDelete={handleConfirmDelete}
         />
       )}
- {/*      {isDialogOpen ? (
-        <PackagesDialog
+      {isDialogOpen ? (
+        <MedicineDialog
           open={isDialogOpen}
           onClose={() => {
             setIsDialogOpen(false);
-            setChoosenPackage(undefined);
+            setChoosenMedicine(undefined);
           }}
-          choosenPackage={choosenPackage}
+         medicine={choosenMedicine}
         />
-      ) : null} */}
+      ) : null}
     </Container>
   );
 }
