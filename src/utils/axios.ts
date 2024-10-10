@@ -122,9 +122,11 @@ export const endpoints = {
   },
   tradeNames: {
     list:(id:string, page:number, limit:number)=>`/api/v1/Admin/tradenames/list/${id}?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}`,
-    add: ()=> `/api/v1/Admin/medicines/create`,
-    details: (id:string)=> `/api/v1/Admin/medicines/${id}`,
-    edit: (id:string)=>`/api/v1/Admin/medicines/${id}`,
+    add: ()=> `/api/v1/Admin/tradenames/create`,
+    details: (id:string)=> `/api/v1/Admin/tradenames/${id}`,
+    edit: (id:string)=>`/api/v1/Admin/tradenames/${id}`,
+    delete: (id:string)=>`/api/v1/Admin/tradenames/${id}`,
+
   },
   privacyPolicy: ()=> `/api/v1/Admin/pages/privacy_policy`,
   termsAndConditions: ()=> `/api/v1/Admin/pages/terms_and_conditions`,

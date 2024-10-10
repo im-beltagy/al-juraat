@@ -6,7 +6,6 @@ import { useState, useCallback } from 'react';
 import { Avatar, TextField } from '@mui/material';
 import { Stack, Container } from '@mui/system';
 
-import { paths } from 'src/routes/paths';
 
 import { useTranslate } from 'src/locales';
 
@@ -18,6 +17,9 @@ import TableHeadActions from 'src/components/shared-table/table-head-actions';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
 
 import { TradeNames } from 'src/types/medicine';
+import TradeNamesDialog from '../tradeNames-dialog';
+import { deleteTradeName } from 'src/actions/tradeNames-actions';
+import { enqueueSnackbar } from 'notistack';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name' },
@@ -28,29 +30,43 @@ const TABLE_HEAD = [
 interface Props {
   tradeNames: TradeNames[];
   count: number;
+  medicineId:string;
 }
 
 export default function TradeNamesView({
 
   tradeNames,
   count,
+  medicineId,
 }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
-  console.log(tradeNames)
   const table = useTable();
+
+  const [deleteItemId, setDeleteItemId] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [choosenTradeName, setChoosenTradeName] = useState<TradeNames | undefined>(undefined);
 
   const router = useRouter();
 
-  const [deleteItemId, setDeleteItemId] = useState('');
-  const handleConfirmDelete = useCallback(() => {
-    console.log(deleteItemId);
-    setDeleteItemId('');
-  }, [deleteItemId]);
   const additionalTableProps = {
     onRenderimageUrl: (item: TradeNames) => <Avatar src={item?.imageUrl} />,
 
    };
+
+  const handleConfirmDelete = useCallback(async() => {
+
+    const res = await deleteTradeName(deleteItemId);
+
+    if (res?.error) {
+      enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+    } else {
+      enqueueSnackbar('Deleted success!', {
+        variant: 'success',
+      });
+    }
+    setDeleteItemId('');
+  }, [deleteItemId]);
   return (
     <Container
       maxWidth={settings.themeStretch ? false : 'xl'}
@@ -72,30 +88,46 @@ export default function TradeNamesView({
         additionalTableProps={additionalTableProps}
 
         enableAdd
-        custom_add_title={t('Add New')}
-        handleAdd={() =>  console.log("add")/* router.push(paths.dashboard.results.tradeNames.new) */}
+        custom_add_title={t('Add New Trade Name')}
+        handleAdd={() => {
+          setChoosenTradeName(undefined);
+          setIsDialogOpen(true);
+        }}
         enableActions
         actions={[
-          {
+        /*   {
             label: t('View'),
             icon: 'mdi:eye',
             onClick: (item: TradeNames) =>
               router.push(`${paths.dashboard.results.tradeNames.view}/${item.id}`),
-          },
-        /*   {
+          }, */
+
+          {
             label: t('Edit'),
             icon: 'solar:pen-bold',
-            onClick: (item: TradeName) =>
-              router.push(`${paths.dashboard.results.tradeNames.edit}/${item.id}`),
+            onClick: (item: TradeNames) => {
+              setChoosenTradeName(item);
+              setIsDialogOpen(true);
+            }
           },
           {
             label: t('Delete'),
             icon: 'heroicons:trash-solid',
-            onClick: (item: TradeName) => setDeleteItemId(item.id),
-          }, */
+            onClick: (item: TradeNames) => setDeleteItemId(item.id),
+          },
         ]}
       />
-
+      {isDialogOpen ? (
+        <TradeNamesDialog
+          open={isDialogOpen}
+          onClose={() => {
+            setIsDialogOpen(false);
+            setChoosenTradeName(undefined);
+          }}
+         tradeName={choosenTradeName}
+         medicineId={medicineId}
+        />
+      ) : null}
       {deleteItemId && (
         <ConfirmDialog
           open={!!deleteItemId}
