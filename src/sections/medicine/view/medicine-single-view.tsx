@@ -157,7 +157,7 @@ export default function SingleMedicineView({ medicine }: Props) {
           </Stack>
         </Box>
 
-        {medicine?.tradNames[0] &&
+      {/*   {medicine?.tradNames[0] &&
          <>
           <Stack >
             <Typography variant="h6" sx={{ mt: 3 }}>
@@ -165,7 +165,7 @@ export default function SingleMedicineView({ medicine }: Props) {
             </Typography>
           </Stack>
         {renderList}
-        </>}
+        </>} */}
 
       </Card>
       </Stack>
