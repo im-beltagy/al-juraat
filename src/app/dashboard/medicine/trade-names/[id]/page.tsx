@@ -22,7 +22,7 @@ export default async function Page({
 
   return (
     <TradeNamesView
-
+        medicineId={id}
       tradeNames={(tradeNames?.items  || []) as TradeNames[]}
       count={Number(tradeNames?.totalCount)}
     />
