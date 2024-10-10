@@ -109,16 +109,16 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
 
       <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2} sx={{ p: 3 }}>
-          <RHFTextField name="ScientificName" label={t('Scientific Name')} placeholder={t('Scientific Name')} />
-          <RHFTextField name="Formula" label={t('Formula')} placeholder={t('Formula')} />
-          <RHFTextField name="Indication" label={t('Indication')} placeholder={t('Indication')} />
-          <RHFTextField name="InitialDose" label={t('InitialDose')} placeholder={t('InitialDose')}
+          <RHFTextField InputLabelProps={{style:{ fontWeight:'bold'}}} name="ScientificName" label={t('Scientific Name')} placeholder={t('Scientific Name')} />
+          <RHFTextField name="Formula" InputLabelProps={{style:{ fontWeight:'bold'}}}  label={t('Formula')} placeholder={t('Formula')} />
+          <RHFTextField name="Indication" InputLabelProps={{style:{ fontWeight:'bold'}}} label={t('Indication')} placeholder={t('Indication')} />
+          <RHFTextField name="InitialDose" InputLabelProps={{style:{ fontWeight:'bold'}}} label={t('InitialDose')} placeholder={t('InitialDose')}
           helperText="warning edit InitialDose will remove details of the medicine"
           />
-          <RHFTextField name="PharmacologicalGroup" label={t('Pharmacological Group')} placeholder={t('Pharmacological Group')} />
-          <RHFTextField name="Notes" label={t('Notes')} placeholder={t('Notes')} />
-          <RHFTextField name="PreCautions" label={t('PreCautions')} placeholder={t('PreCautions')} />
-          <RHFTextField name="SideEffects" type="number" label={t('SideEffects')} placeholder={t('SideEffects')} />
+          <RHFTextField name="PharmacologicalGroup" InputLabelProps={{style:{ fontWeight:'bold'}}} label={t('Pharmacological Group')} placeholder={t('Pharmacological Group')} />
+          <RHFTextField multiline rows={3} InputLabelProps={{style:{ fontWeight:'bold'}}} name="Notes" label={t('Notes')} placeholder={t('Notes')} />
+          <RHFTextField multiline rows={3} InputLabelProps={{style:{ fontWeight:'bold'}}}  name="PreCautions" label={t('PreCautions')} placeholder={t('PreCautions')} />
+          <RHFTextField multiline rows={3} InputLabelProps={{style:{ fontWeight:'bold'}}}  name="SideEffects" type="number" label={t('SideEffects')} placeholder={t('SideEffects')} />
 
         </Stack>
 
