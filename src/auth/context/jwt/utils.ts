@@ -38,31 +38,35 @@ export const isValidToken = (refreshTokenExpireAt: string) => {
 // ----------------------------------------------------------------------
 
 export const tokenExpired = (user?: any) => {
+  let check;
   // eslint-disable-next-line prefer-const
-  if (!user?.accessTokenExpireAt) {
+  const storedUser = typeof getCookie('user') === 'string' && JSON.parse(getCookie('user') as string);
+  //console.log(storedUser) ;
+
+  if (!user?.accessTokenExpireAt && storedUser) {
+    clearInterval(check);
     return;
   }
-//const user_ = JSON.parse(JSON.stringify(getCookie('user')));
-// console.log(user) ;
-const TokenExpireAt = new Date(user?.accessTokenExpireAt) ;
-  const refreshTokenExpireAt = new Date(user?.refreshTokenExpireAt) ;
+const TokenExpireAt = new Date( user?.accessTokenExpireAt || storedUser?.accessTokenExpireAt ) ;
+  const refreshTokenExpireAt = new Date(user?.refreshTokenExpireAt || storedUser?.refreshTokenExpireAt) ;
   const now = new Date();
-
 
     if(now < refreshTokenExpireAt) {
       if (now > TokenExpireAt) {
         refreshToken(user?.refreshToken ) ;
-      //  window.location.reload()
+
+
       }
     }else {
-      alert('Token expired');
+  //    alert('Token expired');
       sessionStorage.removeItem('accessToken');
       sessionStorage.removeItem('user');
       deleteCookie("accessToken");
       deleteCookie("user");
       window.location.href = paths.auth.jwt.login;
     }
-  //  setTimeout(tokenExpired, 2 * 60 * 1000);
+
+    check = setInterval(tokenExpired, 3 * 60 * 1000);
 
 
 };
@@ -100,9 +104,10 @@ export const refreshToken = async (token:string) => {
   const {accessToken } = res.data;
   axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
   sessionStorage.setItem('accessToken', accessToken);
-  sessionStorage.setItem('user', res.data);
+  sessionStorage.setItem('user', JSON.stringify(res.data));
   setCookie("accessToken", accessToken);
-  setCookie("user", res.data);
+  setCookie("user", JSON.stringify(res.data));
+  window.location.reload();
 };
 
 export const getAccessToken = () => {};
