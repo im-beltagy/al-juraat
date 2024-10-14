@@ -48,6 +48,26 @@ export const addTradeNames = async (data:any): Promise<any> => {
 };
 
 
+export const fetchSingleTradeName = async (id:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+
+    }
+  };
+  try {
+    const res = await axiosInstance.get(`${endpoints.tradeNames.details(id)}`, headers);
+    return res.data;
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
+
+
 export const editTradeNames = async (id:string,data:any): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {

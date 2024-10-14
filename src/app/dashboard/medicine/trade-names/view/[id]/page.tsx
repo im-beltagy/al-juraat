@@ -1,11 +1,11 @@
-import { fetchSingleTradeName } from 'src/actions/trade-names-actions';
+import { fetchSingleTradeName } from 'src/actions/tradeNames-actions';
 
-import SingleTradeNameView from 'src/sections/results/view/single-trade-name-view';
+import SingleTradeNameView from 'src/sections/medicine/view/single-trade-names';
 
-import { TradeName } from 'src/types/results';
+import { TradeNames } from 'src/types/medicine';
 
 export default async function Page({ params: { id } }: { params: { id: string } }) {
-  const tradeName = await fetchSingleTradeName({ id });
+  const tradeName = await fetchSingleTradeName(id );
 
-  return <SingleTradeNameView tradeName={tradeName as unknown as TradeName} />;
+  return <SingleTradeNameView tradeName={tradeName as  TradeNames} />;
 }

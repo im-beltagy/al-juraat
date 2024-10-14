@@ -20,6 +20,7 @@ import { TradeNames } from 'src/types/medicine';
 import TradeNamesDialog from '../tradeNames-dialog';
 import { deleteTradeName } from 'src/actions/tradeNames-actions';
 import { enqueueSnackbar } from 'notistack';
+import { paths } from 'src/routes/paths';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name' },
@@ -42,11 +43,9 @@ export default function TradeNamesView({
   const { t } = useTranslate();
   const settings = useSettingsContext();
   const table = useTable();
-
   const [deleteItemId, setDeleteItemId] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [choosenTradeName, setChoosenTradeName] = useState<TradeNames | undefined>(undefined);
-
   const router = useRouter();
 
   const additionalTableProps = {
@@ -95,12 +94,12 @@ export default function TradeNamesView({
         }}
         enableActions
         actions={[
-        /*   {
+          {
             label: t('View'),
             icon: 'mdi:eye',
             onClick: (item: TradeNames) =>
-              router.push(`${paths.dashboard.results.tradeNames.view}/${item.id}`),
-          }, */
+              router.push(`${paths.dashboard.medicine}/trade-names/view/${item.id}`),
+          },
 
           {
             label: t('Edit'),
