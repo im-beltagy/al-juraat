@@ -45,8 +45,8 @@ export default function JwtLoginView() {
 
   const LoginSchema = Yup.object().shape({
     email: Yup.string()
-      .required(t('Email is required'))
-      .email(t('Email must be a valid email address')),
+      .required(t('Email is required')),
+      /* .email(t('Email must be a valid email address')) */
     password: Yup.string().required(t('Password is required')),
   });
 
