@@ -131,9 +131,9 @@ export function AuthProvider({ children }: Readonly<Props>) {
   // LOGIN
   const login = useCallback(async (username: string, password: string) => {
     const credentials = {
-      "phoneNumber": "+20123456",
+      "phoneNumber":username ,// "20123456",
       "role": "admin",
-      "password": "Admin@12345"
+      "password": password //"Admin@12345"
     };
   /*   const res = {
       id: "748b4681-4ca2-4f3d-99ad-e6f75b546e2a",
