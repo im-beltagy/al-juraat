@@ -92,6 +92,7 @@ export const setSession = (accessToken: string , user:any) => {
     deleteCookie("user");
 
     delete axios.defaults.headers.common.Authorization;
+    window.location.href = paths.auth.jwt.login;
   }
 };
 
