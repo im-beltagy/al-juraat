@@ -1,22 +1,23 @@
 import { create, StateCreator } from 'zustand';
 
 import { IDosageItem, IVariableItem, CalculationItem } from 'src/types/calculations';
+import { IVariable } from 'src/types/variables';
 
 interface MedicineSlice {
-  medicine?: CalculationItem;
-  setMedicine: (newVal?: CalculationItem) => void;
+  medicine?: {id:string, value:string};
+  setMedicine: (newVal?: {id:string, value:string}) => void;
 
-  formula?: CalculationItem;
-  setFormula: (newVal?: CalculationItem) => void;
+  formula?: {id:string, value:string};
+  setFormula: (newVal?: {id:string, value:string}) => void;
 
-  indication?: CalculationItem;
-  setIndication: (newVal?: CalculationItem) => void;
+  indication?: {id:string, value:string};
+  setIndication: (newVal?: {id:string, value:string}) => void;
 
-  variable?: IVariableItem;
-  setVariable: (newVal?: IVariableItem) => void;
+  variable?: IVariable;
+  setVariable: (newVal?: IVariable) => void;
 
-  allVariables?: IVariableItem[];
-  setAllVariables: (newVal?: IVariableItem[]) => void;
+  allVariables?: IVariable[];
+  setAllVariables: (newVal?: IVariable[]) => void;
 
   initialDosage?: IDosageItem;
   setInitialDosage: (newVal?: IDosageItem) => void;

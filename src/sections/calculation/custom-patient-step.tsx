@@ -106,18 +106,18 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
             <RHFTextField
               name="medicine"
               label={t('Scientific name')}
-              value={medicine?.name}
+              value={medicine?.value}
               disabled
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <RHFTextField name="formula" label={t('Formula')} value={formula?.name} disabled />
+            <RHFTextField name="formula" label={t('Formula')} value={formula?.value} disabled />
           </Grid>
           <Grid item xs={12} sm={6}>
             <RHFTextField
               name="indication"
               label={t('Indication')}
-              value={indication?.name}
+              value={indication?.value}
               disabled
             />
           </Grid>
@@ -126,8 +126,8 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
               name="dosage"
               label={t('Dosage')}
               type="number"
-              value={initialDosage?.value}
-              InputProps={{ endAdornment: initialDosage?.unit }}
+              value={initialDosage?.dosage}
+              InputProps={{ endAdornment: initialDosage?.dosage }}
               disabled
             />
           </Grid>

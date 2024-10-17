@@ -1,14 +1,13 @@
 // ----------------------------------------------------------------------
 
-import { fetchAllVariables } from 'src/actions/variables-actions';
+import {  fetchVariables ,fetchFormulas, fetchIndications, fetchScientificNames, fetchDosage} from 'src/actions/equation-actions';
 import {
-  fetchMedicines,
   fetchInitialDosage,
   fetchCalculationFinalResult,
-  fetchFormulasAndIndications,
 } from 'src/actions/calculations-actions';
 
 import CalculationView from 'src/sections/calculation/view/calculation-view';
+import { IVariable } from 'src/types/variables';
 
 export const metadata = {
   title: 'Calculations | Al-Juraat Al-Tibbiya',
@@ -33,25 +32,26 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
     typeof searchParams.indication === 'string' ? searchParams.indication : undefined;
   const step = typeof searchParams.step === 'string' ? searchParams.step : undefined;
 
-  const medicines = await fetchMedicines();
-  const variables = await fetchAllVariables();
+  const scientific_names = await fetchScientificNames();
+  const variables = await fetchVariables();
 
   let formulas;
   let indications;
 
   if (medicine) {
-    const res = await fetchFormulasAndIndications({ medicine_id: medicine });
-    formulas = res?.data?.formulas;
-    indications = res?.data?.indications;
+    const Formulas_res = await fetchFormulas( medicine );
+    const Indications_res = await fetchIndications( medicine );
+
+    formulas = Formulas_res;
+    indications = Indications_res;
   }
 
   let initialDosage;
+  if (medicine && formula && indication && step == 'dominal-variables'  ) {
+    const res = await fetchDosage(medicine, formula,indication);
 
-  if (medicine && formula && indication) {
-    const res = await fetchInitialDosage({ medicine, formula, indication });
-    initialDosage = res?.data;
+    initialDosage = res;
   }
-
   let resultsRes: any;
   if (
     medicine &&
@@ -64,11 +64,12 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   }
 
   return (
+
     <CalculationView
-      medicines={convertIntoItems(medicines?.data || [])}
-      variables={variables?.data || []}
-      formulas={formulas ? convertIntoItems(formulas) : undefined}
-      indications={indications ? convertIntoItems(indications) : undefined}
+      medicines={scientific_names as string[]}
+      variables={variables?.items as IVariable[]}
+      formulas={formulas as string[]}
+      indications={indications as string[]}
       initialDosage={initialDosage}
       results={{ data: resultsRes?.data || [], count: resultsRes?.count || 0 }}
     />

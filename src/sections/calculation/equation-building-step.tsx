@@ -19,12 +19,13 @@ import CustomAutocompleteView, { ITems } from 'src/components/AutoComplete/Cutom
 import { IVariableItem, yupCalculationItem } from 'src/types/calculations';
 
 import { useCalculationStore } from './calculation-store';
-
+import { IVariable } from 'src/types/variables';
+type ITem = {id:string,value:string};
 export interface Props {
-  medicines: ITems[];
-  formulas?: ITems[];
-  indications?: ITems[];
-  variables: IVariableItem[];
+  medicines: string[];
+  formulas?: string[];
+  indications?: string[];
+  variables: IVariable[];
 }
 
 export default function EquationBuildingStep({
@@ -53,9 +54,9 @@ export default function EquationBuildingStep({
 
   const { medicineItem, formulaItem, indicationItem } = useMemo(
     () => ({
-      medicineItem: medicines.find((m) => m.id === medicine) || null,
-      formulaItem: formulas?.find((f) => f.id === formulaId) || null,
-      indicationItem: indications?.find((i) => i.id === indicationId) || null,
+      medicineItem: medicines?.find((m) => m === medicine) || '',
+      formulaItem: formulas?.find((f) => f === formulaId) || '',
+      indicationItem: indications?.find((i) => i === indicationId) || '',
     }),
     [formulaId, formulas, indicationId, indications, medicine, medicines]
   );
@@ -63,24 +64,48 @@ export default function EquationBuildingStep({
   const methods = useForm({
     resolver: yupResolver(
       yup.object().shape({
-        medicine: yupCalculationItem,
-        formula: yupCalculationItem,
-        indication: yupCalculationItem,
-        variables: yup.array(yupCalculationItem).nullable(),
+        medicine: yup.object({
+          id:yup.string(),
+          value:yup.string()
+      }).nullable(),
+        formula: yup.object({
+          id:yup.string(),
+          value:yup.string()
+      }).nullable(),
+        indication: yup.object({
+          id:yup.string(),
+          value:yup.string()
+      }).nullable(),
+        variables: yup.array().nullable(),
       })
     ),
     defaultValues: {
-      medicine: medicineItem,
-      formula: formulaItem,
-      indication: indicationItem,
+      medicine: {id:medicineItem, value:medicineItem} ,
+      formula: {id:formulaItem, value:formulaItem} ,
+      indication: {id:indicationItem, value:indicationItem}  ,
       variables:
         variables
           .filter((v) => allVariables?.some(({ id }) => id === v.id))
-          .map((item) => ({ ...item, name_ar: item.name, name_en: item.name }) as ITems) || null,
+          .map((item) => ({ ...item}) as IVariable) || {},
     },
   });
 
   const choosenVariables = methods.watch('variables');
+  const choosenFormula = methods.watch('formula');
+  const choosenIndication = methods.watch('indication');
+  const choosenMedicine = methods.watch('medicine');
+
+  useEffect(()=>{
+    sessionStorage.setItem('medicine', JSON.stringify(choosenMedicine))
+    sessionStorage.setItem('formula', JSON.stringify(choosenFormula))
+    sessionStorage.setItem('indication', JSON.stringify(choosenIndication))
+    sessionStorage.setItem('selectedVariables', JSON.stringify(choosenVariables))
+
+  },[choosenVariables,choosenMedicine,choosenFormula,choosenFormula])
+  const {
+    setValue,
+    getValues
+  } = methods;
 
   useEffect(() => {
     const refactoredVariables = variables.filter(
@@ -91,56 +116,76 @@ export default function EquationBuildingStep({
 
   useEffect(() => {
     if (medicineItem) {
-      const { name, id } = medicineItem;
-      setMedicine({ name, id });
+      setMedicine({id:medicineItem ||'', value:medicineItem||''});
     }
     if (formulaItem) {
-      const { name, id } = formulaItem;
-      setFormula({ name, id });
+      setFormula({id:formulaItem||'', value:formulaItem||''});
     }
     if (indicationItem) {
-      const { name, id } = indicationItem;
-      setIndication({ name, id });
+      setIndication({id:indicationItem||'', value:indicationItem||''});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   return (
     <>
       <FormProvider methods={methods}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
-            <CustomAutocompleteView
+            <RHFAutocomplete
               name="medicine"
               label={t('Scientific name')}
               placeholder={t('Scientific name')}
-              items={medicines}
-              onCustomChange={(item) => {
-                if (item) {
-                  const { name, id } = item;
-                  setMedicine({ name, id });
-                  createQueryString([{ name: 'medicine', value: id }]);
+              options={medicines?.map((item)=>( {id:item, value:item}))}
+              getOptionLabel={(option) => {
+                if (typeof option !== 'string') {
+
+                  return option.id;
+                }
+                return '';
+              }}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+
+              onChange={(_event, newValue:any) => {
+                if (newValue) {
+                  console.log('her',newValue)
+                  setValue('medicine', newValue as any)
+                 setMedicine(newValue as any );
+                  createQueryString([{ name: 'medicine', value: String(newValue.id) }]);
                 } else {
                   setMedicine();
                   setFormula();
+                  setValue('formula', null )
+                  setValue('indication', null )
+                  setValue('medicine', null )
                   setIndication();
                   createQueryString([{ name: 'medicine' }]);
+                  createQueryString([{ name: 'formula' }]);
+                  createQueryString([{ name: 'indication' }]);
                 }
               }}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <CustomAutocompleteView
+            <RHFAutocomplete
               name="formula"
               label={t('Formula')}
               placeholder={t('Formula')}
-              items={formulas || []}
-              onCustomChange={(item) => {
-                if (item) {
-                  const { name, id } = item;
-                  setFormula({ name, id });
-                  createQueryString([{ name: 'formula', value: id }]);
+              options={formulas?.map((item)=>( {id:item, value:item}) as ITem) || []}
+              getOptionLabel={(option) => {
+                if (typeof option !== 'string') {
+                  return option.id;
+                }
+                return '';
+              }}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+
+              onChange={(_event, newValue:any) => {
+                if (newValue) {
+                  setValue('formula', newValue)
+                  setFormula(newValue);
+                  createQueryString([{ name: 'formula', value: String(newValue.id) }]);
                 } else {
+                  setValue('formula', null )
                   setFormula();
                   createQueryString([{ name: 'formula' }]);
                 }
@@ -148,17 +193,27 @@ export default function EquationBuildingStep({
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <CustomAutocompleteView
+            <RHFAutocomplete
               name="indication"
               label={t('Indication')}
               placeholder={t('Indication')}
-              items={indications || []}
-              onCustomChange={(item) => {
-                if (item) {
-                  const { name, id } = item;
-                  setIndication({ name, id });
-                  createQueryString([{ name: 'indication', value: id }]);
+              options={indications?.map((item)=>( {id:item, value:item}) as ITem) || []}
+              getOptionLabel={(option) => {
+                if (typeof option !== 'string') {
+                  return option.id;
+                }
+                return '';
+              }}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+
+              onChange={(_event, newValue:any) => {
+                if (newValue) {
+                  setValue('indication', newValue)
+
+                  setIndication(newValue);
+                  createQueryString([{ name: 'indication', value: String(newValue.id) }]);
                 } else {
+                  setValue('indication', null )
                   setIndication();
                   createQueryString([{ name: 'indication' }]);
                 }
@@ -172,11 +227,11 @@ export default function EquationBuildingStep({
               placeholder={t('Choose one or more variable')}
               multiple
               options={variables.map(
-                (item) => ({ ...item, name_ar: item.name, name_en: item.name }) as ITems
+                (item) => ({ ...item}) as IVariable
               )}
               getOptionLabel={(option) => {
                 if (typeof option !== 'string') {
-                  return option.name_en;
+                  return option.name;
                 }
                 return '';
               }}

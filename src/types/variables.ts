@@ -15,11 +15,22 @@ export type Variable = {
 );
 
 export type IVariable =  {
-  id: string,
-  name: string,
-  type: string,
-  maxValue: number,
+  id: string;
+  name: string;
+  type: string;
+  maxValue: number;
   values: [
     string
   ]
+}
+export type IEquationVariable = {
+  id: string;
+  variableId: string;
+  variableName: string;
+  value: string;
+  minValue: number;
+  maxValue: number;
+  effect: number;
+  result: number;
+  effectType: boolean
 }

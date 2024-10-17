@@ -4,7 +4,7 @@ import { fetchMedicines, fetchFormulasAndIndications } from 'src/actions/calcula
 
 import ResultsView from 'src/sections/results/view/results-view';
 
-import { IFinalResult } from 'src/types/results';
+import { Result } from 'src/types/results';
 
 export const metadata = {
   title: 'Results | Al-Juraat Al-Tibbiya',
@@ -18,37 +18,30 @@ const convertIntoItems = (data: { id: string; name: string }[]) =>
     name_en: item.name,
   }));
 
-type SearchParams = {
-  [key in 'medicine' | 'formula' | 'indication' | 'variable' | 'page' | 'limit']:
-    | string
-    | string[]
-    | undefined;
-};
+  type SearchParams = {
+    [key in 'scientific_name' | 'formula' | 'indication'  | 'page' | 'limit']:
+      | string
+      | string[]
+      | undefined;
+  };
+
 
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
-  const medicine = typeof searchParams.medicine === 'string' ? searchParams.medicine : undefined;
+  const scientific_name = typeof searchParams.scientific_name === 'string' ? searchParams.scientific_name : undefined;
   const formula = typeof searchParams.formula === 'string' ? searchParams.formula : undefined;
   const indication =
     typeof searchParams.indication === 'string' ? searchParams.indication : undefined;
-  const variable = typeof searchParams.variable === 'string' ? searchParams.variable : undefined;
-  const page = typeof searchParams.page === 'string' ? Number(searchParams.page) : undefined;
-  const limit = typeof searchParams.limit === 'string' ? Number(searchParams.limit) : undefined;
+  const page = typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
+  const limit = typeof searchParams.limit === 'string' ? Number(searchParams.limit) : 5;
 
-  const results = await fetchResults({ medicine, formula, indication, variable, page, limit });
 
-  const medicines = await fetchMedicines();
-  const variables = await fetchAllVariables();
+  const results = await fetchResults( page, limit, scientific_name || '', formula || '', indication || '');
 
-  const res = await fetchFormulasAndIndications({});
 
   return (
     <ResultsView
-      results={(results?.data || []) as unknown as IFinalResult[]}
-      count={results?.count || 0}
-      formulas={convertIntoItems(res?.data?.formulas || [])}
-      indications={convertIntoItems(res?.data?.indications || [])}
-      medicines={convertIntoItems(medicines?.data || [])}
-      variables={convertIntoItems(variables.data || [])}
+    results={results?.items as  Result[]}
+    count={results.totalCount as number}
     />
   );
 }
