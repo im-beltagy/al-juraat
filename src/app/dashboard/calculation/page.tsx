@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------
 
-import {  fetchVariables ,fetchFormulas, fetchIndications, fetchScientificNames, fetchDosage} from 'src/actions/equation-actions';
+import {  fetchVariables ,fetchFormulas, fetchIndications, fetchScientificNames, fetchDosage, fetchDominalVariables} from 'src/actions/equation-actions';
 import {
   fetchInitialDosage,
   fetchCalculationFinalResult,
@@ -8,6 +8,7 @@ import {
 
 import CalculationView from 'src/sections/calculation/view/calculation-view';
 import { IVariable } from 'src/types/variables';
+import { Result } from '@mui/system/cssVars/useCurrentColorScheme';
 
 export const metadata = {
   title: 'Calculations | Al-Juraat Al-Tibbiya',
@@ -22,7 +23,7 @@ const convertIntoItems = (data: { id: string; name: string }[]) =>
   }));
 
 type SearchParams = {
-  [key in 'medicine' | 'formula' | 'indication' | 'step']: string | string[] | undefined;
+  [key in 'medicine' | 'formula' | 'indication' | 'step' | 'page' | 'limit' | 'equationId']: string | string[] | undefined;
 };
 
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
@@ -31,6 +32,10 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const indication =
     typeof searchParams.indication === 'string' ? searchParams.indication : undefined;
   const step = typeof searchParams.step === 'string' ? searchParams.step : undefined;
+  const page = typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
+  const limit = typeof searchParams.limit === 'string' ? Number(searchParams.limit) : 5;
+  const equationId = typeof searchParams.equationId === 'string' ? searchParams.equationId : undefined;
+
 
   const scientific_names = await fetchScientificNames();
   const variables = await fetchVariables();
@@ -53,16 +58,10 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
     initialDosage = res;
   }
   let resultsRes: any;
-  if (
-    medicine &&
-    formula &&
-    indication &&
-    ['final-result', 'custom-patient'].includes(step || '')
-  ) {
-    const res = await fetchCalculationFinalResult({ medicine, formula, indication });
+  if (equationId) {
+    const res = await fetchDominalVariables(equationId);
     resultsRes = res;
   }
-
   return (
 
     <CalculationView
@@ -71,7 +70,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
       formulas={formulas as string[]}
       indications={indications as string[]}
       initialDosage={initialDosage}
-      results={{ data: resultsRes?.data || [], count: resultsRes?.count || 0 }}
+      results={resultsRes}
     />
   );
 }

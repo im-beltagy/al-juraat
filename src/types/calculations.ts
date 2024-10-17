@@ -35,6 +35,6 @@ export interface ICalculationResultItem {
 }
 
 export interface ICalculationResult {
-  data: { items: ICalculationResultItem[]; primary: string };
+  data: Array<any>;
   count: number;
 }

@@ -5,19 +5,21 @@ export type Result = {
   formula: string;
   indication: string;
   initialDose: number;
-  dominalVariables: [
-    {
-      id: string;
-      variableId: string;
-      variableName: string;
-      value: string;
-      minValue: number;
-      maxValue: number;
-      effect: number;
-      result: number;
-      effectType: boolean;
-    }
-  ]
+  dominalVariables: IDominalVariables[]
+
+}
+
+export type IDominalVariables = {
+
+    id: string;
+    variableId: string;
+    variableName: string;
+    value: string;
+    minValue: number;
+    maxValue: number;
+    effect: number;
+    result: number;
+    effectType: boolean;
 
 }
 export type TradeName = {

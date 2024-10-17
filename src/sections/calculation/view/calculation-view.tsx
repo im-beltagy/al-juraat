@@ -22,6 +22,7 @@ import { useCalculationStore } from '../calculation-store';
  import DominalVariableStep from '../dominal-variable-step';
 import EquationBuildingStep from '../equation-building-step';
 import { IVariable } from 'src/types/variables';
+import { Result } from 'src/types/results';
 
 const titles = ['Equation Building', 'Calculation', 'Final Result', 'Custom Patient'];
 const stepsTitles = [
@@ -38,7 +39,7 @@ interface Props {
   indications?: string[];
   variables: IVariable[];
   initialDosage?: IDosageItem;
-  results: ICalculationResult;
+  results: Result;
 }
 
 export default function CalculationView({
@@ -116,11 +117,11 @@ function StepperView({ activeStep, children }: StepperViewProps) {
   const handleBack = () => {
     createQueryString([{ name: 'step', value: steps[stepIndex - 1] }, { name: 'variable' }], true);
   };
-
-  const isNextValid = useCalculationStore(
-    ({ medicine, formula, indication, allVariables }) =>
-      medicine && formula && indication && allVariables
-  );
+  const getSelectedMedicine = JSON.parse(sessionStorage.getItem('medicine') as string);
+  const getSelectedFormula = JSON.parse(sessionStorage.getItem('formula') as string);
+  const getSelectedIndication = JSON.parse(sessionStorage.getItem('indication') as string);
+  const getSelectedVariables = JSON.parse(sessionStorage.getItem('selectedVariables') as string);
+  const isNextValid = getSelectedMedicine && getSelectedFormula &&getSelectedIndication &&getSelectedVariables;
 
   return (
     <>
