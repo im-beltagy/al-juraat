@@ -101,13 +101,12 @@ export const refreshToken = async (token:string) => {
   const res = await axiosInstance.post(endpoints.auth.refreshToken, {
   refreshToken: token,
   });
-  console.log(res.data);
   const {accessToken } = res.data;
   axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
   sessionStorage.setItem('accessToken', accessToken);
   sessionStorage.setItem('user', JSON.stringify(res.data));
-  setCookie("accessToken", accessToken);
-  setCookie("user", JSON.stringify(res.data));
+  setCookie("accessToken", accessToken,{sameSite:'strict', secure: true});
+  setCookie("user", JSON.stringify(res.data), {sameSite:'strict', secure: true});
   window.location.reload();
 };
 

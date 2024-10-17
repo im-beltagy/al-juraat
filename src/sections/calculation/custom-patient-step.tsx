@@ -16,6 +16,7 @@ import RHFTextField from 'src/components/hook-form/rhf-text-field-form';
 import { IDosageItem, ICalculationResult, ICalculationResultItem } from 'src/types/calculations';
 
 import { useCalculationStore } from './calculation-store';
+import { Result } from 'src/types/results';
 
 const TABLE_HEAD = [
   { id: 'select', label: '' },
@@ -26,7 +27,7 @@ const TABLE_HEAD = [
 
 export interface Props {
   initialDosage?: IDosageItem;
-  results: ICalculationResult;
+  results: Result;
 }
 
 export default function CustomPatientStep({ initialDosage, results }: Props) {
@@ -87,7 +88,6 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
     setIsLoading(true);
     (async () => {
       try {
-        console.log(newDosage, description, choosenIds);
         enqueueSnackbar(t('Successfully saved'), { variant: 'success' });
       } catch (error) {
         enqueueSnackbar(t('Failed to save'), { variant: 'error' });
@@ -168,7 +168,7 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
         </LoadingButton>
       </Stack>
 
-      <SharedTable
+      {/* <SharedTable
         dataFiltered={results.data.items}
         table={table}
         count={results.count}
@@ -176,7 +176,7 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
         additionalTableProps={additionalTableProps}
         disablePagination
         showFromClients
-      />
+      /> */}
     </>
   );
 }

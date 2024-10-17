@@ -103,9 +103,27 @@ export const createEquation = async (data:any): Promise<any> => {
     }
   };
   try {
+    console.log( 'ere')
     const res = await axiosInstance.post(`${endpoints.calculation.createEquation()}`,data, headers);
-    console.log(res.data, 'ere')
     invalidatePath(`/dashboard/calculation/`);
+    return res.data;
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
+
+export const fetchDominalVariables = async (id:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
+  try {
+    const res = await axiosInstance.get(`${endpoints.results.details(id)}`, headers);
     return res.data;
   } catch (error) {
     return {

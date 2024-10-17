@@ -18,7 +18,6 @@ import CustomAutocompleteView from 'src/components/AutoComplete/CutomAutocomplet
 
 import { requiredYupItem } from 'src/types/autoComplete';
 import { IDosageItem, IVariableItem, yupCalculationItem } from 'src/types/calculations';
-
 import { useCalculationStore } from './calculation-store';
 import { IVariable } from 'src/types/variables';
 import { useQueryString } from 'src/hooks/use-queryString';
@@ -37,6 +36,8 @@ export interface Props {
 export default function DominalVariableStep({ variables, initialDosage }: Props) {
   const { t } = useTranslate();
   const searchParams = useSearchParams();
+  const { createQueryString } = useQueryString();
+
   const getSelectedMedicine = JSON.parse(sessionStorage.getItem('medicine') as string);
   const getSelectedFormula = JSON.parse(sessionStorage.getItem('formula') as string);
   const getSelectedIndication = JSON.parse(sessionStorage.getItem('indication') as string);
@@ -52,7 +53,16 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
       allVariables: state.allVariables || getSelectedVariables,
     }));
   const currentVariable = variables?.find(({ id }) => id === searchParams.get('variable'));
+  useEffect(() => {
+    if (!searchParams.get('formula')) {
+      createQueryString([{ name: 'formula', value: String(getSelectedFormula?.id)  }]);
 
+    }
+    if(!searchParams.get('indication')){
+      createQueryString([{ name: 'indication', value: String(getSelectedIndication?.id)  }]);
+
+    }
+  }, [getSelectedFormula, getSelectedIndication]);
   useEffect(() => {
     if (currentVariable) setVariable(currentVariable);
   }, [currentVariable, setVariable]);
@@ -116,19 +126,32 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
 
   const onSubmit = useCallback(
     async (data: any) => {
-      console.log(data)
-      const dataForm = {
+      const dataFormRange = {
         "scientificName": medicine?.id,
         "formula": formula?.id,
         "indication": indication?.id,
         "initialDose": initialDosage?.dosage,
         "dominalVariables": [
           {
-           "variableName": variable?.name,
-           "value": variable?.type !== 'Range'? data?.variable_value?.[0]: '',
-            "variableId": variable?.id,
-            "minValue":   variable?.type === 'Range'? data?.variable_value?.[0] :0,
-            "maxValue":  variable?.type === 'Range'? data?.variable_value?.[1] :0,
+            "variableId": data?.variable?.id,
+            "variableName":data?.variable?.name,
+            "minValue":  data?.variable_value?.[0] ,
+            "maxValue":   data?.variable_value?.[1] ,
+            "effect": data?.effect,
+            "effectType": data?.effect_type == 'positive'?  true: false
+          }
+        ]
+      };
+      const dataFormList = {
+        "scientificName": medicine?.id,
+        "formula": formula?.id,
+        "indication": indication?.id,
+        "initialDose": initialDosage?.dosage,
+        "dominalVariables": [
+          {
+            "variableId": data?.variable?.id,
+            "variableName":data?.variable?.name,
+            "value": data?.variable_value?.id,
             "effect": data?.effect,
             "effectType": data?.effect_type == 'positive'?  true: false
           }
@@ -144,20 +167,20 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
           });
         } */
 
-
-        const res = await createEquation(dataForm);
+        const res = await createEquation( data?.variable?.type !== 'Range'? dataFormList : dataFormRange);
         if (res?.error) {
           enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
         } else {
           enqueueSnackbar('Created success!', {
             variant: 'success',
           });
+          createQueryString([{ name: 'equationId', value: String(res?.id)  }]);
+
         }
 
     },
     []
   );
-  const { createQueryString } = useQueryString();
 
   return (
     <>
@@ -188,7 +211,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
               name="dosage"
               label={t('Dosage')}
               type="tel"
-              value={initialDosage?.dosage}
+              value={initialDosage?.dosage || 100}
               InputProps={{ endAdornment: 'unit' }}
               disabled
             />
@@ -212,8 +235,8 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
               }}
               onChange={(event, item:any) => {
                 if (item) {
-                  setValue('variable', item)
                   setVariable(item);
+                  setValue('variable', item)
                   createQueryString([{ name: 'variableId', value: String(item?.id) }]);
                 } else {
                   setVariable();
@@ -340,4 +363,5 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
     </>
   );
 }
+
 

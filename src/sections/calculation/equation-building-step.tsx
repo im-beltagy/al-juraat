@@ -94,7 +94,7 @@ export default function EquationBuildingStep({
   const choosenFormula = methods.watch('formula');
   const choosenIndication = methods.watch('indication');
   const choosenMedicine = methods.watch('medicine');
-
+  const watching = methods.watch();
   useEffect(()=>{
     sessionStorage.setItem('medicine', JSON.stringify(choosenMedicine))
     sessionStorage.setItem('formula', JSON.stringify(choosenFormula))
@@ -147,10 +147,10 @@ export default function EquationBuildingStep({
 
               onChange={(_event, newValue:any) => {
                 if (newValue) {
-                  console.log('her',newValue)
                   setValue('medicine', newValue as any)
+                   createQueryString([{ name: 'medicine', value: String(newValue.id)  }]);
+
                  setMedicine(newValue as any );
-                  createQueryString([{ name: 'medicine', value: String(newValue.id) }]);
                 } else {
                   setMedicine();
                   setFormula();
@@ -182,8 +182,10 @@ export default function EquationBuildingStep({
               onChange={(_event, newValue:any) => {
                 if (newValue) {
                   setValue('formula', newValue)
+
+                  createQueryString([{ name: 'formula', value: String(newValue.id)  }]);
+
                   setFormula(newValue);
-                  createQueryString([{ name: 'formula', value: String(newValue.id) }]);
                 } else {
                   setValue('formula', null )
                   setFormula();
@@ -209,7 +211,6 @@ export default function EquationBuildingStep({
               onChange={(_event, newValue:any) => {
                 if (newValue) {
                   setValue('indication', newValue)
-
                   setIndication(newValue);
                   createQueryString([{ name: 'indication', value: String(newValue.id) }]);
                 } else {

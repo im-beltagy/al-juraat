@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useCallback } from 'react';
 
 import { Box } from '@mui/system';
-import { Grid, Radio } from '@mui/material';
+import { Grid, Radio, Typography } from '@mui/material';
 
 import { useQueryString } from 'src/hooks/use-queryString';
 
@@ -16,17 +16,19 @@ import RHFTextField from 'src/components/hook-form/rhf-text-field-form';
 import { IDosageItem, ICalculationResult, ICalculationResultItem } from 'src/types/calculations';
 
 import { useCalculationStore } from './calculation-store';
+import { IEquationVariable } from 'src/types/variables';
+import { IDominalVariables, Result } from 'src/types/results';
 
 const TABLE_HEAD = [
-  { id: 'variable', label: 'Variable' },
+  { id: 'variableName', label: 'Variable' },
   { id: 'value', label: 'Value' },
-  { id: 'newDose', label: 'New Dose' },
+  { id: 'result', label: 'New Dose' },
   { id: 'primary', label: '' },
 ];
 
 export interface Props {
   initialDosage?: IDosageItem;
-  results: ICalculationResult;
+  results: Result;
 }
 
 export default function FinalResultStep({ initialDosage, results }: Props) {
@@ -37,7 +39,6 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
     formula: state.formula,
     indication: state.indication,
   }));
-
   const { createQueryString } = useQueryString();
 
   const methods = useForm();
@@ -50,16 +51,19 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
 
   const additionalTableProps = useMemo(
     () => ({
-      onRendervalue: (item: ICalculationResultItem) => {
-        if (typeof item.value === 'string') {
-          return item.value;
+      onRendervariableName:(item:IDominalVariables)=> <Typography variant="body2">{item?.variableName}</Typography> ,
+
+
+        onRendervalue: (item: IDominalVariables) => {
+        if (typeof item?.value === 'string') {
+          return item?.value;
         }
-        return `${t('from')} ${item.value[0]} ${t('to')} ${item.value[1]}`;
+        return `${t('from')} ${item?.minValue} ${t('to')} ${item?.maxValue}`;
       },
-      onRenderprimary: (item: ICalculationResultItem) =>
-        item.id === results.data.primary ? <Radio checked /> : null,
+      onRenderprimary: (item: IDominalVariables) =>
+      results?.dominalVariables?.[0] ? <Radio checked /> : null,
     }),
-    [results.data.primary, t]
+    []
   );
 
   return (
@@ -102,9 +106,9 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
       <Box mt={3} />
 
       <SharedTable
-        dataFiltered={results.data.items}
+        dataFiltered={results?.dominalVariables || []}
         table={table}
-        count={results.count}
+        count={results?.dominalVariables?.length || 0}
         tableHeaders={TABLE_HEAD}
         additionalTableProps={additionalTableProps}
         disablePagination

@@ -167,12 +167,12 @@ export default function MedicineView({ results, count }: Props) {
               setIsDialogOpen(true);
             }
           },
-          {
+        /*   {
             label: t('View Trade names'),
             icon: 'mdi:eye',
             onClick: (item: Medicine) =>
               router.push(`${paths.dashboard.medicine}/trade-names/${item.id}`),
-          },
+          }, */
 
         ]}
       />
