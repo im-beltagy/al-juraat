@@ -1,43 +1,48 @@
 'use server';
 
+import { getCookie } from 'cookies-next';
 import { cookies } from 'next/headers';
 
-import { getErrorMessage } from 'src/utils/axios';
+import axiosInstance, { endpoints, getErrorMessage } from 'src/utils/axios';
+import { invalidatePath } from './cache-invalidation';
 
-export async function fetchResults({
-  page = 1,
-  limit = 5,
-  medicine,
-  formula,
-  indication,
-  variable,
-}: {
-  page?: number;
-  limit?: number;
-  medicine?: string;
-  formula?: string;
-  indication?: string;
-  variable?: string;
-}) {
-  const lang = cookies().get('Language')?.value;
-  const accessToken = cookies().get('accessToken')?.value;
 
+
+export const fetchResults = async (page:number, limit:number,scientific_name:string, formula:string, indication:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
   try {
-    const res = await {
-      data: Array.from({ length: 3 }).map((_, index) => ({
-        id: index + 1,
-        medicine: { name: `Medicine ${index + 1}`, id: `name${index + 1}` },
-        indication: { name: `Indication ${index + 1}`, id: `indication${index + 1}` },
-        formula: { name: `Formula ${index + 1}`, id: `formula${index + 1}` },
-      })),
-      meta: {
-        itemCount: 10,
-      },
-    };
-    return { data: res?.data, count: res?.meta?.itemCount };
+    const res = await axiosInstance.get(`${endpoints.results.list(page,limit,scientific_name, formula, indication)}`, headers);
+    return res.data;
   } catch (error) {
     return {
       error: getErrorMessage(error),
     };
   }
-}
+};
+
+
+export const fetchSingleResult= async (id:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
+  try {
+    const res = await axiosInstance.get(`${endpoints.medicine.details(id)}`, headers);
+    return res.data;
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
+
+

@@ -13,36 +13,45 @@ import { Box, Grid, Slider, Button, FormLabel, TextField, FormHelperText } from 
 import { useTranslate } from 'src/locales';
 
 import FormProvider from 'src/components/hook-form/form-provider';
-import { RHFTextField, RHFRadioGroup } from 'src/components/hook-form';
-import CustomAutocompleteView, { ITems } from 'src/components/AutoComplete/CutomAutocompleteView';
+import { RHFTextField, RHFRadioGroup, RHFAutocomplete } from 'src/components/hook-form';
+import CustomAutocompleteView from 'src/components/AutoComplete/CutomAutocompleteView';
 
 import { requiredYupItem } from 'src/types/autoComplete';
 import { IDosageItem, IVariableItem, yupCalculationItem } from 'src/types/calculations';
 
 import { useCalculationStore } from './calculation-store';
+import { IVariable } from 'src/types/variables';
+import { useQueryString } from 'src/hooks/use-queryString';
+import { createEquation } from 'src/actions/equation-actions';
 
 const EFFECT_TYPES = ['Positive', 'Negative'];
-
+type ITems = {
+  id:string,
+  value:string
+}
 export interface Props {
-  variables: IVariableItem[];
+  variables: IVariable[];
   initialDosage?: IDosageItem;
 }
 
 export default function DominalVariableStep({ variables, initialDosage }: Props) {
   const { t } = useTranslate();
+  const searchParams = useSearchParams();
+  const getSelectedMedicine = JSON.parse(sessionStorage.getItem('medicine') as string);
+  const getSelectedFormula = JSON.parse(sessionStorage.getItem('formula') as string);
+  const getSelectedIndication = JSON.parse(sessionStorage.getItem('indication') as string);
+  const getSelectedVariables = JSON.parse(sessionStorage.getItem('selectedVariables') as string);
 
   const { medicine, formula, indication, variable, setVariable, allVariables } =
     useCalculationStore((state) => ({
-      medicine: state.medicine,
-      formula: state.formula,
-      indication: state.indication,
+      medicine: state.medicine || {id:getSelectedMedicine?.id, value:getSelectedMedicine?.value},
+      formula: state.formula|| {id:getSelectedFormula?.id, value:getSelectedFormula?.value} ,
+      indication: state.indication|| {id:getSelectedIndication?.id, value:getSelectedIndication?.value} ,
       variable: state.variable,
       setVariable: state.setVariable,
-      allVariables: state.allVariables,
+      allVariables: state.allVariables || getSelectedVariables,
     }));
-
-  const searchParams = useSearchParams();
-  const currentVariable = variables.find(({ id }) => id === searchParams.get('variable'));
+  const currentVariable = variables?.find(({ id }) => id === searchParams.get('variable'));
 
   useEffect(() => {
     if (currentVariable) setVariable(currentVariable);
@@ -50,21 +59,22 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
 
   const methods = useForm({
     resolver: yupResolver(
+
       yup.object().shape({
-        variable: yupCalculationItem,
+        variable: yup.object().nullable(),
         variable_value:
-          variable?.type === 'range'
+          variable?.type === 'Range'
             ? yup
                 .array(yup.number().required(t('Value is required')))
                 .required(t('Value is required'))
                 .nullable()
-            : requiredYupItem(t('Value is required')).nullable(),
+            : yup.object({id:yup.string(), value:yup.string()}).nullable(),
         effect: yup.number().required(t('Effect is required')),
         effect_type: yup.string().required(t('Effect type is required')),
       })
     ),
     defaultValues: {
-      variable: currentVariable || variables.find(({ id }) => id === variable?.id),
+      variable: currentVariable || null,
     },
   });
 
@@ -72,13 +82,12 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
     setValue,
     watch,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setError,
   } = methods;
-
   // Handle Range Variable Value
   const [variableValue, setVariableValue] = useState<
-    number[] | { name: string; id: string } | null
+    number[] | { value: string; id: string } | null
   >([0, 0]);
   const handleChangeVariableValue = (event: Event, newValue: number | number[] | ITems) => {
     if (typeof newValue === 'number') {
@@ -96,68 +105,81 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
   const calculate = useCallback(() => {
     let val: number;
     if (effectType === 'positive') {
-      val = Number(initialDosage?.value) * (1 + Number(effect) / 100);
+      val = Number(initialDosage?.dosage) * (1 + Number(effect) / 100);
     } else {
-      val = Number(initialDosage?.value) * (1 - Number(effect) / 100);
+      val = Number(initialDosage?.dosage) * (1 - Number(effect) / 100);
     }
     setResult(Math.round(val));
-  }, [initialDosage?.value, effect, effectType]);
+  }, [initialDosage?.dosage, effect, effectType]);
 
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = useCallback(
-    (data: any) => {
-      if (data.variable_value === null) {
-        setError('variable_value', {
-          message: t('Value is required'),
-        });
-        return;
-      }
-
-      setIsLoading(true);
-
-      const dataBody = {
-        medicine: medicine?.id,
-        formula: formula?.id,
-        indication: indication?.id,
-        variable: data.variable?.id,
-        variable_value: data.variable_value.id || data.variable_value,
-        effect: data.effect,
-        effect_type: data.effect_type,
+    async (data: any) => {
+      console.log(data)
+      const dataForm = {
+        "scientificName": medicine?.id,
+        "formula": formula?.id,
+        "indication": indication?.id,
+        "initialDose": initialDosage?.dosage,
+        "dominalVariables": [
+          {
+           "variableName": variable?.name,
+           "value": variable?.type !== 'Range'? data?.variable_value?.[0]: '',
+            "variableId": variable?.id,
+            "minValue":   variable?.type === 'Range'? data?.variable_value?.[0] :0,
+            "maxValue":  variable?.type === 'Range'? data?.variable_value?.[1] :0,
+            "effect": data?.effect,
+            "effectType": data?.effect_type == 'positive'?  true: false
+          }
+        ]
       };
 
-      try {
-        enqueueSnackbar(t('Successfully saved'), { variant: 'success' });
-      } catch (error) {
-        enqueueSnackbar(t('Failed to save'), { variant: 'error' });
-      } finally {
-        setIsLoading(false);
-      }
+     /*    const res = await editPackage(choosenPackage.id,dataForm);
+        if (res?.error) {
+          enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+        } else {
+          enqueueSnackbar('Updated success!', {
+            variant: 'success',
+          });
+        } */
+
+
+        const res = await createEquation(dataForm);
+        if (res?.error) {
+          enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+        } else {
+          enqueueSnackbar('Created success!', {
+            variant: 'success',
+          });
+        }
+
     },
-    [formula?.id, indication?.id, medicine?.id, setError, t]
+    []
   );
+  const { createQueryString } = useQueryString();
 
   return (
     <>
       <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={2}>
-          {/* Static Details */}
+
           <Grid item xs={12} sm={6}>
             <RHFTextField
               name="medicine"
               label={t('Scientific name')}
-              value={medicine?.name}
+              value={medicine?.value}
               disabled
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <RHFTextField name="formula" label={t('Formula')} value={formula?.name} disabled />
+            <RHFTextField name="formula" label={t('Formula')} value={formula?.value} disabled />
           </Grid>
           <Grid item xs={12} sm={6}>
             <RHFTextField
               name="indication"
               label={t('Indication')}
-              value={indication?.name}
+              value={indication?.value}
               disabled
             />
           </Grid>
@@ -165,30 +187,39 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
             <RHFTextField
               name="dosage"
               label={t('Dosage')}
-              type="number"
-              value={initialDosage?.value}
-              InputProps={{ endAdornment: initialDosage?.unit }}
+              type="tel"
+              value={initialDosage?.dosage}
+              InputProps={{ endAdornment: 'unit' }}
               disabled
             />
           </Grid>
 
-          {/* Set Variable And Value */}
+
           <Grid item xs={12} sm={6}>
-            <CustomAutocompleteView
+            <RHFAutocomplete
               name="variable"
               label={t('Variable')}
               placeholder={t('Variable')}
-              isDisabled={!!currentVariable}
-              items={(
-                (currentVariable ? [currentVariable] : allVariables || []) as IVariableItem[]
-              ).map((item) => ({ ...item, name_ar: item.name, name_en: item.name }) as ITems)}
-              onCustomChange={(item) => {
+            //  disabled={!!currentVariable}
+
+              options={allVariables  || getSelectedVariables as IVariable}
+              getOptionLabel={(option:any) => {
+                if (typeof option?.name == 'string') {
+
+                  return option?.name;
+                }
+                return '';
+              }}
+              onChange={(event, item:any) => {
                 if (item) {
-                  const { name, id, type, options, max_value } = item;
-                  setVariable({ name, id, type, options, max_value });
+                  setValue('variable', item)
+                  setVariable(item);
+                  createQueryString([{ name: 'variableId', value: String(item?.id) }]);
                 } else {
                   setVariable();
                 }
+                createQueryString([{ name: 'variableId' }]);
+
                 setVariableValue(null);
                 setValue('variable_value', null);
               }}
@@ -196,18 +227,18 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
           </Grid>
 
           <Grid item xs={12} sm={6} sx={{ alignSelf: 'center' }}>
-            {variable?.type === 'range'
+            {variable?.type === 'Range'
               ? (() => {
                   const value = Array.isArray(variableValue)
                     ? variableValue
-                    : [0, variable.max_value || 100];
+                    : [0, variable.maxValue || 100];
                   return (
                     <>
                       <FormLabel>{`Value (${value.join(', ')})`}</FormLabel>
                       <Slider
                         step={2}
                         value={value}
-                        max={variable.max_value || 100}
+                        max={variable.maxValue || 100}
                         onChange={handleChangeVariableValue}
                         valueLabelDisplay="auto"
                       />
@@ -215,22 +246,29 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
                   );
                 })()
               : null}
-            {variable?.type === 'list' ? (
-              <CustomAutocompleteView
+            {variable?.type === 'List' ? (
+              <RHFAutocomplete
                 name="variable_value"
                 label="Value"
                 placeholder="Value"
-                items={
-                  (variable?.options?.map((item) => ({
-                    ...item,
-                    name_ar: item.name,
-                    name_en: item.name,
+
+                options={
+                  (variable?.values?.map((item) => ({
+                   id:item,
+                   value:item
                   })) || []) as ITems[]
                 }
-                onCustomChange={(item) => {
+                getOptionLabel={(option:any) => {
+                  if (typeof option?.value == 'string') {
+
+                    return option?.value;
+                  }
+                  return '';
+                }}
+                onChange={(_event, item:any) => {
                   if (item) {
-                    const { name, id } = item;
-                    setVariableValue({ name, id });
+                   setValue('variable_value', item)
+                    setVariableValue( item );
                   } else {
                     setVariableValue(null);
                   }
@@ -247,7 +285,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
             )}
           </Grid>
 
-          {/* Set Effect */}
+
           <Grid item xs={12} sm={6}>
             <RHFTextField
               name="effect"
@@ -268,7 +306,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
             />
           </Grid>
 
-          {/* Effect Result */}
+
           <Grid item xs={12} sm={6} sx={{ alignSelf: 'center' }}>
             <Button
               variant="contained"
@@ -290,9 +328,9 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
             />
           </Grid>
 
-          {/* Submit */}
+
           <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <LoadingButton type="submit" variant="contained" color="primary" loading={isLoading}>
+            <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
               {t(currentVariable ? 'Edit' : 'Save')}
             </LoadingButton>
           </Grid>
@@ -302,3 +340,4 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
     </>
   );
 }
+

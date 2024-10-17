@@ -128,6 +128,21 @@ export const endpoints = {
     delete: (id:string)=>`/api/v1/Admin/tradenames/${id}`,
 
   },
+  calculation: {
+    getScientificNames: ()=> `/api/v1/Admin/medicines/scientificNames`,
+    getIndications: (scientificName:string)=> `/api/v1/Admin/medicines/indications?scientificName=${scientificName}`,
+    getFormulas: (scientificName:string)=> `/api/v1/Admin/medicines/formulas?scientificName=${scientificName}`,
+    getDosage: (scientific_name:string, formula:string, indication:string)=> `/api/v1/Admin/medicines/dosage?scientificName=${scientific_name}&Indication=${indication}&Formula=${formula}`,
+    getVariables: ()=>`/api/v1/Admin/variables`,
+    createEquation: ()=> `/api/v1/Admin/equations/create`,
+
+  },
+  /* /medicines/dosage?scientificName=dsf&Indication=sdf&Formula=df */
+  results: {
+    list: (page:number,limit:number,scientific_name?:string, formula?:string, indication?:string)=>`/api/v1/Admin/equations?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&ScientificName=${scientific_name}&Formula=${formula}&Indication=${indication}`,
+    details: (id:string)=> `/api/v1/Admin/equations/${id}`
+
+  },
   privacyPolicy: ()=> `/api/v1/Admin/pages/privacy_policy`,
   termsAndConditions: ()=> `/api/v1/Admin/pages/terms_and_conditions`,
   aboutUs: ()=> `/api/v1/Admin/pages/about_us`,

@@ -19,8 +19,9 @@ import { IDosageItem, IVariableItem, ICalculationResult } from 'src/types/calcul
 import FinalResultStep from '../final-result-step';
 import CustomPatientStep from '../custom-patient-step';
 import { useCalculationStore } from '../calculation-store';
-import DominalVariableStep from '../dominal-variable-step';
+ import DominalVariableStep from '../dominal-variable-step';
 import EquationBuildingStep from '../equation-building-step';
+import { IVariable } from 'src/types/variables';
 
 const titles = ['Equation Building', 'Calculation', 'Final Result', 'Custom Patient'];
 const stepsTitles = [
@@ -32,10 +33,10 @@ const stepsTitles = [
 const steps = stepsTitles.map((title) => title.toLowerCase().replaceAll(' ', '-'));
 
 interface Props {
-  medicines: ITems[];
-  formulas?: ITems[];
-  indications?: ITems[];
-  variables: IVariableItem[];
+  medicines: string[];
+  formulas?: string[];
+  indications?: string[];
+  variables: IVariable[];
   initialDosage?: IDosageItem;
   results: ICalculationResult;
 }
@@ -50,7 +51,6 @@ export default function CalculationView({
 }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
-
   const searchParams = useSearchParams();
 
   const activeStep = searchParams.get('step') || steps[0];
@@ -60,27 +60,6 @@ export default function CalculationView({
     // eslint-disable-next-line @typescript-eslint/no-shadow
     ({ setMedicine, setFormula, setIndication }) => ({ setMedicine, setFormula, setIndication })
   );
-
-  useEffect(() => {
-    const medicine = medicines.find((item) => item.id === searchParams.get('medicine'));
-    if (medicine) {
-      setMedicine({ name: medicine.name, id: medicine.id });
-    } else {
-      setMedicine();
-    }
-    const formula = formulas?.find((item) => item.id === searchParams.get('formula'));
-    if (formula) {
-      setFormula({ name: formula.name, id: formula.id });
-    } else {
-      setFormula();
-    }
-    const indication = indications?.find((item) => item.id === searchParams.get('indication'));
-    if (indication) {
-      setIndication({ name: indication.name, id: indication.id });
-    } else {
-      setIndication();
-    }
-  }, [formulas, indications, medicines, searchParams, setFormula, setIndication, setMedicine]);
 
   return (
     <Container
@@ -104,6 +83,7 @@ export default function CalculationView({
           />
         ) : null}
         {stepIndex === 1 ? (
+
           <DominalVariableStep variables={variables} initialDosage={initialDosage} />
         ) : null}
         {stepIndex === 2 ? (

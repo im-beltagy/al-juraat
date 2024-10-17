@@ -22,8 +22,8 @@ export interface IVariableItem {
 }
 
 export interface IDosageItem {
-  value: number;
-  unit: string;
+  dosage: number;
+  medicineId: string;
 }
 
 export interface ICalculationResultItem {
