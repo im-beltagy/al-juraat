@@ -11,7 +11,7 @@ import { AuthContext } from './auth-context';
 import { setSession, isValidToken } from './utils';
 import { USER_KEY, ACCESS_TOKEN } from '../../constants';
 import { AuthUserType, ActionMapType, AuthStateType } from '../../types';
-import { deleteCookie, getCookie } from 'cookies-next';
+import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 
 // ----------------------------------------------------------------------
 /**
@@ -154,8 +154,8 @@ export function AuthProvider({ children }: Readonly<Props>) {
     setSession(accessToken, data);
    axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     sessionStorage.setItem(USER_KEY, JSON.stringify(data));
-    Cookie.set(ACCESS_TOKEN, accessToken);
-    Cookie.set(USER_KEY, JSON.stringify(data));
+    setCookie(ACCESS_TOKEN, accessToken,{sameSite:'strict', secure: true});
+   setCookie(USER_KEY, JSON.stringify(data),{sameSite:'strict', secure: true});
     dispatch({
       type: Types.LOGIN,
       payload: {

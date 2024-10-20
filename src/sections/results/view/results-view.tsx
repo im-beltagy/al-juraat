@@ -28,6 +28,7 @@ import { Medicine } from 'src/types/medicine';
 import RHFTextField from 'src/components/hook-form/rhf-text-field2';
 import { paths } from 'src/routes/paths';
 import { Result } from 'src/types/results';
+import { deleteResult } from 'src/actions/results-actions';
 
 const TABLE_HEAD = [
   { id: 'scientificName', label: 'Scientific Name' },
@@ -47,9 +48,8 @@ export default function MedicineView({ results, count }: Props) {
   const settings = useSettingsContext();
   const [deleteItemId, setDeleteItemId] = useState('');
   const router = useRouter();
-  console.log(results)
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [choosenMedicine, setChoosenMedicine] = useState<Medicine | undefined>(undefined);
+  const [choosenMedicine, setChoosenMedicine] = useState<Result | undefined>(undefined);
 
   const { createQueryString } = useQueryString();
 
@@ -70,15 +70,17 @@ export default function MedicineView({ results, count }: Props) {
     getValues
   } = methods;
   const additionalTableProps = {
-     onRenderindication: (item: Medicine) => <Typography sx={{overflow: "hidden", textOverflow: "ellipsis", width: '150px'}} variant="body2">{item?.indication}</Typography>,
+     onRenderindication: (item: Result) => <Typography sx={{overflow: "hidden", textOverflow: "ellipsis", width: '150px'}} variant="body2">{item?.indication}</Typography>,
 
     };
+    console.log(results)
   const handleConfirmDelete = useCallback(async() => {
 
-    const res:any = await deletePackage(deleteItemId);
-    console.log(res);
+    const res:any = await deleteResult(deleteItemId);
 
     if (res?.error) {
+
+
       enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
     } else {
       enqueueSnackbar('Deleted success!', {
@@ -97,7 +99,7 @@ export default function MedicineView({ results, count }: Props) {
         flexDirection: 'column',
       }}
     >
-      <CustomBreadcrumbs heading={t('Medicine')} links={[{}]} sx={{ mb: 3 }} />
+      <CustomBreadcrumbs heading={t('Results')} links={[{}]} sx={{ mb: 3 }} />
       <FormProvider methods={methods}>
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={12} sm={6}>
@@ -154,18 +156,18 @@ export default function MedicineView({ results, count }: Props) {
           {
             label: t('Details'),
             icon: 'mdi:eye',
-            onClick: (item: Medicine) =>
-              router.push(
-                `${paths.dashboard.medicine}/${item.id}`
-              ),
+            onClick: (item: Result) => {
+
+                router.push(
+                  `${paths.dashboard.calculation.finalResult}&equationId=${item.id}`
+                );
+
+            }
           },
           {
-            label: t('Edit'),
-            icon: 'solar:pen-bold',
-            onClick: (item: Medicine) => {
-              setChoosenMedicine(item);
-              setIsDialogOpen(true);
-            }
+            label: t('Delete'),
+            icon: 'heroicons:trash-solid',
+            onClick: (item: Result) => setDeleteItemId(item.id),
           },
         /*   {
             label: t('View Trade names'),

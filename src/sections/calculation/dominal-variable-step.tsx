@@ -21,7 +21,10 @@ import { IDosageItem, IVariableItem, yupCalculationItem } from 'src/types/calcul
 import { useCalculationStore } from './calculation-store';
 import { IVariable } from 'src/types/variables';
 import { useQueryString } from 'src/hooks/use-queryString';
-import { createEquation } from 'src/actions/equation-actions';
+import { createEquation, editDominalVariables } from 'src/actions/equation-actions';
+import { IDominalVariables } from 'src/types/results';
+import axiosInstance, { endpoints } from 'src/utils/axios';
+import { getCookie } from 'cookies-next';
 
 const EFFECT_TYPES = ['Positive', 'Negative'];
 type ITems = {
@@ -42,6 +45,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
   const getSelectedFormula = JSON.parse(sessionStorage.getItem('formula') as string);
   const getSelectedIndication = JSON.parse(sessionStorage.getItem('indication') as string);
   const getSelectedVariables = JSON.parse(sessionStorage.getItem('selectedVariables') as string);
+  const getVariable= JSON.parse(sessionStorage.getItem('variable') as string);
 
   const { medicine, formula, indication, variable, setVariable, allVariables } =
     useCalculationStore((state) => ({
@@ -52,7 +56,8 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
       setVariable: state.setVariable,
       allVariables: state.allVariables || getSelectedVariables,
     }));
-  const currentVariable = variables?.find(({ id }) => id === searchParams.get('variable'));
+  const currentVariable = getVariable?.dominalVariables?.
+  find((item:IDominalVariables)=> item?.variableId === searchParams.get('variableId'));
   useEffect(() => {
     if (!searchParams.get('formula')) {
       createQueryString([{ name: 'formula', value: String(getSelectedFormula?.id)  }]);
@@ -63,28 +68,26 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
 
     }
   }, [getSelectedFormula, getSelectedIndication]);
-  useEffect(() => {
-    if (currentVariable) setVariable(currentVariable);
-  }, [currentVariable, setVariable]);
+
 
   const methods = useForm({
     resolver: yupResolver(
 
       yup.object().shape({
-        variable: yup.object().nullable(),
+        variable: yup.object().required('Variable is required'),
         variable_value:
           variable?.type === 'Range'
             ? yup
                 .array(yup.number().required(t('Value is required')))
                 .required(t('Value is required'))
-                .nullable()
-            : yup.object({id:yup.string(), value:yup.string()}).nullable(),
+
+            : yup.object({id:yup.string(), value:yup.string()}),
         effect: yup.number().required(t('Effect is required')),
         effect_type: yup.string().required(t('Effect type is required')),
       })
     ),
     defaultValues: {
-      variable: currentVariable || null,
+      variable: currentVariable  || '',
     },
   });
 
@@ -135,6 +138,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
           {
             "variableId": data?.variable?.id,
             "variableName":data?.variable?.name,
+            "type":data?.variable?.type,
             "minValue":  data?.variable_value?.[0] ,
             "maxValue":   data?.variable_value?.[1] ,
             "effect": data?.effect,
@@ -150,6 +154,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
         "dominalVariables": [
           {
             "variableId": data?.variable?.id,
+            "type":data?.variable?.type,
             "variableName":data?.variable?.name,
             "value": data?.variable_value?.id,
             "effect": data?.effect,
@@ -157,15 +162,35 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
           }
         ]
       };
+      if(searchParams.get('variableId')){
+        const dataRange ={
+          "id": currentVariable?.id,
+          "variableId": currentVariable?.variableId,
+            "variableName":data?.variable?.name,
+            "minValue":  data?.variable_value?.[0] ,
+            "maxValue":   data?.variable_value?.[1] ,
+            "effect": data?.effect,
+            "effectType": data?.effect_type == 'positive'?  true: false
 
-     /*    const res = await editPackage(choosenPackage.id,dataForm);
+        }
+        const dataList = {
+          "id": currentVariable?.id,
+          "variableId": currentVariable?.variableId,
+          "variableName":data?.variable?.name,
+          "value": data?.variable_value?.id,
+          "effect": data?.effect,
+          "effectType": data?.effect_type == 'positive'?  true: false
+        }
+
+        const res = await editDominalVariables( data?.variable?.type !== 'Range'? dataList : dataRange);
         if (res?.error) {
           enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
         } else {
           enqueueSnackbar('Updated success!', {
             variant: 'success',
           });
-        } */
+        }
+      } else {
 
         const res = await createEquation( data?.variable?.type !== 'Range'? dataFormList : dataFormRange);
         if (res?.error) {
@@ -177,6 +202,8 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
           createQueryString([{ name: 'equationId', value: String(res?.id)  }]);
 
         }
+      }
+
 
     },
     []
@@ -237,14 +264,14 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
                 if (item) {
                   setVariable(item);
                   setValue('variable', item)
-                  createQueryString([{ name: 'variableId', value: String(item?.id) }]);
+
                 } else {
                   setVariable();
                 }
-                createQueryString([{ name: 'variableId' }]);
+
 
                 setVariableValue(null);
-                setValue('variable_value', null);
+                setValue('variable_value', {id:'', value:''});
               }}
             />
           </Grid>
@@ -354,7 +381,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
 
           <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
-              {t(currentVariable ? 'Edit' : 'Save')}
+              {t(searchParams.get('variableId') ? 'Edit' : 'Save')}
             </LoadingButton>
           </Grid>
         </Grid>

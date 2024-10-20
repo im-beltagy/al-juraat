@@ -135,12 +135,15 @@ export const endpoints = {
     getDosage: (scientific_name:string, formula:string, indication:string)=> `/api/v1/Admin/medicines/dosage?scientificName=${scientific_name}&Indication=${indication}&Formula=${formula}`,
     getVariables: ()=>`/api/v1/Admin/variables`,
     createEquation: ()=> `/api/v1/Admin/equations/create`,
+    editEquation: ()=> `/api/v1/Admin/dominalvariables/update`,
+
 
   },
   /* /medicines/dosage?scientificName=dsf&Indication=sdf&Formula=df */
   results: {
     list: (page:number,limit:number,scientific_name?:string, formula?:string, indication?:string)=>`/api/v1/Admin/equations?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&ScientificName=${scientific_name}&Formula=${formula}&Indication=${indication}`,
-    details: (id:string)=> `/api/v1/Admin/equations/${id}`
+    details: (id:string)=> `/api/v1/Admin/equations/${id}`,
+    delete: (id:string)=>`/api/v1/Admin/equations/${id}`,
 
   },
   privacyPolicy: ()=> `/api/v1/Admin/pages/privacy_policy`,

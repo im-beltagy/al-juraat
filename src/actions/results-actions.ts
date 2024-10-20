@@ -46,3 +46,22 @@ export const fetchSingleResult= async (id:string): Promise<any> => {
 };
 
 
+
+export const deleteResult = async (id:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
+  try {
+    const res = await axiosInstance.delete(`${endpoints.results.delete(id)}`, headers);
+    invalidatePath(`/dashboard/results/`);
+    return res.data;
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};

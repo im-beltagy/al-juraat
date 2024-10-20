@@ -56,6 +56,7 @@ export default function CalculationView({
 
   const activeStep = searchParams.get('step') || steps[0];
   const stepIndex = steps.indexOf(activeStep);
+  const saveVariable = results && sessionStorage.setItem('variable', JSON.stringify(results));
 
   const { setMedicine, setFormula, setIndication } = useCalculationStore(
     // eslint-disable-next-line @typescript-eslint/no-shadow
