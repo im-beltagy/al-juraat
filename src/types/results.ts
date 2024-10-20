@@ -14,6 +14,7 @@ export type IDominalVariables = {
     id: string;
     variableId: string;
     variableName: string;
+    type:string;
     value: string;
     minValue: number;
     maxValue: number;

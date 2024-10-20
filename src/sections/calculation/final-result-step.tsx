@@ -118,11 +118,13 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
           {
             label: t('Edit'),
             icon: 'solar:pen-bold',
-            onClick: (item: ICalculationResultItem) =>
+            onClick: (item: IDominalVariables) => {
+
               createQueryString([
                 { name: 'step', value: 'dominal-variables' },
-                { name: 'variable', value: item.variable_id },
-              ]),
+                { name: 'variableId', value: item.variableId },
+              ])
+            }
           },
         ]}
       />

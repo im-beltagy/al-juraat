@@ -54,9 +54,9 @@ export default function EquationBuildingStep({
 
   const { medicineItem, formulaItem, indicationItem } = useMemo(
     () => ({
-      medicineItem: medicines?.find((m) => m === medicine) || '',
-      formulaItem: formulas?.find((f) => f === formulaId) || '',
-      indicationItem: indications?.find((i) => i === indicationId) || '',
+      medicineItem: medicines && medicines?.find((m) => m === medicine) || '',
+      formulaItem:formulas && formulas?.find((f) => f === formulaId) || '',
+      indicationItem: indications &&indications?.find((i) => i === indicationId) || '',
     }),
     [formulaId, formulas, indicationId, indications, medicine, medicines]
   );
