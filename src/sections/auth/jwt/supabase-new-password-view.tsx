@@ -5,59 +5,51 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
-import { useRouter, useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { useTranslate } from 'src/locales';
+import Link from '@mui/material/Link';
 import { useAuthContext } from 'src/auth/hooks';
-import { PATH_AFTER_LOGIN } from 'src/config-global';
+import { NewPasswordIcon } from 'src/assets/icons';
 
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 
-
 // ----------------------------------------------------------------------
 
-export default function JwtLoginView() {
-  const { t } = useTranslate();
-
-  const { login } = useAuthContext();
-
+export default function SupabaseNewPasswordView() {
   const router = useRouter();
 
   const [errorMsg, setErrorMsg] = useState('');
 
-  const searchParams = useSearchParams();
-
-  const returnTo = searchParams.get('returnTo');
+  const { changePassword } = useAuthContext();
 
   const password = useBoolean();
 
-  const LoginSchema = Yup.object().shape({
-    email: Yup.string()
-      .required(t('Email is required')),
-      /* .email(t('Email must be a valid email address')) */
-    password: Yup.string().required(t('Password is required')),
+  const NewPasswordSchema = Yup.object().shape({
+    password: Yup.string()
+      .min(6, 'Password must be at least 6 characters')
+      .required('Password is required'),
   });
 
   const defaultValues = {
-    email: '20123456',
-    password: 'Admin@12345',
+    password: '',
+
   };
 
   const methods = useForm({
-    resolver: yupResolver(LoginSchema),
+    mode: 'onChange',
+    resolver: yupResolver(NewPasswordSchema),
     defaultValues,
   });
 
@@ -69,9 +61,9 @@ export default function JwtLoginView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await login?.(data.email, data.password);
-
-      router.push(returnTo || PATH_AFTER_LOGIN);
+      await changePassword?.(data.password);
+      alert('updated success!')
+      router.push(paths.dashboard.root);
     } catch (error) {
       console.error(error);
       reset();
@@ -80,26 +72,24 @@ export default function JwtLoginView() {
   });
 
   const renderHead = (
-    <Stack spacing={2} sx={{ mb: 5 }}>
-      <Typography variant="h4">{t('Sign in to Al-Juraat Al-Tibbiya')}</Typography>
+    <>
+      <NewPasswordIcon sx={{ height: 96 }} />
 
-    {/*   <Stack direction="row" spacing={0.5}>
-        <Typography variant="body2">{t('New user?')}</Typography>
+      <Stack spacing={1} sx={{ mt: 3, mb: 5 }}>
+        <Typography variant="h3">New Password</Typography>
 
-        <Link component={RouterLink} href={paths.auth.jwt.register} variant="subtitle2">
-          {t('Create an account')}
-        </Link>
-      </Stack> */}
-    </Stack>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          Successful updates enable access using the new password
+        </Typography>
+      </Stack>
+    </>
   );
 
   const renderForm = (
-    <Stack spacing={2.5}>
-      <RHFTextField name="email" label={t('Email address')} />
-
+    <Stack spacing={3}>
       <RHFTextField
         name="password"
-        label={t('Password')}
+        label="Password"
         type={password.value ? 'text' : 'password'}
         InputProps={{
           endAdornment: (
@@ -112,21 +102,30 @@ export default function JwtLoginView() {
         }}
       />
 
-      <Link variant="body2" color="inherit" href={paths.auth.jwt.forgot}
-        component={RouterLink}  underline="always" >
-        {t('Forgot password?')}
-      </Link>
-
       <LoadingButton
         fullWidth
-        color="inherit"
-        size="large"
         type="submit"
+        size="large"
         variant="contained"
         loading={isSubmitting}
       >
-        {t('Login')}
+        Update Password
       </LoadingButton>
+      <Stack alignItems="center">
+      <Link
+        component={RouterLink}
+        href={paths.auth.jwt.login}
+        color="inherit"
+        variant="subtitle2"
+        sx={{
+          alignItems: 'center',
+          display: 'inline-flex',
+        }}
+      >
+        <Iconify icon="eva:arrow-ios-back-fill" width={16} />
+        Return to sign in
+      </Link>
+      </Stack>
     </Stack>
   );
 
@@ -135,7 +134,7 @@ export default function JwtLoginView() {
       {renderHead}
 
       {!!errorMsg && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert severity="error" sx={{ textAlign: 'left', mb: 3 }}>
           {errorMsg}
         </Alert>
       )}
@@ -143,8 +142,6 @@ export default function JwtLoginView() {
       <FormProvider methods={methods} onSubmit={onSubmit}>
         {renderForm}
       </FormProvider>
-
-
     </>
   );
 }
