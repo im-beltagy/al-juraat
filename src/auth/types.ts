@@ -19,6 +19,7 @@ export type AuthStateType = {
   status?: string;
   loading: boolean;
   user: AuthUserType;
+  phone:string;
 };
 
 // ----------------------------------------------------------------------
@@ -55,6 +56,11 @@ export type JWTContextType = CanRemove & {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   logout: () => Promise<void>;
+  forgot: (phone:string) => Promise<void>;
+  verify: (code:string) => Promise<void>;
+  changePassword: (password:string) => Promise<void>;
+
+
 };
 
 export type FirebaseContextType = CanRemove & {
@@ -98,6 +104,9 @@ export type Auth0ContextType = CanRemove & {
   user: AuthUserType;
   method: string;
   loading: boolean;
+  forgot: (phone:string) => Promise<void>;
+  verify: (code:string) => Promise<void>;
+  changePassword: (password:string) => Promise<void>;
   authenticated: boolean;
   unauthenticated: boolean;
   loginWithPopup: (options?: PopupLoginOptions) => Promise<void>;

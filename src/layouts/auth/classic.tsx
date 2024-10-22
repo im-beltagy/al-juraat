@@ -67,13 +67,13 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
         }),
       }}
     >
-      <Typography variant="h3" sx={{ maxWidth: 480, textAlign: 'center' }}>
+     {/*  <Typography variant="h3" sx={{ maxWidth: 480, textAlign: 'center' }}>
         {t(
           title === 'register'
             ? 'Create an account to access Al-Juraat Al-Tibbiya'
             : 'Hi, Welcome back'
         )}
-      </Typography>
+      </Typography> */}
 
       <Box
         component="img"

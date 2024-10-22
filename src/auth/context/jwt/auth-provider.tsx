@@ -26,6 +26,7 @@ enum Types {
   LOGIN = 'LOGIN',
   REGISTER = 'REGISTER',
   LOGOUT = 'LOGOUT',
+  FORGOT = 'FORGOT'
 }
 
 type Payload = {
@@ -34,6 +35,9 @@ type Payload = {
   };
   [Types.LOGIN]: {
     user: AuthUserType;
+  };
+  [Types.FORGOT]: {
+    phone: string;
   };
   [Types.REGISTER]: {
     user: AuthUserType;
@@ -48,6 +52,7 @@ type ActionsType = ActionMapType<Payload>[keyof ActionMapType<Payload>];
 const initialState: AuthStateType = {
   user: null,
   loading: true,
+  phone: ''
 };
 
 const reducer = (state: AuthStateType, action: ActionsType) => {
@@ -55,6 +60,7 @@ const reducer = (state: AuthStateType, action: ActionsType) => {
     return {
       loading: false,
       user: action.payload.user,
+      phone:''
     };
   }
   if (action.type === Types.LOGIN) {
@@ -67,6 +73,12 @@ const reducer = (state: AuthStateType, action: ActionsType) => {
     return {
       ...state,
       user: action.payload.user,
+    };
+  }
+  if (action.type === Types.FORGOT) {
+    return {
+      ...state,
+      phone: action.payload.phone,
     };
   }
   if (action.type === Types.LOGOUT) {
@@ -135,18 +147,6 @@ export function AuthProvider({ children }: Readonly<Props>) {
       "role": "admin",
       "password": password //"Admin@12345"
     };
-  /*   const res = {
-      id: "748b4681-4ca2-4f3d-99ad-e6f75b546e2a",
-      name: "admin",
-      phoneNumber: "+20123456",
-      email: "admin@Medical.com",
-      accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NDhiNDY4MS00Y2EyLTRmM2QtOTlhZC1lNmY3NWI1NDZlMmEiLCJqdGkiOiI3MThkZGE3Ni1hZmNkLTQyNTUtYmU2Ni1jYTVmODIzYjM4ZWMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9tb2JpbGVwaG9uZSI6IisyMDEyMzQ1NiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwiZXhwIjoxNzI2NDg3NzcxLCJpc3MiOiJNZWRpY2FsRG9zZXMiLCJhdWQiOiJNZWRpY2FsRG9zZXMifQ.GGiM2YIiIc_rHic_rGgmCjtPfbUc9Sym-PpCMUmGP6Y",
-      refreshToken: "7KvyyKGhICkd+U4cqdU6QdsCI2Fdkc+ZOh0lFnfq13k=",
-      accessTokenTtlInMinutes: 30,
-      refreshTokenExpiraAt: "2024-09-25T08:55:21.5516416"
-    }; */
-
-
 
    const res = await axios.post(endpoints.auth.login,credentials );
     const accessToken = res.data?.accessToken;
@@ -158,13 +158,44 @@ export function AuthProvider({ children }: Readonly<Props>) {
    setCookie(USER_KEY, JSON.stringify(data),{sameSite:'strict', secure: true});
     dispatch({
       type: Types.LOGIN,
-      payload: {
+    payload: {
         user: {
           ...data,
           accessToken,
         },
       },
     });
+  }, []);
+  const forgot = useCallback(async (phone: string) => {
+    sessionStorage.setItem('verify_phone', JSON.stringify(phone))
+    const credentials = {
+      "phoneNumber":phone ,// "20123456"   20123456  admin  Admin@12345,
+      "role": "admin",
+
+    };
+
+   const res = await axios.post(endpoints.auth.forgot,credentials );
+   const {data} = res;
+
+  }, []);
+  const verify = useCallback(async (code:string) => {
+    const savedPhone = JSON.parse(sessionStorage.getItem('verify_phone') as string)
+    const credentials = {
+      "phoneNumber": state.phone || savedPhone,
+      "code":code
+    };
+
+    const res = await axios.post(endpoints.auth.verify,credentials );
+    const {data} = res;
+  }, []);
+
+  const changePassword = useCallback(async ( password: string) => {
+    const credentials = {
+      "newPassword": password
+    };
+
+    const res = await axios.post(endpoints.auth.newPassword,credentials );
+    const {data} = res;
   }, []);
 
   // REGISTER
@@ -216,15 +247,20 @@ export function AuthProvider({ children }: Readonly<Props>) {
     () => ({
       user: state.user,
       method: 'jwt',
+      phone:state.phone,
       loading: status === 'loading',
       authenticated: status === 'authenticated',
       unauthenticated: status === 'unauthenticated',
       //
       login,
       register,
+      forgot,
+      verify,
+      changePassword,
       logout,
+
     }),
-    [login, logout, register, state.user, status]
+    [login, logout,forgot, verify,changePassword, register, state.user, status]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

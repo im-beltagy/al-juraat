@@ -71,6 +71,10 @@ export const endpoints = {
     me: '/api/auth/me',
     login: 'api/v1/auth/login',
     register: '/api/auth/register',
+    forgot: `/api/v1/admin/auth/forget-password`,
+    verify: `/api/v1/admin/auth/verify-forget-password-otp`,
+    resendOtp: `/api/v1/admin/auth/resend-forget-password-otp`,
+    newPassword: `/api/v1/admin/auth/change-password`,
     refreshToken:`/api/v1/auth/refresh-token`
   },
   mail: {
