@@ -143,7 +143,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
   // LOGIN
   const login = useCallback(async (username: string, password: string) => {
     const credentials = {
-      "phoneNumber":username ,// "20123456",
+      "email":username ,// "20123456",
       "role": "admin",
       "password": password //"Admin@12345"
     };
@@ -187,15 +187,24 @@ export function AuthProvider({ children }: Readonly<Props>) {
 
     const res = await axios.post(endpoints.auth.verify,credentials );
     const {data} = res;
+    sessionStorage.setItem('resetToken', JSON.stringify(data?.token));
+    console.log(data)
   }, []);
 
   const changePassword = useCallback(async ( password: string) => {
     const credentials = {
       "newPassword": password
     };
+    const getResetToken = JSON.parse(sessionStorage.getItem('resetToken') as string)
+    const headers = {
+      headers: {
 
-    const res = await axios.post(endpoints.auth.newPassword,credentials );
+        'Authorization': `Bearer ${getResetToken}`
+      }
+    }
+    const res = await axios.post(endpoints.auth.newPassword,credentials,headers );
     const {data} = res;
+     sessionStorage.removeItem('resetToken');
   }, []);
 
   // REGISTER

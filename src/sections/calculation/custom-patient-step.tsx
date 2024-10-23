@@ -1,28 +1,31 @@
 import { useSnackbar } from 'notistack';
 import { useForm } from 'react-hook-form';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
+import * as yup from 'yup';
 
 import { Stack } from '@mui/system';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Grid, Checkbox, TextField } from '@mui/material';
+import { Grid, Checkbox, TextField, Typography } from '@mui/material';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import { useTranslate } from 'src/locales';
 
 import { useTable } from 'src/components/table';
 import SharedTable from 'src/components/shared-table';
 import FormProvider from 'src/components/hook-form/form-provider';
-import RHFTextField from 'src/components/hook-form/rhf-text-field-form';
+import RHFTextField from 'src/components/hook-form/rhf-text-field2';
 
 import { IDosageItem, ICalculationResult, ICalculationResultItem } from 'src/types/calculations';
 
 import { useCalculationStore } from './calculation-store';
-import { Result } from 'src/types/results';
+import { IDominalVariables, Result } from 'src/types/results';
+import { addCustomDosage } from 'src/actions/equation-actions';
 
 const TABLE_HEAD = [
   { id: 'select', label: '' },
-  { id: 'variable', label: 'Variable' },
+  { id: 'variableName', label: 'Variable' },
   { id: 'value', label: 'Value' },
-  { id: 'newDose', label: 'New Dose' },
+  { id: 'result', label: 'New Dose' },
 ];
 
 export interface Props {
@@ -34,52 +37,69 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
   const { t } = useTranslate();
 
   const { medicine, formula, indication } = useCalculationStore((state) => ({
-    medicine: state.medicine,
-    formula: state.formula,
-    indication: state.indication,
+    medicine: state.medicine || {id:results?.scientificName, value:results?.scientificName},
+    formula: state.formula || {id:results?.formula, value:results?.formula},
+    indication: state.indication || {id:results?.indication, value:results?.indication},
   }));
 
-  const methods = useForm();
+  const defaultValues = {
+    description:  '',
+    n_dosage:  0,
+};
+const variableSchema =  yup.object().shape({
 
-  const { handleSubmit } = methods;
+  description:  yup.string().required(t('Description is required')),
+  n_dosage:  yup.number().required(t('Dosage is required')),
 
-  const onSubmit = useCallback((data: any) => {}, []);
+});
+
+
+const methods = useForm({
+  resolver: yupResolver(variableSchema ),
+  defaultValues,
+});
+const { handleSubmit,getValues,  reset ,formState: { isSubmitting }, } = methods;
+
 
   const table = useTable();
 
-  const [choosenResults, setChoosenResults] = useState<{ [key: string]: string | undefined }>({});
+  const [choosenVariables, setChoosenVariables] = useState<IDominalVariables[]>([]);
 
   const additionalTableProps = useMemo(
     () => ({
-      onRendervalue: (item: ICalculationResultItem) => {
-        if (typeof item.value === 'string') {
-          return item.value;
-        }
-        return `${t('from')} ${item.value[0]} ${t('to')} ${item.value[1]}`;
-      },
-      onRenderselect: (item: ICalculationResultItem) => (
+      onRendervariableName:(item:IDominalVariables)=> <Typography variant="body2">{item?.variableName}</Typography> ,
+
+
+      onRendervalue: (item: IDominalVariables) => {
+      if (typeof item?.value === 'string') {
+        return item?.value;
+      }
+      return `${t('from')} ${item?.minValue} ${t('to')} ${item?.maxValue}`;
+    },
+
+
+      onRenderselect: (item: IDominalVariables) => (
         <Checkbox
-          checked={choosenResults[item.variable] === item.id}
+
           onChange={(e, val) => {
-            setChoosenResults((prev) => ({ ...prev, [item.variable]: val ? item.id : undefined }));
+            const foundIteminList = choosenVariables?.find((i)=> i.id ===item.id);
+            const add =val && choosenVariables.splice(choosenVariables.indexOf(item),0,item);
+            const deleted =!val && choosenVariables.splice(choosenVariables.indexOf(item),1);
+            setCount([...choosenVariables]?.length)
+            setChoosenVariables(choosenVariables);
           }}
         />
       ),
     }),
-    [choosenResults, t]
+    []
   );
-
+console.log(results)
   // Handle Save
   const [newDosage, setNewDosage] = useState('');
   const [description, setDescription] = useState('');
-  const choosenIds = useMemo(
-    () => Object.values(choosenResults).filter((id) => id),
-    [choosenResults]
-  );
-  const isDisabled = useMemo(
-    () => choosenIds.length < 2 || !newDosage || !description,
-    [choosenIds.length, description, newDosage]
-  );
+  const [count, setCount] = useState(choosenVariables?.length)
+  const isDisabled =  count> 1 && getValues('n_dosage') && getValues('description')? false : true;
+
   const [isLoading, setIsLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -95,8 +115,33 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
         setIsLoading(false);
       }
     })();
-  }, [choosenIds, description, enqueueSnackbar, newDosage, t]);
+  }, [ description, enqueueSnackbar, newDosage, t]);
 
+  const onSubmit = useCallback(
+    async(data: any) => {
+
+      const dominalVariablesId = [...choosenVariables]?.map((item)=> {
+        return {dominalVariableId:item?.id}
+      });
+      const formData = {
+        "equationId": results?.id,
+        "value": data?.n_dosage,
+        "description":data?.description,
+        "customDosageDominalVariables": dominalVariablesId
+      };
+      console.log(formData)
+        const res = await addCustomDosage(formData);
+          if (res?.error) {
+            enqueueSnackbar(`${res?.error}`, { variant: 'error' });
+          } else {
+            enqueueSnackbar(t('Added success!'));
+            setChoosenVariables([]);
+          }
+
+
+    },
+    []
+  );
   return (
     <>
       <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -126,13 +171,12 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
               name="dosage"
               label={t('Dosage')}
               type="number"
-              value={initialDosage?.dosage}
-              InputProps={{ endAdornment: initialDosage?.dosage }}
+              value={results?.initialDose || initialDosage?.dosage}
+              InputProps={{ endAdornment:results?.initialDose|| initialDosage?.dosage }}
               disabled
             />
           </Grid>
         </Grid>
-      </FormProvider>
 
       <Stack
         direction="row"
@@ -142,41 +186,49 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
         justifyContent="space-between"
       >
         <Stack direction="row" spacing={1} alignItems="flex-start">
-          <TextField
-            label={t('New Dosage')}
-            placeholder={t('New Dosage')}
-            type="number"
-            onChange={(e) => setNewDosage(e.target.value)}
-          />
-          <TextField
-            multiline
+        <RHFTextField
+
+             name="n_dosage"
+             label={t('New Dosage')}
+            placeholder={t('New Dosage')} />
+
+         <RHFTextField
+          multiline
             rows={3}
             fullWidth
-            label={t('Description')}
-            placeholder={t('Description')}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+             name="description"
+             label={t('Description')}
+            placeholder={t('Description')} />
+
+
         </Stack>
-        <LoadingButton
-          variant="contained"
-          color="primary"
-          loading={isLoading}
-          disabled={isDisabled}
-          onClick={() => handleSave()}
-        >
+        <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
           {t('Save')}
         </LoadingButton>
       </Stack>
+      </FormProvider>
 
-      {/* <SharedTable
-        dataFiltered={results.data.items}
+
+      <SharedTable
+        dataFiltered={results?.dominalVariables || []}
         table={table}
-        count={results.count}
+        count={results?.dominalVariables?.length || 0}
         tableHeaders={TABLE_HEAD}
         additionalTableProps={additionalTableProps}
         disablePagination
         showFromClients
-      /> */}
+      />
     </>
   );
 }
+
+/* {
+  "equationId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "value": 0,
+  "description": "string",
+  "customDosageDominalVariables": [
+    {
+      "dominalVariableId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    }
+  ]
+} */
