@@ -69,7 +69,7 @@ export const endpoints = {
   calendar: '/api/calendar',
   auth: {
     me: '/api/auth/me',
-    login: 'api/v1/auth/login',
+    login: '/api/v1/admin/auth/login',
     register: '/api/auth/register',
     forgot: `/api/v1/admin/auth/forget-password`,
     verify: `/api/v1/admin/auth/verify-forget-password-otp`,
@@ -140,7 +140,7 @@ export const endpoints = {
     getVariables: ()=>`/api/v1/Admin/variables`,
     createEquation: ()=> `/api/v1/Admin/equations/create`,
     editEquation: ()=> `/api/v1/Admin/dominalvariables/update`,
-
+    customDosage: ()=>`/api/v1/Admin/custom-dosages/add`
 
   },
   /* /medicines/dosage?scientificName=dsf&Indication=sdf&Formula=df */

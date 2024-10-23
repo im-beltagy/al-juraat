@@ -52,7 +52,7 @@ export default function JwtLoginView() {
   });
 
   const defaultValues = {
-    email: '20123456',
+    email: 'admin@medical.com',
     password: 'Admin@12345',
   };
 

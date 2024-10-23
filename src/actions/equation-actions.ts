@@ -155,3 +155,25 @@ export const editDominalVariables = async (data:any): Promise<any> => {
     };
   }
 };
+
+
+export const addCustomDosage = async (data:any): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    }
+  };
+  try {
+    const res = await axiosInstance.post(`${endpoints.calculation.customDosage()}`,data, headers);
+    console.log('ffffff',res.data)
+    invalidatePath(`/dashboard/calculation/`);
+    return res.data;
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};
