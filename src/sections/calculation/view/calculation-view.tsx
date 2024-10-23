@@ -110,6 +110,7 @@ function StepperView({ activeStep, children }: StepperViewProps) {
   const { t } = useTranslate();
 
   const { createQueryString } = useQueryString();
+  const searchParams = useSearchParams();
 
   const handleNext = () => {
     createQueryString([{ name: 'step', value: steps[stepIndex + 1] }], true);
@@ -123,6 +124,7 @@ function StepperView({ activeStep, children }: StepperViewProps) {
   const getSelectedIndication = JSON.parse(sessionStorage.getItem('indication') as string);
   const getSelectedVariables = JSON.parse(sessionStorage.getItem('selectedVariables') as string);
   const isNextValid = getSelectedMedicine && getSelectedFormula &&getSelectedIndication &&getSelectedVariables;
+  const isPrevValid =  !searchParams.get('formula')&& searchParams.get('step') == "final-result" ;
 
   return (
     <>
@@ -148,7 +150,7 @@ function StepperView({ activeStep, children }: StepperViewProps) {
           <Button
             variant="contained"
             color="primary"
-            disabled={stepIndex === 0}
+            disabled={stepIndex == 0 ||isPrevValid }
             onClick={handleBack}
             sx={{ mr: 1 }}
           >

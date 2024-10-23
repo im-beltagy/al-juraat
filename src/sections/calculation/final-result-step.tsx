@@ -61,7 +61,7 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
         return `${t('from')} ${item?.minValue} ${t('to')} ${item?.maxValue}`;
       },
       onRenderprimary: (item: IDominalVariables) =>
-      results?.dominalVariables?.[0] ? <Radio checked /> : null,
+      results?.dominalVariables?.[0]?.id ===  item?.id ? <Radio checked /> : null,
     }),
     []
   );
@@ -104,15 +104,15 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
       </FormProvider>
 
       <Box mt={3} />
-
       <SharedTable
+
         dataFiltered={results?.dominalVariables || []}
         table={table}
         count={results?.dominalVariables?.length || 0}
+        disablePagination
         tableHeaders={TABLE_HEAD}
         additionalTableProps={additionalTableProps}
-        disablePagination
-        showFromClients
+
         enableActions
         actions={[
           {
@@ -127,7 +127,7 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
             }
           },
         ]}
-      />
+        />
     </>
   );
 }

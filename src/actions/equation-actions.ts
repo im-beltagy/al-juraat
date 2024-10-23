@@ -168,7 +168,6 @@ export const addCustomDosage = async (data:any): Promise<any> => {
   };
   try {
     const res = await axiosInstance.post(`${endpoints.calculation.customDosage()}`,data, headers);
-    console.log('ffffff',res.data)
     invalidatePath(`/dashboard/calculation/`);
     return res.data;
   } catch (error) {

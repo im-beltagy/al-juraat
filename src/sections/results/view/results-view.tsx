@@ -138,6 +138,7 @@ export default function MedicineView({ results, count }: Props) {
 
         </Grid>
       </FormProvider>
+
       <SharedTable
         additionalComponent={
           <TableHeadActions
@@ -148,10 +149,12 @@ export default function MedicineView({ results, count }: Props) {
         table={table}
         count={count}
         disablePagination
+        showFromClients
+        enableActions
         tableHeaders={TABLE_HEAD}
         additionalTableProps={additionalTableProps}
 
-        enableActions
+
         actions={[
           {
             label: t('Details'),
