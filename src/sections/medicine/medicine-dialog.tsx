@@ -118,7 +118,7 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
           <RHFTextField name="PharmacologicalGroup" InputLabelProps={{style:{ fontWeight:'bold'}}} label={t('Pharmacological Group')} placeholder={t('Pharmacological Group')} />
           <RHFTextField multiline rows={3} InputLabelProps={{style:{ fontWeight:'bold'}}} name="Notes" label={t('Notes')} placeholder={t('Notes')} />
           <RHFTextField multiline rows={3} InputLabelProps={{style:{ fontWeight:'bold'}}}  name="PreCautions" label={t('PreCautions')} placeholder={t('PreCautions')} />
-          <RHFTextField multiline rows={3} InputLabelProps={{style:{ fontWeight:'bold'}}}  name="SideEffects" type="number" label={t('SideEffects')} placeholder={t('SideEffects')} />
+          <RHFTextField multiline rows={3} InputLabelProps={{style:{ fontWeight:'bold'}}}  name="SideEffects"  label={t('SideEffects')} placeholder={t('SideEffects')} />
 
         </Stack>
 
