@@ -54,6 +54,7 @@ export default function EquationBuildingStep({
 
   const { medicineItem, formulaItem, indicationItem } = useMemo(
     () => ({
+      // error here if no data back from api
       medicineItem: medicines && medicines?.find((m) => m === medicine) || '',
       formulaItem:formulas && formulas?.find((f) => f === formulaId) || '',
       indicationItem: indications &&indications?.find((i) => i === indicationId) || '',

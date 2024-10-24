@@ -21,7 +21,7 @@ import { IDosageItem, IVariableItem, yupCalculationItem } from 'src/types/calcul
 import { useCalculationStore } from './calculation-store';
 import { IVariable } from 'src/types/variables';
 import { useQueryString } from 'src/hooks/use-queryString';
-import { createEquation, editDominalVariables } from 'src/actions/equation-actions';
+import { addDominalVariables, createEquation, editDominalVariables } from 'src/actions/equation-actions';
 import { IDominalVariables } from 'src/types/results';
 import axiosInstance, { endpoints } from 'src/utils/axios';
 import { getCookie } from 'cookies-next';
@@ -94,6 +94,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
   const {
     setValue,
     watch,
+    getValues,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
@@ -115,6 +116,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
   const [result, setResult] = useState<number | null>(null);
   const effect = watch('effect');
   const effectType = watch('effect_type');
+  const [addVariable, setAddVariable] = useState(false);
   const calculate = useCallback(() => {
     let val: number;
     if (effectType === 'positive') {
@@ -127,8 +129,40 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const submitAdd =useCallback(
+    async (data: any) => {
+
+        const dataRange ={
+          "variableId": data?.variable?.id,
+          "minValue":  data?.variable_value?.[0] ,
+            "maxValue":   data?.variable_value?.[1] ,
+            "effect": data?.effect,
+            "effectType": data?.effect_type == 'positive'?  true: false
+
+        }
+        const dataList = {
+          "variableId": data?.variable?.id,
+          "value": data?.variable_value?.id,
+          "effect": data?.effect,
+          "effectType": data?.effect_type == 'positive'?  true: false
+        }
+        const res = await addDominalVariables(searchParams.get('equationId') || '',data?.variable?.type !== 'Range'? dataList : dataRange);
+        if (res?.error) {
+          enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+        } else {
+          enqueueSnackbar('Added success!', {
+            variant: 'success',
+          });
+        }
+
+
+    },
+    []
+  );
+
   const onSubmit = useCallback(
     async (data: any) => {
+
       const dataFormRange = {
         "scientificName": medicine?.id,
         "formula": formula?.id,
@@ -162,6 +196,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
           }
         ]
       };
+
       if(searchParams.get('variableId')){
         const dataRange ={
           "id": currentVariable?.id,
@@ -190,7 +225,10 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
             variant: 'success',
           });
         }
-      } else {
+      }
+
+
+      else {
 
         const res = await createEquation( data?.variable?.type !== 'Range'? dataFormList : dataFormRange);
         if (res?.error) {
@@ -211,7 +249,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
 
   return (
     <>
-      <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+      <FormProvider methods={methods} onSubmit={handleSubmit(addVariable? submitAdd :onSubmit)}>
         <Grid container spacing={2}>
 
           <Grid item xs={12} sm={6}>
@@ -379,11 +417,15 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
           </Grid>
 
 
-          <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Grid item xs={12} sx={{gap:1, display: 'flex', justifyContent: 'flex-end' }}>
             <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
               {t(searchParams.get('variableId') ? 'Edit' : 'Save')}
             </LoadingButton>
+            <LoadingButton onClick={()=>setAddVariable(true)} disabled={!searchParams.get('equationId')} type="submit" variant="contained" color="primary" loading={isSubmitting}>
+             Add
+            </LoadingButton>
           </Grid>
+
         </Grid>
       </FormProvider>
       <Box />
