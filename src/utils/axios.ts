@@ -140,8 +140,8 @@ export const endpoints = {
     getVariables: ()=>`/api/v1/Admin/variables`,
     createEquation: ()=> `/api/v1/Admin/equations/create`,
     editEquation: ()=> `/api/v1/Admin/dominalvariables/update`,
-    customDosage: ()=>`/api/v1/Admin/custom-dosages/add`
-
+    customDosage: ()=>`/api/v1/Admin/custom-dosages/add`,
+    addEquationVariable: (id:string )=> `/api/v1/Admin/dominalvariables/add/${id}`
   },
   /* /medicines/dosage?scientificName=dsf&Indication=sdf&Formula=df */
   results: {
