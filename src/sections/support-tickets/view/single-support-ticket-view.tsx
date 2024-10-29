@@ -20,16 +20,20 @@ import TwoColsTable, { TableData } from 'src/components/shared-table/twoColsTabl
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
 
 import { SupportTicket } from 'src/types/support-tickets';
+import { editAnswer } from 'src/actions/support-tickets-actions';
 
 const PERSONAL_INFO = [
-  { id: 'user_name', label: 'User Name' },
+  { id: 'name', label: 'User Name' },
   { id: 'phone', label: 'Phone' },
   { id: 'email', label: 'Email' },
 ];
 const PROBLEM_INFO = [
   { id: 'title', label: 'Title' },
   { id: 'subject', label: 'Subject' },
+  { id: 'answer', label: 'Answer' },
+
 ];
+
 
 interface Props {
   ticket: SupportTicket;
@@ -37,7 +41,7 @@ interface Props {
 
 export function SingleSupportTicketsView({ ticket }: Props) {
   const settings = useSettingsContext();
-
+console.log(ticket)
   const { enqueueSnackbar } = useSnackbar();
 
   const router = useRouter();
@@ -55,21 +59,19 @@ export function SingleSupportTicketsView({ ticket }: Props) {
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = useCallback(
-    (data: any) => {
-      (async () => {
-        const res = await { error: undefined };
-        if (res?.error) {
-          enqueueSnackbar(`${res?.error}`, { variant: 'error' });
-        } else {
-          enqueueSnackbar('Response sent successfully', { variant: 'success' });
-          methods.reset();
-          router.push(paths.dashboard.supportTickets);
-        }
-      })();
-    },
-    [enqueueSnackbar, methods, router]
-  );
+  const onSubmit = useCallback( async(data: any) => {
+    console.log(data)
+      const res = await editAnswer(ticket?.id,data?.response);
+      if (res?.error) {
+        enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+      } else {
+        enqueueSnackbar('Updated success!', {
+          variant: 'success',
+        });
+      }
+
+
+  }, []);
 
   return (
     <Container
@@ -106,7 +108,8 @@ export function SingleSupportTicketsView({ ticket }: Props) {
           rows={
             PROBLEM_INFO.map(({ id, label }: { id: string; label: string }) => ({
               label,
-              value: ticket[id as keyof SupportTicket],
+              value: ticket[id as keyof SupportTicket] ? ticket[id as keyof SupportTicket] :
+              label === 'Answer'? 'No answer yet': '' ,
             })) as unknown as TableData
           }
         />
@@ -114,8 +117,8 @@ export function SingleSupportTicketsView({ ticket }: Props) {
 
       <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
         <Stack direction="row" spacing={2} alignItems="flex-end">
-          <RHFTextarea rows={3} name="response" label="Your Answer" placeholder="Your Answer" />
-          <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
+          <RHFTextarea disabled={String(ticket.answer) === 'null' ?false: true} rows={3} name="response" label="Your Answer" placeholder="Your Answer" />
+          <LoadingButton disabled={String(ticket.answer) === 'null' ?false: true} type="submit" variant="contained" color="primary" loading={isSubmitting}>
             Submit
           </LoadingButton>
         </Stack>

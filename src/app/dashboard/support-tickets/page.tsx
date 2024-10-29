@@ -1,4 +1,4 @@
-import { fetchSupportTickets } from 'src/actions/support-tickets-actions';
+import { fetchTickets } from 'src/actions/support-tickets-actions';
 
 import { SupportTicketsView } from 'src/sections/support-tickets/view/support-tickets-view';
 
@@ -10,17 +10,17 @@ type SearchParams = {
 
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
   const page =
-    typeof searchParams.page === 'string' ? Number(searchParams.page) || undefined : undefined;
+    typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
   const limit =
-    typeof searchParams.limit === 'string' ? Number(searchParams.limit) || undefined : undefined;
-  const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
+    typeof searchParams.limit === 'string' ? Number(searchParams.limit) :  5;
+  const search = typeof searchParams.search === 'string' ? searchParams.search : '';
 
-  const supportTickets = await fetchSupportTickets({ page, limit, search });
+  const supportTickets = await fetchTickets(page, limit, search);
 
   return (
     <SupportTicketsView
-      supportTickets={(supportTickets?.data || []) as unknown as SupportTicket[]}
-      count={Number(supportTickets?.count)}
+      supportTickets={supportTickets?.items as SupportTicket[]}
+      count={Number(supportTickets?.totalCount )}
     />
   );
 }
