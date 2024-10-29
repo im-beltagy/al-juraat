@@ -1,57 +1,67 @@
 'use server';
 
+import { getCookie } from 'cookies-next';
 import { cookies } from 'next/headers';
 
-import { getErrorMessage } from 'src/utils/axios';
+import axiosInstance, { endpoints, getErrorMessage } from 'src/utils/axios';
+import { invalidatePath } from './cache-invalidation';
 
-export async function fetchSupportTickets({
-  page = 1,
-  limit = 5,
-  search,
-}: {
-  page?: number;
-  limit?: number;
-  search?: string;
-}) {
-  const lang = cookies().get('Language')?.value;
-  const accessToken = cookies().get('accessToken')?.value;
 
+
+export const fetchTickets = async (page:number, limit:number,search:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
   try {
-    const res = await {
-      data: Array.from({ length: 3 }).map((_, index) => ({
-        id: index + 1,
-        title: `Ticket ${index + 1}`,
-        user_name: `User ${index + 1}`,
-        email: `user${index + 1}@example.com`,
-        phone: '1234567890',
-        subject: `Subject ${index + 1}`,
-      })),
-      meta: {
-        itemCount: 3,
-      },
-    };
-    return { data: res?.data, count: res?.meta?.itemCount };
+    const res = await axiosInstance.get(`${endpoints.support.list(page,limit,search)}`, headers);
+    return res.data;
   } catch (error) {
-    throw Error(getErrorMessage(error));
+    return {
+      error: getErrorMessage(error),
+    };
   }
-}
+};
 
-export async function fetchSingleSupportTicket({ id: index }: { id: string }) {
-  const lang = cookies().get('Language')?.value;
-  const accessToken = cookies().get('accessToken')?.value;
 
+export const fetchSingleTicket= async (id:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`
+    }
+  };
   try {
-    const res = await {
-      data: {
-        title: `Ticket ${index}`,
-        user_name: `User ${index}`,
-        email: `user${index}@example.com`,
-        phone: '1234567890',
-        subject: `Subject ${index}`,
-      },
-    };
-    return res;
+    const res = await axiosInstance.get(`${endpoints.support.details(id)}`, headers);
+    return res.data;
   } catch (error) {
-    throw Error(getErrorMessage(error));
+    return {
+      error: getErrorMessage(error),
+    };
   }
-}
+};
+
+
+export const editAnswer = async (id:string,data:string): Promise<any> => {
+  const access_token = getCookie('accessToken', { cookies });
+  const headers = {
+
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json'
+    }
+  };
+  try {
+    const res = await axiosInstance.put(`${endpoints.support.edit(id)}`,data, headers);
+   invalidatePath(`/dashboard/support-tickets/${id}`);
+    return res.data;
+  } catch (error) {
+    return {
+      error: getErrorMessage(error),
+    };
+  }
+};

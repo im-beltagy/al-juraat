@@ -1,8 +1,9 @@
 export interface SupportTicket {
   id: string;
-  title: string;
-  user_name: string;
   email: string;
+  name: string;
   phone: string;
-  subject: string;
+  title: string;
+  subject?: string;
+  answer?: string
 }

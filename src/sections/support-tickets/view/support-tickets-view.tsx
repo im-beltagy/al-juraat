@@ -17,10 +17,9 @@ import { SupportTicket } from 'src/types/support-tickets';
 
 const TABLE_HEAD = [
   { id: 'title', label: 'Title', static: true },
-  { id: 'user_name', label: 'User Name' },
+  { id: 'name', label: 'User Name' },
   { id: 'email', label: 'Email' },
   { id: 'phone', label: 'Phone' },
-  { id: 'subject', label: 'Subject' },
 ];
 
 const filters: TableFilter[] = [
@@ -37,7 +36,6 @@ interface Props {
 
 export function SupportTicketsView({ supportTickets, count }: Props) {
   const settings = useSettingsContext();
-
   const router = useRouter();
 
   const table = useTable();
@@ -56,14 +54,7 @@ export function SupportTicketsView({ supportTickets, count }: Props) {
       <CustomBreadcrumbs heading="Support Tickets" links={[{}]} sx={{ mb: 3 }} />
 
       <SharedTable
-        additionalComponent={
-          <TableHeadActions
-            defaultTableHead={TABLE_HEAD}
-            setTableHead={(newTableHead: TableHeader[]) => setTableHead(newTableHead)}
-            filters={filters.map((item) => ({ ...item, label: item.label }) as TableFilter)}
-            handleExport={() => {}}
-          />
-        }
+
         dataFiltered={supportTickets}
         table={table}
         count={count}

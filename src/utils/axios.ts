@@ -150,6 +150,12 @@ export const endpoints = {
     delete: (id:string)=>`/api/v1/Admin/equations/${id}`,
 
   },
+  support: {
+    list:(page:number, limit:number, search:string)=>`/api/v1/Admin/contact-us?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&Filter=${search}`,
+    details: (id:string)=> `/api/v1/Admin/contact-us/${id}`,
+    edit: (id:string)=>`/api/v1/Admin/contact-us/Answer/${id}`,
+
+  },
   privacyPolicy: ()=> `/api/v1/Admin/pages/privacy_policy`,
   termsAndConditions: ()=> `/api/v1/Admin/pages/terms_and_conditions`,
   aboutUs: ()=> `/api/v1/Admin/pages/about_us`,
