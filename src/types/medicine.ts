@@ -8,6 +8,7 @@ export type Medicine = {
   notes: string;
   preCautions: string;
   sideEffects: string;
+  isWeightDependent:boolean;
   tradNames: Array<TradeNames>;
 }
 export type TradeNames = {
