@@ -5,9 +5,9 @@ import { useForm } from 'react-hook-form';
 import { useEffect, useCallback } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import { Stack } from '@mui/system';
+import { getValue, Stack, width } from '@mui/system';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Button, Dialog, DialogTitle, DialogActions } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogActions, InputAdornment } from '@mui/material';
 
 import { useTranslate } from 'src/locales';
 
@@ -17,6 +17,7 @@ import { enqueueSnackbar } from 'notistack';
 import { Medicine } from 'src/types/medicine';
 import { addMedicine, editMedicine } from 'src/actions/medicine';
 import { toFormData } from 'axios';
+import { RHFCheckbox } from 'src/components/hook-form';
 
 interface Props {
   open: boolean;
@@ -32,6 +33,7 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
       Formula: medicine?.formula || '',
       Indication: medicine?.indication || '',
       InitialDose: medicine?.initialDose || 0,
+      IsWeightDependent: medicine?.isWeightDependent || false,
       PharmacologicalGroup: medicine?.pharmacologicalGroup || '',
       Notes: medicine?.notes || '',
       PreCautions: medicine?.preCautions || '',
@@ -42,6 +44,7 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
     Formula:  yup.string().required(t('Formula is required')),
     Indication:  yup.string().required(t('Indication is required')),
     InitialDose:  yup.number().required(t('InitialDose is required')),
+    IsWeightDependent: yup.boolean(),
     PharmacologicalGroup:  yup.string().required(t('PharmacologicalGroup is required')),
     Notes:  yup.string().required(t('Notes is required')),
     PreCautions:  yup.string().required(t('PreCautions is required')),
@@ -54,7 +57,9 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
     resolver: yupResolver(variableSchema ),
     defaultValues,
   });
-  const { handleSubmit,  reset ,formState: { isSubmitting }, } = methods;
+  const { handleSubmit,watch,  reset ,formState: { isSubmitting }, } = methods;
+  const w_weight= watch('IsWeightDependent');
+  console.log(w_weight)
   const onSubmit = useCallback( async(data: any) => {
 
     if(medicine) {
@@ -90,6 +95,7 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
       Formula: medicine?.formula ,
       Indication: medicine?.indication ,
       InitialDose: medicine?.initialDose,
+      IsWeightDependent: medicine?.isWeightDependent,
       PharmacologicalGroup: medicine?.pharmacologicalGroup ,
       Notes: medicine?.notes ,
       PreCautions: medicine?.preCautions ,
@@ -99,8 +105,8 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
 
 
   }, [open ]);
-  console.log(medicine);
-
+ // console.log(medicine);
+// isWeightDependent
   return (
     <Dialog maxWidth="sm" fullWidth open={open} onClose={() => onClose()}>
       <DialogTitle sx={{ pb: 0 }}>
@@ -112,7 +118,10 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
           <RHFTextField InputLabelProps={{style:{ fontWeight:'bold'}}} name="ScientificName" label={t('Scientific Name')} placeholder={t('Scientific Name')} />
           <RHFTextField name="Formula" InputLabelProps={{style:{ fontWeight:'bold'}}}  label={t('Formula')} placeholder={t('Formula')} />
           <RHFTextField name="Indication" InputLabelProps={{style:{ fontWeight:'bold'}}} label={t('Indication')} placeholder={t('Indication')} />
-          <RHFTextField name="InitialDose" InputLabelProps={{style:{ fontWeight:'bold'}}} label={t('InitialDose')} placeholder={t('InitialDose')}
+          <RHFCheckbox name="IsWeightDependent" label={t('By Weight')}  />
+          <RHFTextField name="InitialDose"   InputProps={{ endAdornment: w_weight?
+           <InputAdornment position="end">kg/mg</InputAdornment>:
+          <InputAdornment position="end">mg</InputAdornment>,  }} InputLabelProps={{style:{ fontWeight:'bold'}}} label={t('InitialDose')} placeholder={t('InitialDose')}
           helperText="warning edit InitialDose will remove details of the medicine"
           />
           <RHFTextField name="PharmacologicalGroup" InputLabelProps={{style:{ fontWeight:'bold'}}} label={t('Pharmacological Group')} placeholder={t('Pharmacological Group')} />
