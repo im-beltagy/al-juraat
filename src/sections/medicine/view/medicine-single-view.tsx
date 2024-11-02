@@ -51,10 +51,10 @@ export default function SingleMedicineView({ medicine }: Props) {
 
             <TableRow key={item?.id}>
 
-              <TableCell>
+            {/*   <TableCell>
                 <Avatar src={`${item?.imageUrl}`} />
               </TableCell>
-
+ */}
               <TableCell>{item?.name}</TableCell>
 
               <TableCell >{item?.description}</TableCell>

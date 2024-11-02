@@ -9,6 +9,7 @@ import {
 import CalculationView from 'src/sections/calculation/view/calculation-view';
 import { IVariable } from 'src/types/variables';
 import { Result } from '@mui/system/cssVars/useCurrentColorScheme';
+import { fetchSingleMedicine } from 'src/actions/medicine';
 
 export const metadata = {
   title: 'Calculations | Al-Juraat Al-Tibbiya',
@@ -50,12 +51,15 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
     formulas = Formulas_res;
     indications = Indications_res;
   }
-
+  let medicineD;
   let initialDosage;
   if (medicine && formula && indication && step == 'dominal-variables'  ) {
     const res = await fetchDosage(medicine, formula,indication);
 
     initialDosage = res;
+    const medicineDetails = await fetchSingleMedicine(res?.medicineId);
+    medicineD = medicineDetails;
+
   }
   let resultsRes: any;
   if (equationId) {
@@ -70,6 +74,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
       formulas={formulas as string[]}
       indications={indications as string[]}
       initialDosage={initialDosage}
+      medicineDetails={medicineD}
       results={resultsRes}
     />
   );

@@ -8,7 +8,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useState, useEffect, useCallback } from 'react';
 
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Grid, Slider, Button, FormLabel, TextField, FormHelperText } from '@mui/material';
+import { Box, Grid, Slider, Button, FormLabel, TextField, FormHelperText, InputAdornment } from '@mui/material';
 
 import { useTranslate } from 'src/locales';
 
@@ -34,9 +34,10 @@ type ITems = {
 export interface Props {
   variables: IVariable[];
   initialDosage?: IDosageItem;
+  medicineIsWeight:boolean;
 }
 
-export default function DominalVariableStep({ variables, initialDosage }: Props) {
+export default function DominalVariableStep({ variables, initialDosage,medicineIsWeight }: Props) {
   const { t } = useTranslate();
   const searchParams = useSearchParams();
   const { createQueryString } = useQueryString();
@@ -116,6 +117,7 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
   const [result, setResult] = useState<number | null>(null);
   const effect = watch('effect');
   const effectType = watch('effect_type');
+  console.log(medicineIsWeight)
   const [addVariable, setAddVariable] = useState(false);
   const calculate = useCallback(() => {
     let val: number;
@@ -277,7 +279,9 @@ export default function DominalVariableStep({ variables, initialDosage }: Props)
               label={t('Dosage')}
               type="tel"
               value={initialDosage?.dosage || 100}
-              InputProps={{ endAdornment: 'unit' }}
+              InputProps={{ endAdornment:  medicineIsWeight?
+                <InputAdornment position="end">kg/mg</InputAdornment>:
+               <InputAdornment position="end">mg</InputAdornment>, }}
               disabled
             />
           </Grid>

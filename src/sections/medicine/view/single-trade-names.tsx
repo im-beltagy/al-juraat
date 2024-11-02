@@ -16,7 +16,6 @@ interface Props {
 export default function SingleTradeNameView({ tradeName }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
-
   return (
     <Container
       maxWidth={settings.themeStretch ? false : 'xl'}
@@ -29,18 +28,33 @@ export default function SingleTradeNameView({ tradeName }: Props) {
       <CustomBreadcrumbs heading={t('Trade Name')} links={[{}]} sx={{ mb: 3 }} />
 
       <Stack spacing={3} maxWidth="20rem">
-        <Box sx={{ mb: 5 }}>
-          <Avatar
-            src={tradeName.imageUrl}
-            sx={(theme) => ({
-              width: 150,
-              height: 150,
-              mx: 'auto',
-              border: '.5rem solid white',
-              outline: `1px dashed ${theme.palette.divider}`,
-            })}
-          />
-        </Box>
+        {tradeName?.tradeNamesImages?.map((image,index)=> (
+
+
+      <Stack
+            key={index}
+            component={'div'}
+            spacing={2}
+            direction="column"
+            alignItems="center"
+            sx={{
+              my: 1,
+              py: 1,
+              px: 1.5,
+              borderRadius: 1,
+            }}
+          >
+        <Box
+        component="img"
+        src={image?.imageUrl}
+        sx={{
+          width: 200,
+          height: 200,
+          flexShrink: 0,
+        }}
+      />
+          </Stack>
+        ))}
 
         <TextField
           name="name"

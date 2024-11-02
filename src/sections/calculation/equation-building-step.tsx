@@ -97,7 +97,7 @@ export default function EquationBuildingStep({
   const choosenMedicine = methods.watch('medicine');
   const watching = methods.watch();
   useEffect(()=>{
-    sessionStorage.setItem('medicine', JSON.stringify(choosenMedicine))
+    sessionStorage.setItem('medicine', JSON.stringify(choosenMedicine));
     sessionStorage.setItem('formula', JSON.stringify(choosenFormula))
     sessionStorage.setItem('indication', JSON.stringify(choosenIndication))
     sessionStorage.setItem('selectedVariables', JSON.stringify(choosenVariables))
@@ -136,10 +136,11 @@ export default function EquationBuildingStep({
               name="medicine"
               label={t('Scientific name')}
               placeholder={t('Scientific name')}
-              options={medicines?.map((item)=>( {id:item, value:item}))}
+              options={medicines?.map((item)=>{
+                 return{id:item, value:item};
+                })}
               getOptionLabel={(option) => {
                 if (typeof option !== 'string') {
-
                   return option.id;
                 }
                 return '';
@@ -150,7 +151,6 @@ export default function EquationBuildingStep({
                 if (newValue) {
                   setValue('medicine', newValue as any)
                    createQueryString([{ name: 'medicine', value: String(newValue.id)  }]);
-
                  setMedicine(newValue as any );
                 } else {
                   setMedicine();

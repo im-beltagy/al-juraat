@@ -25,9 +25,9 @@ export default function MultiFilePreview({
   const urls: string[] = [];
 
   if (Array.isArray(files)) {
-    files.forEach((file) => {
-      if (typeof file === 'object' && file && 'url' in file && typeof file.url === 'string') {
-        urls.push(file.url);
+    files.forEach((file:any) => {
+      if (typeof file === 'object' && file && 'url' in file && typeof file.url === 'string' || typeof file === 'object' && file && 'imageUrl' in file && typeof file.imageUrl === 'string') {
+          urls.push(file.url  || file.imageUrl);
       }
     });
   }
@@ -39,7 +39,7 @@ export default function MultiFilePreview({
         if (thumbnail) {
           return (
             <Stack
-              key={key}
+              key={index}
               component={m.div}
               {...varFade().inUp}
               alignItems="center"

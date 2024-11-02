@@ -23,6 +23,7 @@ import { useCalculationStore } from '../calculation-store';
 import EquationBuildingStep from '../equation-building-step';
 import { IVariable } from 'src/types/variables';
 import { Result } from 'src/types/results';
+import { Medicine } from 'src/types/medicine';
 
 const titles = ['Equation Building', 'Calculation', 'Final Result', 'Custom Patient'];
 const stepsTitles = [
@@ -40,6 +41,7 @@ interface Props {
   variables: IVariable[];
   initialDosage?: IDosageItem;
   results: Result;
+  medicineDetails:Medicine;
 }
 
 export default function CalculationView({
@@ -49,6 +51,7 @@ export default function CalculationView({
   variables,
   initialDosage,
   results,
+  medicineDetails
 }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
@@ -57,12 +60,10 @@ export default function CalculationView({
   const activeStep = searchParams.get('step') || steps[0];
   const stepIndex = steps.indexOf(activeStep);
   const saveVariable = results && sessionStorage.setItem('variable', JSON.stringify(results));
-
   const { setMedicine, setFormula, setIndication } = useCalculationStore(
     // eslint-disable-next-line @typescript-eslint/no-shadow
     ({ setMedicine, setFormula, setIndication }) => ({ setMedicine, setFormula, setIndication })
   );
-
   return (
     <Container
       maxWidth={settings.themeStretch ? false : 'xl'}
@@ -74,7 +75,7 @@ export default function CalculationView({
     >
       <CustomBreadcrumbs heading={t(titles[stepIndex])} links={[{}]} sx={{ mb: 3 }} />
 
-      <StepperView activeStep={activeStep}>
+      <StepperView activeStep={activeStep} >
         <Box mt={3} />
         {stepIndex === 0 ? (
           <EquationBuildingStep
@@ -86,7 +87,7 @@ export default function CalculationView({
         ) : null}
         {stepIndex === 1 ? (
 
-          <DominalVariableStep variables={variables} initialDosage={initialDosage} />
+          <DominalVariableStep variables={variables} initialDosage={initialDosage} medicineIsWeight={medicineDetails?.isWeightDependent} />
         ) : null}
         {stepIndex === 2 ? (
           <FinalResultStep initialDosage={initialDosage} results={results} />
@@ -119,6 +120,8 @@ function StepperView({ activeStep, children }: StepperViewProps) {
   const handleBack = () => {
     createQueryString([{ name: 'step', value: steps[stepIndex - 1] }, { name: 'variable' }], true);
   };
+
+
   const getSelectedMedicine = JSON.parse(sessionStorage.getItem('medicine') as string);
   const getSelectedFormula = JSON.parse(sessionStorage.getItem('formula') as string);
   const getSelectedIndication = JSON.parse(sessionStorage.getItem('indication') as string);
