@@ -132,6 +132,13 @@ export const endpoints = {
     delete: (id:string)=>`/api/v1/Admin/tradenames/${id}`,
 
   },
+  tradeNamesImages : {
+    add: (tradeNameid:string)=> `/api/v1/Admin/tradenames/images/add/${tradeNameid}`,
+    edit: (imageid:string)=> `/api/v1/Admin/tradenames/images/replace/${imageid}`,
+    delete: (imageid:string)=> `/api/v1/Admin/tradenames/images/${imageid}`,
+
+
+  },
   calculation: {
     getScientificNames: ()=> `/api/v1/Admin/medicines/scientificNames`,
     getIndications: (scientificName:string)=> `/api/v1/Admin/medicines/indications?scientificName=${scientificName}`,
@@ -141,7 +148,8 @@ export const endpoints = {
     createEquation: ()=> `/api/v1/Admin/equations/create`,
     editEquation: ()=> `/api/v1/Admin/dominalvariables/update`,
     customDosage: ()=>`/api/v1/Admin/custom-dosages/add`,
-    addEquationVariable: (id:string )=> `/api/v1/Admin/dominalvariables/add/${id}`
+    addEquationVariable: (id:string )=> `/api/v1/Admin/dominalvariables/add/${id}`,
+    getNewDosage: (dosage:number, effect:number, effectType:boolean)=> `/api/v1/Admin/dominalvariables/new-dosage?Dosage=${dosage}&Effect=${effect}&EffectType=${effectType}`
   },
   /* /medicines/dosage?scientificName=dsf&Indication=sdf&Formula=df */
   results: {

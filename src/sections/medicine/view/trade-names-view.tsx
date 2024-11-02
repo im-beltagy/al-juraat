@@ -24,8 +24,8 @@ import { paths } from 'src/routes/paths';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name' },
-  { id: 'imageUrl', label: 'Image' },
-  { id: 'description', label: 'Description' },
+/*   { id: 'imageUrl', label: 'Image' },
+ */  { id: 'description', label: 'Description' },
 ];
 
 interface Props {
@@ -49,7 +49,6 @@ export default function TradeNamesView({
   const router = useRouter();
 
   const additionalTableProps = {
-    onRenderimageUrl: (item: TradeNames) => <Avatar src={item?.imageUrl} />,
 
    };
 

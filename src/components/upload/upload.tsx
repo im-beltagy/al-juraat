@@ -21,6 +21,7 @@ import SingleFilePreview from './preview-single-file';
 export default function Upload({
   disabled,
   multiple = false,
+  disableButton,
   error,
   helperText,
   //
@@ -54,9 +55,9 @@ export default function Upload({
     <Stack spacing={3} alignItems="center" justifyContent="center" flexWrap="wrap">
       <UploadIllustration sx={{ width: 1, maxWidth: 200 }} />
       <Stack spacing={1} sx={{ textAlign: 'center' }}>
-        <Typography variant="h6">{t(`Drop or Select file`)}</Typography>
+        <Typography variant="h6">{t(`Drop or Select Image`)}</Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {t(`Drop files here or click`)}
+          {t(`Drop images here or click`)}
           <Box
             component="span"
             sx={{
@@ -118,11 +119,12 @@ export default function Upload({
         {onUpload && (
           <Button
             size="small"
+            disabled={disableButton}
             variant="contained"
             onClick={onUpload}
             startIcon={<Iconify icon="eva:cloud-upload-fill" />}
           >
-            Upload
+            UploadImage
           </Button>
         )}
       </Stack>
