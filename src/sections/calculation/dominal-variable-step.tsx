@@ -117,7 +117,6 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
   const [result, setResult] = useState<number | null>(null);
   const effect = watch('effect');
   const effectType = watch('effect_type');
-  console.log(medicineIsWeight)
   const [addVariable, setAddVariable] = useState(false);
   const calculate = useCallback(() => {
     let val: number;
@@ -149,6 +148,7 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
           "effectType": data?.effect_type == 'positive'?  true: false
         }
         const res = await addDominalVariables(searchParams.get('equationId') || '',data?.variable?.type !== 'Range'? dataList : dataRange);
+
         if (res?.error) {
           enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
         } else {
@@ -236,11 +236,14 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
         if (res?.error) {
           enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
         } else {
+          createQueryString([{ name: 'equationId', value: String(res?.id)  }]);
           enqueueSnackbar('Created success!', {
             variant: 'success',
           });
-          createQueryString([{ name: 'equationId', value: String(res?.id)  }]);
+          if(!searchParams.get('equationId')){
 
+            createQueryString([{ name: 'equationId', value: String(res?.id)  }]);
+          }
         }
       }
 

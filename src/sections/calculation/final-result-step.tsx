@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useCallback } from 'react';
 
 import { Box } from '@mui/system';
-import { Grid, Radio, Typography } from '@mui/material';
+import { Grid, InputAdornment, Radio, Typography } from '@mui/material';
 
 import { useQueryString } from 'src/hooks/use-queryString';
 
@@ -96,7 +96,9 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
               label={t('Dosage')}
               type="number"
               value={initialDosage?.dosage}
-              InputProps={{ endAdornment: 'unit' }}
+              InputProps={{ endAdornment:  initialDosage?.isWeightDependent?
+                <InputAdornment position="end">kg/mg</InputAdornment>:
+               <InputAdornment position="end">mg</InputAdornment>, }}
               disabled
             />
           </Grid>
