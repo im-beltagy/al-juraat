@@ -24,6 +24,7 @@ export interface IVariableItem {
 export interface IDosageItem {
   dosage: number;
   medicineId: string;
+  isWeightDependent:boolean;
 }
 
 export interface ICalculationResultItem {
