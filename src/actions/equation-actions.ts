@@ -85,6 +85,8 @@ export const fetchDosage = async (scientific_name:string, formula:string, indica
   };
   try {
     const res = await axiosInstance.get(`${endpoints.calculation.getDosage(scientific_name,formula,indication)}`, headers);
+    invalidatePath(`/dashboard/calculation/`);
+
     return res.data;
   } catch (error) {
     return {
@@ -143,7 +145,6 @@ export const addDominalVariables = async (id:string,data:any): Promise<any> => {
     }
   };
   try {
-    console.log('sdfsdf', data)
     const res = await axiosInstance.post(`${endpoints.calculation.addEquationVariable(id)}`,data, headers);
    invalidatePath(`/dashboard/calculation/`);
     return res.data;
