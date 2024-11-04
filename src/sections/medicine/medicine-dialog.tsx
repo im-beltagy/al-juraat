@@ -59,7 +59,6 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
   });
   const { handleSubmit,watch,  reset ,formState: { isSubmitting }, } = methods;
   const w_weight= watch('IsWeightDependent');
-  console.log(w_weight)
   const onSubmit = useCallback( async(data: any) => {
 
     if(medicine) {
@@ -70,6 +69,7 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
         enqueueSnackbar('Updated success!', {
           variant: 'success',
         });
+        onClose();
       }
 
     } else {
@@ -82,6 +82,8 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
         enqueueSnackbar('Added success!', {
           variant: 'success',
         });
+        onClose();
+
       }
     }
   }, []);
@@ -120,7 +122,7 @@ export default function MedicineDialog({ open, onClose, medicine }: Props) {
           <RHFTextField name="Indication" InputLabelProps={{style:{ fontWeight:'bold'}}} label={t('Indication')} placeholder={t('Indication')} />
           <RHFCheckbox name="IsWeightDependent" label={t('By Weight')}  />
           <RHFTextField name="InitialDose"   InputProps={{ endAdornment: w_weight?
-           <InputAdornment position="end">kg/mg</InputAdornment>:
+           <InputAdornment position="end">mg/kg</InputAdornment>:
           <InputAdornment position="end">mg</InputAdornment>,  }} InputLabelProps={{style:{ fontWeight:'bold'}}} label={t('InitialDose')} placeholder={t('InitialDose')}
           helperText="warning edit InitialDose will remove details of the medicine"
           />

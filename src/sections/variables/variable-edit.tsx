@@ -100,6 +100,7 @@ const onSubmit = handleSubmit(async (data: any) => {
         enqueueSnackbar('Updated success!', {
           variant: 'success',
         });
+        onClose();
       }
     console.log(errors)
     //  invalidatePath(paths.dashboard.root);

@@ -64,6 +64,7 @@ export default function TradeNamesDialog({ open, onClose, tradeName, medicineId 
         enqueueSnackbar('Updated success!', {
           variant: 'success',
         });
+        onClose();
       }
 
     } else {
@@ -87,6 +88,8 @@ export default function TradeNamesDialog({ open, onClose, tradeName, medicineId 
         enqueueSnackbar('Added success!', {
           variant: 'success',
         });
+        onClose()
+
       }
     }
   }, []);
@@ -122,14 +125,10 @@ export default function TradeNamesDialog({ open, onClose, tradeName, medicineId 
             enqueueSnackbar('Added success!', {
               variant: 'success',
             });
+            onClose();
             setDisableButton(true);
           }
         }
-
-
-
-
-
     }
 
   const handleRemove =  async(image:any) => {

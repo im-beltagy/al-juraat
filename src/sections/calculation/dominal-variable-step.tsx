@@ -283,7 +283,7 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
               type="tel"
               value={initialDosage?.dosage || 100}
               InputProps={{ endAdornment:  initialDosage?.isWeightDependent?
-                <InputAdornment position="end">kg/mg</InputAdornment>:
+                <InputAdornment position="end">mg/kg</InputAdornment>:
                <InputAdornment position="end">mg</InputAdornment>, }}
               disabled
             />

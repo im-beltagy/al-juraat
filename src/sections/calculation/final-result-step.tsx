@@ -97,7 +97,7 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
               type="number"
               value={initialDosage?.dosage}
               InputProps={{ endAdornment:  initialDosage?.isWeightDependent?
-                <InputAdornment position="end">kg/mg</InputAdornment>:
+                <InputAdornment position="end">mg/kg</InputAdornment>:
                <InputAdornment position="end">mg</InputAdornment>, }}
               disabled
             />

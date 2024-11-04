@@ -42,7 +42,7 @@ export default function PackagesDialog({ open, onClose, choosenPackage }: Props)
     resolver: yupResolver(variableSchema ),
     defaultValues,
   });
-  const { handleSubmit, setValue, clearErrors,getValues, reset } = methods;
+  const { handleSubmit, setValue, clearErrors,getValues, reset, formState: { isSubmitting  }} = methods;
   const onSubmit = useCallback( async(data: any) => {
     const dataForm = {
       "name": data?.name,
@@ -57,6 +57,7 @@ export default function PackagesDialog({ open, onClose, choosenPackage }: Props)
         enqueueSnackbar('Updated success!', {
           variant: 'success',
         });
+        onClose();
       }
 
     } else {
@@ -67,6 +68,7 @@ export default function PackagesDialog({ open, onClose, choosenPackage }: Props)
         enqueueSnackbar('Added success!', {
           variant: 'success',
         });
+        onClose();
       }
     }
   }, []);
@@ -80,10 +82,9 @@ export default function PackagesDialog({ open, onClose, choosenPackage }: Props)
 
 
   }, [open ]);
-  console.log(choosenPackage);
 
   return (
-    <Dialog maxWidth="sm" open={open} onClose={() => onClose()}>
+    <Dialog fullWidth maxWidth="xs" open={open} onClose={() => onClose()}>
       <DialogTitle sx={{ pb: 0 }}>
         {t(choosenPackage ? 'Edit Package' : 'Add New Package')}
       </DialogTitle>
@@ -104,7 +105,7 @@ export default function PackagesDialog({ open, onClose, choosenPackage }: Props)
           <Button variant="outlined" onClick={onClose}>
             {t('Cancel')}
           </Button>
-          <LoadingButton type="submit" variant="contained" color="primary">
+          <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
             {t(choosenPackage ? 'Edit' : 'Save')}
           </LoadingButton>
         </DialogActions>
