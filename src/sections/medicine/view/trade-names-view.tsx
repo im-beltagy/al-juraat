@@ -81,7 +81,6 @@ export default function TradeNamesView({
         dataFiltered={tradeNames}
         table={table}
         count={count}
-        disablePagination
         tableHeaders={TABLE_HEAD}
         additionalTableProps={additionalTableProps}
 

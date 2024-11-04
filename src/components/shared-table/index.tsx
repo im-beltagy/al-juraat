@@ -41,6 +41,7 @@ interface SharedTableProps {
   tableHeaders: TableHeader[];
   dataFiltered: any[];
   count: number;
+  enableSearchField?:boolean;
   additionalTableProps: { [key: string]: (item: any) => void };
   handleFilters?: (name: string, value: string) => void;
   onImport?: (formData: FormData) => void;
@@ -76,6 +77,7 @@ const SharedTable = (props: SharedTableProps) => {
     additionalTableProps,
     enableActions = false,
     actions,
+    enableSearchField,
     disablePagination,
     showFromClients,
     handleFilters,
@@ -202,22 +204,22 @@ const SharedTable = (props: SharedTableProps) => {
             flexGrow={1}
             sx={{ width: 1 }}
           >
-            {!disablePagination && (
+
               <TextField
                 fullWidth
                 value={query}
                 onChange={handleSearchByName}
                 placeholder={`${t('search')}...`}
-                sx={{ maxWidth: 'max(15rem, 30%)' }}
+                sx={{ maxWidth: 'max(15rem, 30%)' ,visibility:enableSearchField?"visible":"hidden" }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                      <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', }} />
                     </InputAdornment>
                   ),
                 }}
               />
-            )}
+
             <Stack direction="row" gap={1}>
               {additionalComponent && additionalComponent}
               {enableExportImport && (

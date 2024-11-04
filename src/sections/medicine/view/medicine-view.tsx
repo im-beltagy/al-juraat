@@ -160,7 +160,7 @@ export default function MedicineView({ medicines, count }: Props) {
         dataFiltered={medicines}
         table={table}
         count={count}
-        disablePagination
+
         tableHeaders={TABLE_HEAD}
         additionalTableProps={additionalTableProps}
         enableAdd

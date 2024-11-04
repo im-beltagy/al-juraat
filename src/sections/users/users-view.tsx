@@ -95,6 +95,7 @@ export default function UsersView({ users, count }: Props) {
         dataFiltered={users}
         table={table}
         count={count}
+        enableSearchField
         tableHeaders={tableHead}
         additionalTableProps={additionalTableProps}
         enableActions
