@@ -45,6 +45,7 @@ export const paths = {
     },
     users: `${ROOTS.DASHBOARD}/users`,
     packages: `${ROOTS.DASHBOARD}/packages`,
+    profile: `${ROOTS.DASHBOARD}/profile`,
     privacyPolicy: `${ROOTS.DASHBOARD}/privacy-policy`,
     termsAndConditions: `${ROOTS.DASHBOARD}/terms-and-conditions`,
     aboutUs: `${ROOTS.DASHBOARD}/about-us`,

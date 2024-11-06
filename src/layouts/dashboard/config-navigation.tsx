@@ -16,6 +16,7 @@ const ICONS = {
   dashboard: icon('ic_order'),
   calculation: icon('ic_blog'),
   results: icon('ic_job'),
+  profile:icon('ic_user'),
   users: icon('ic_tour'),
   packages: icon('ic_folder'),
   articles: icon('ic_file'),
@@ -61,6 +62,11 @@ const data = [
         title: 'Articles',
         path: paths.dashboard.articles.root,
         icon: ICONS.articles,
+      },
+      {
+        title: 'Profile',
+        path: paths.dashboard.profile,
+        icon: ICONS.profile,
       },
       {
         title: 'Privacy Policy',

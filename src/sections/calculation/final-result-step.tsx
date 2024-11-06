@@ -33,10 +33,10 @@ export interface Props {
 
 export default function FinalResultStep({ initialDosage, results }: Props) {
   const { t } = useTranslate();
-
+  console.log(results)
   const { medicine, formula, indication } = useCalculationStore((state) => ({
-    medicine: state.medicine,
-    formula: state.formula,
+    medicine: state.medicine ,
+    formula: state.formula ,
     indication: state.indication,
   }));
   const { createQueryString } = useQueryString();
@@ -75,18 +75,18 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
             <RHFTextField
               name="medicine"
               label={t('Scientific name')}
-              value={medicine?.value}
+              value={medicine?.value || results?.scientificName}
               disabled
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <RHFTextField name="formula" label={t('Formula')} value={formula?.value} disabled />
+            <RHFTextField name="formula" label={t('Formula')} value={formula?.value  || results?.formula} disabled />
           </Grid>
           <Grid item xs={12} sm={6}>
             <RHFTextField
               name="indication"
               label={t('Indication')}
-              value={indication?.value}
+              value={indication?.value  || results?.indication}
               disabled
             />
           </Grid>
@@ -95,7 +95,7 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
               name="dosage"
               label={t('Dosage')}
               type="number"
-              value={initialDosage?.dosage}
+              value={initialDosage?.dosage  || results?.initialDose}
               InputProps={{ endAdornment:  initialDosage?.isWeightDependent?
                 <InputAdornment position="end">mg/kg</InputAdornment>:
                <InputAdornment position="end">mg</InputAdornment>, }}

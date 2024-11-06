@@ -23,7 +23,7 @@ import { useAuthContext } from 'src/auth/hooks';
 
 export default function ClassicVerifyView() {
   const VerifySchema = Yup.object().shape({
-    code: Yup.string().min(4, 'Code must be at least 6 characters').required('Code is required'),
+    code: Yup.string().min(4, 'Code must be at least 4 characters').required('Code is required'),
   });
   const router = useRouter();
   const { verify } = useAuthContext();

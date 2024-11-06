@@ -56,7 +56,7 @@ export default function CalculationView({
   const { t } = useTranslate();
   const settings = useSettingsContext();
   const searchParams = useSearchParams();
-
+  console.log(searchParams.get('step'))
   const activeStep = searchParams.get('step') || steps[0];
   const stepIndex = steps.indexOf(activeStep);
   const saveVariable = results && sessionStorage.setItem('variable', JSON.stringify(results));
@@ -160,7 +160,7 @@ function StepperView({ activeStep, children }: StepperViewProps) {
             {t('Prev')}
           </Button>
           <Button variant="contained" color="primary" disabled={!isNextValid} onClick={handleNext}>
-            {t(stepIndex === steps.length - 2 ? 'Create custom patient' : 'Next')}
+            {t(searchParams.get('step') == 'final-result'? 'Create custom patient' : 'Next')}
           </Button>
         </Box>
       ) : null}

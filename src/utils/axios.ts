@@ -118,6 +118,14 @@ export const endpoints = {
     add: ()=> `/api/v1/Admin/faqs`,
     edit: (id:string)=> `/api/v1/Admin/faqs/${id}`,
   },
+  profile: {
+    fetch: ()=>`/api/v1/Admin/profile`,
+    edit: ()=>`/api/v1/Admin/profile`,
+    verifyPhone:()=>`/api/v1/Admin/profile/verify-new-phone`,
+    editEmail: ()=>`/api/v1/Admin/profile/change-email`,
+    verifyEmail:()=>`/api/v1/Admin/profile/verify-new-email`
+
+  },
   medicine: {
     list: (page:number,limit:number,scientific_name?:string, formula?:string, indication?:string,pharmacological_group?:string)=>`/api/v1/Admin/medicines?SkipCount=${limit * (page - 1)}&MaxResultCount=${limit}&ScientificName=${scientific_name}&Formula=${formula}&Indication=${indication}&PharmacologicalGroup=${pharmacological_group}`,
     add: ()=> `/api/v1/Admin/medicines/create`,
