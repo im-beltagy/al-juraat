@@ -36,7 +36,6 @@ export default function Profile({ profile }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
   const [sendOtp, setSendOtp] = useState(false);
-//console.log(profile)
   const defaultValues = {
     Name: profile?.name || '',
     PhoneNumber: profile?.phoneNumber?.slice(2) || '',
@@ -52,7 +51,6 @@ export default function Profile({ profile }: Props) {
 
   });
 
-console.log(profile)
   const methods = useForm({
     resolver: yupResolver(variableSchema),
     defaultValues,
@@ -68,7 +66,6 @@ console.log(profile)
         "PhoneCode":code?.phone
       };
 
-      console.log(formD);
        const res = await editPhoneAndName(formD);
       if (res?.error) {
         enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
@@ -85,7 +82,6 @@ console.log(profile)
         "Code":data?.code
       };
       toFormData(formD, forData)
-      console.log(formD);
        const res = await verifyPhoneAndName(forData);
        if (res?.error) {
         enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
@@ -168,9 +164,7 @@ console.log(profile)
 
 export  function EditEmail({profile}:{ profile:IProfile}) {
   const { t } = useTranslate();
-  const settings = useSettingsContext();
   const [sendOtp, setSendOtp] = useState(false);
-//console.log(profile)
   const defaultValues = {
     email: '',
     code: '',
@@ -193,7 +187,6 @@ export  function EditEmail({profile}:{ profile:IProfile}) {
         "NewEmail":data?.email
       };
       toFormData(formD, formData);
-      console.log(formD);
        const res = await editEmail(formData);
       if (res?.error) {
         enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
@@ -210,7 +203,6 @@ export  function EditEmail({profile}:{ profile:IProfile}) {
         "Code":data?.code
       };
       toFormData(formD, formData);
-      console.log(formD);
        const res = await verifyEmail(formData);
        if (res?.error) {
         enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
