@@ -148,9 +148,9 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
           "effectType": data?.effect_type == 'positive'?  true: false
         }
         const res = await addDominalVariables(searchParams.get('equationId') || '',data?.variable?.type !== 'Range'? dataList : dataRange);
-
+        console.log(res)
         if (res?.error) {
-          enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+          enqueueSnackbar(`${'Dominal variable already exists this effect!'}`, { variant: 'error' });
         } else {
           enqueueSnackbar('Added success!', {
             variant: 'success',

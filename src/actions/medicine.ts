@@ -55,10 +55,12 @@ export const addMedicine = async (data:any): Promise<any> => {
     }
   };
   try {
+
     const res = await axiosInstance.post(`${endpoints.medicine.add()}`,data, headers);
    invalidatePath(`/medicine`);
     return res.data;
   } catch (error) {
+    console.log('erere', error)
     return {
       error: getErrorMessage(error),
     };

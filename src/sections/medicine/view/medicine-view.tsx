@@ -32,9 +32,9 @@ import { paths } from 'src/routes/paths';
 
 const TABLE_HEAD = [
   { id: 'scientificName', label: 'Scientific Name' },
+  { id: 'pharmacologicalGroup', label: 'Pharmacological Group' },
   { id: 'indication', label: 'Indication' },
   { id: 'formula', label: 'Formula' },
-  { id: 'pharmacologicalGroup', label: 'Pharmacological Group' },
 
 ];
 
