@@ -26,7 +26,7 @@ import { IDominalVariables } from 'src/types/results';
 import axiosInstance, { endpoints } from 'src/utils/axios';
 import { getCookie } from 'cookies-next';
 
-const EFFECT_TYPES = ['Positive', 'Negative'];
+const EFFECT_TYPES = ['Positive', 'Negative', 'No effect'];
 type ITems = {
   id:string,
   value:string
@@ -85,6 +85,7 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
             : yup.object({id:yup.string(), value:yup.string()}),
         effect: yup.number().required(t('Effect is required')),
         effect_type: yup.string().required(t('Effect type is required')),
+        noEffect: yup.mixed().nullable()
       })
     ),
     defaultValues: {
@@ -137,16 +138,21 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
           "variableId": data?.variable?.id,
           "minValue":  data?.variable_value?.[0] ,
             "maxValue":   data?.variable_value?.[1] ,
-            "effect": data?.effect,
-            "effectType": data?.effect_type == 'positive'?  true: false
+            "effect": data?.effect_type == 'no effect'? null:data?.effect ,
+            "effectType": data?.effect_type == 'positive'?  true: data?.effect_type == 'no effect'? null:false,
+            "noEffect": data?.effect_type == 'no effect'?  true: null
+
 
         }
         const dataList = {
           "variableId": data?.variable?.id,
           "value": data?.variable_value?.id,
-          "effect": data?.effect,
-          "effectType": data?.effect_type == 'positive'?  true: false
+          "effect": data?.effect_type == 'no effect'? null:data?.effect ,
+          "effectType": data?.effect_type == 'positive'?  true: data?.effect_type == 'no effect'? null:false,
+          "noEffect": data?.effect_type == 'no effect'?  true: null
+
         }
+
         const res = await addDominalVariables(searchParams.get('equationId') || '',data?.variable?.type !== 'Range'? dataList : dataRange);
         console.log(res)
         if (res?.error) {
@@ -177,8 +183,9 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
             "type":data?.variable?.type,
             "minValue":  data?.variable_value?.[0] ,
             "maxValue":   data?.variable_value?.[1] ,
-            "effect": data?.effect,
-            "effectType": data?.effect_type == 'positive'?  true: false
+            "effect": data?.effect_type == 'no effect'? null:data?.effect ,
+            "effectType": data?.effect_type == 'positive'?  true: data?.effect_type == 'no effect'? null:false,
+            "noEffect": data?.effect_type == 'no effect'?  true: null
           }
         ]
       };
@@ -193,12 +200,13 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
             "type":data?.variable?.type,
             "variableName":data?.variable?.name,
             "value": data?.variable_value?.id,
-            "effect": data?.effect,
-            "effectType": data?.effect_type == 'positive'?  true: false
+            "effect": data?.effect_type == 'no effect'? null:data?.effect ,
+            "effectType": data?.effect_type == 'positive'?  true: data?.effect_type == 'no effect'? null:false,
+            "noEffect": data?.effect_type == 'no effect'?  true: null
+
           }
         ]
       };
-
       if(searchParams.get('variableId')){
         const dataRange ={
           "id": currentVariable?.id,
@@ -206,8 +214,10 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
             "variableName":data?.variable?.name,
             "minValue":  data?.variable_value?.[0] ,
             "maxValue":   data?.variable_value?.[1] ,
-            "effect": data?.effect,
-            "effectType": data?.effect_type == 'positive'?  true: false
+            "effect": data?.effect_type == 'no effect'? null:data?.effect ,
+            "effectType": data?.effect_type == 'positive'?  true: data?.effect_type == 'no effect'? null:false,
+            "noEffect": data?.effect_type == 'no effect'?  true: null
+
 
         }
         const dataList = {
@@ -215,8 +225,10 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
           "variableId": currentVariable?.variableId,
           "variableName":data?.variable?.name,
           "value": data?.variable_value?.id,
-          "effect": data?.effect,
-          "effectType": data?.effect_type == 'positive'?  true: false
+          "effect": data?.effect_type == 'no effect'? null:data?.effect ,
+          "effectType": data?.effect_type == 'positive'?  true: data?.effect_type == 'no effect'? null:false,
+          "noEffect": data?.effect_type == 'no effect'?  true: null
+
         }
 
         const res = await editDominalVariables( data?.variable?.type !== 'Range'? dataList : dataRange);
@@ -405,8 +417,9 @@ export default function DominalVariableStep({ variables, initialDosage,medicineI
           <Grid item xs={12} sm={6} sx={{ alignSelf: 'center' }}>
             <Button
               variant="contained"
+
               color="primary"
-              disabled={!(effect && effectType)}
+              disabled={!(effect && effectType) || Boolean(getValues('effect_type') === 'no effect')}
               onClick={() => calculate()}
             >
               {t('Calculate')}
