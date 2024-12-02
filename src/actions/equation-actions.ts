@@ -1,20 +1,18 @@
 'use server';
 
-import { getCookie } from 'cookies-next';
 import { cookies } from 'next/headers';
+import { getCookie } from 'cookies-next';
 
 import axiosInstance, { endpoints, getErrorMessage } from 'src/utils/axios';
+
 import { invalidatePath } from './cache-invalidation';
-
-
 
 export const fetchVariables = async (): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
-
     headers: {
-      'Authorization': `Bearer ${access_token}`
-    }
+      Authorization: `Bearer ${access_token}`,
+    },
   };
   try {
     const res = await axiosInstance.get(`${endpoints.calculation.getVariables()}`, headers);
@@ -28,10 +26,9 @@ export const fetchVariables = async (): Promise<any> => {
 export const fetchScientificNames = async (): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
-
     headers: {
-      'Authorization': `Bearer ${access_token}`
-    }
+      Authorization: `Bearer ${access_token}`,
+    },
   };
   try {
     const res = await axiosInstance.get(`${endpoints.calculation.getScientificNames()}`, headers);
@@ -42,16 +39,18 @@ export const fetchScientificNames = async (): Promise<any> => {
     };
   }
 };
-export const fetchIndications = async (scientificName:string): Promise<any> => {
+export const fetchIndications = async (scientificName: string): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
-
     headers: {
-      'Authorization': `Bearer ${access_token}`
-    }
+      Authorization: `Bearer ${access_token}`,
+    },
   };
   try {
-    const res = await axiosInstance.get(`${endpoints.calculation.getIndications(scientificName)}`, headers);
+    const res = await axiosInstance.get(
+      `${endpoints.calculation.getIndications(scientificName)}`,
+      headers
+    );
     return res.data;
   } catch (error) {
     return {
@@ -59,16 +58,18 @@ export const fetchIndications = async (scientificName:string): Promise<any> => {
     };
   }
 };
-export const fetchFormulas = async (scientificName:string): Promise<any> => {
+export const fetchFormulas = async (scientificName: string): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
-
     headers: {
-      'Authorization': `Bearer ${access_token}`
-    }
+      Authorization: `Bearer ${access_token}`,
+    },
   };
   try {
-    const res = await axiosInstance.get(`${endpoints.calculation.getFormulas(scientificName)}`, headers);
+    const res = await axiosInstance.get(
+      `${endpoints.calculation.getFormulas(scientificName)}`,
+      headers
+    );
     return res.data;
   } catch (error) {
     return {
@@ -76,15 +77,22 @@ export const fetchFormulas = async (scientificName:string): Promise<any> => {
     };
   }
 };
-export const fetchDosage = async (scientific_name:string, formula:string, indication:string): Promise<any> => {
+export const fetchDosage = async (
+  scientific_name: string,
+  formula: string,
+  indication: string
+): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
     headers: {
-      'Authorization': `Bearer ${access_token}`
-    }
+      Authorization: `Bearer ${access_token}`,
+    },
   };
   try {
-    const res = await axiosInstance.get(`${endpoints.calculation.getDosage(scientific_name,formula,indication)}`, headers);
+    const res = await axiosInstance.get(
+      `${endpoints.calculation.getDosage(scientific_name, formula, indication)}`,
+      headers
+    );
     invalidatePath(`/dashboard/calculation/`);
 
     return res.data;
@@ -95,18 +103,27 @@ export const fetchDosage = async (scientific_name:string, formula:string, indica
   }
 };
 
-export const createEquation = async (data:any): Promise<any> => {
+export const createEquation = async (data: any): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
-
     headers: {
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
-    }
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    },
+  };
+  const body = {
+    ...data,
+    dominalVariables: data.dominalVariables.map((item: any) => ({
+      ...item,
+      noEffect: item.noEffect || false,
+    })),
   };
   try {
-
-    const res = await axiosInstance.post(`${endpoints.calculation.createEquation()}`,data, headers);
+    const res = await axiosInstance.post(
+      `${endpoints.calculation.createEquation()}`,
+      body,
+      headers
+    );
 
     invalidatePath(`/dashboard/calculation/`);
     return res.data;
@@ -117,13 +134,12 @@ export const createEquation = async (data:any): Promise<any> => {
   }
 };
 
-export const fetchDominalVariables = async (id:string): Promise<any> => {
+export const fetchDominalVariables = async (id: string): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
-
     headers: {
-      'Authorization': `Bearer ${access_token}`
-    }
+      Authorization: `Bearer ${access_token}`,
+    },
   };
   try {
     const res = await axiosInstance.get(`${endpoints.results.details(id)}`, headers);
@@ -135,18 +151,25 @@ export const fetchDominalVariables = async (id:string): Promise<any> => {
   }
 };
 
-export const addDominalVariables = async (id:string,data:any): Promise<any> => {
+export const addDominalVariables = async (id: string, data: any): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
-
     headers: {
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
-    }
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    },
+  };
+  const body = {
+    ...data,
+    noEffect: data.noEffect || false,
   };
   try {
-    const res = await axiosInstance.post(`${endpoints.calculation.addEquationVariable(id)}`,data, headers);
-   invalidatePath(`/dashboard/calculation/`);
+    const res = await axiosInstance.post(
+      `${endpoints.calculation.addEquationVariable(id)}`,
+      body,
+      headers
+    );
+    invalidatePath(`/dashboard/calculation/`);
     return res.data;
   } catch (error) {
     return {
@@ -155,19 +178,17 @@ export const addDominalVariables = async (id:string,data:any): Promise<any> => {
   }
 };
 
-
-export const editDominalVariables = async (data:any): Promise<any> => {
+export const editDominalVariables = async (data: any): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
-
     headers: {
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
-    }
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    },
   };
   try {
-    const res = await axiosInstance.put(`${endpoints.calculation.editEquation()}`,data, headers);
-   invalidatePath(`/dashboard/calculation/`);
+    const res = await axiosInstance.put(`${endpoints.calculation.editEquation()}`, data, headers);
+    invalidatePath(`/dashboard/calculation/`);
     return res.data;
   } catch (error) {
     return {
@@ -176,18 +197,16 @@ export const editDominalVariables = async (data:any): Promise<any> => {
   }
 };
 
-
-export const addCustomDosage = async (data:any): Promise<any> => {
+export const addCustomDosage = async (data: any): Promise<any> => {
   const access_token = getCookie('accessToken', { cookies });
   const headers = {
-
     headers: {
-      'Authorization': `Bearer ${access_token}`,
-      'Content-Type': 'application/json'
-    }
+      Authorization: `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    },
   };
   try {
-    const res = await axiosInstance.post(`${endpoints.calculation.customDosage()}`,data, headers);
+    const res = await axiosInstance.post(`${endpoints.calculation.customDosage()}`, data, headers);
     invalidatePath(`/dashboard/calculation/`);
     return res.data;
   } catch (error) {
