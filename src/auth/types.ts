@@ -19,19 +19,14 @@ export type AuthStateType = {
   status?: string;
   loading: boolean;
   user: AuthUserType;
-  phone:string;
+  phone: string;
 };
 
 // ----------------------------------------------------------------------
 
 type CanRemove = {
-  login?: (email: string, password: string) => Promise<void>;
-  register?: (
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string
-  ) => Promise<void>;
+  login?: (email: string, password: string) => void;
+  register?: (email: string, password: string, firstName: string, lastName: string) => void;
   //
   loginWithGoogle?: () => Promise<void>;
   loginWithGithub?: () => Promise<void>;
@@ -53,14 +48,12 @@ export type JWTContextType = CanRemove & {
   loading: boolean;
   authenticated: boolean;
   unauthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
-  logout: () => Promise<void>;
-  forgot: (phone:string) => Promise<void>;
-  verify: (code:string) => Promise<void>;
-  changePassword: (password:string) => Promise<void>;
-
-
+  login: (email: string, password: string) => void;
+  register: (email: string, password: string, firstName: string, lastName: string) => void;
+  logout: () => void;
+  forgot: (phone: string) => Promise<void>;
+  verify: (code: string) => Promise<void>;
+  changePassword: (password: string) => Promise<void>;
 };
 
 export type FirebaseContextType = CanRemove & {
@@ -104,9 +97,9 @@ export type Auth0ContextType = CanRemove & {
   user: AuthUserType;
   method: string;
   loading: boolean;
-  forgot: (phone:string) => Promise<void>;
-  verify: (code:string) => Promise<void>;
-  changePassword: (password:string) => Promise<void>;
+  forgot: (phone: string) => Promise<void>;
+  verify: (code: string) => Promise<void>;
+  changePassword: (password: string) => Promise<void>;
   authenticated: boolean;
   unauthenticated: boolean;
   loginWithPopup: (options?: PopupLoginOptions) => Promise<void>;

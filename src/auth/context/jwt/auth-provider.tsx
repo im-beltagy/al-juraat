@@ -1,17 +1,16 @@
 'use client';
 
-import Cookie from 'js-cookie';
+import { usePathname } from 'next/navigation';
+import { getCookie, setCookie, deleteCookie } from 'cookies-next';
 import { useMemo, useEffect, useReducer, useCallback } from 'react';
 
-import axios, { endpoints } from 'src/utils/axios';
+import { paths } from 'src/routes/paths';
 
-import { IUser } from 'src/@types/user';
+import axios, { endpoints, getErrorMessage } from 'src/utils/axios';
 
 import { AuthContext } from './auth-context';
-import { setSession, isValidToken } from './utils';
-import { USER_KEY, ACCESS_TOKEN } from '../../constants';
+import { USER_KEY, ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
 import { AuthUserType, ActionMapType, AuthStateType } from '../../types';
-import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 
 // ----------------------------------------------------------------------
 /**
@@ -23,19 +22,18 @@ import { deleteCookie, getCookie, setCookie } from 'cookies-next';
 
 enum Types {
   INITIAL = 'INITIAL',
-  LOGIN = 'LOGIN',
   REGISTER = 'REGISTER',
   LOGOUT = 'LOGOUT',
-  FORGOT = 'FORGOT'
+  FORGOT = 'FORGOT',
+  SESSION = 'SESSION',
 }
 
 type Payload = {
-  [Types.INITIAL]: {
-    user: AuthUserType;
-  };
-  [Types.LOGIN]: {
-    user: AuthUserType;
-  };
+  [Types.INITIAL]:
+    | undefined
+    | {
+        user: AuthUserType;
+      };
   [Types.FORGOT]: {
     phone: string;
   };
@@ -43,6 +41,9 @@ type Payload = {
     user: AuthUserType;
   };
   [Types.LOGOUT]: undefined;
+  [Types.SESSION]: {
+    user: AuthUserType;
+  };
 };
 
 type ActionsType = ActionMapType<Payload>[keyof ActionMapType<Payload>];
@@ -52,21 +53,15 @@ type ActionsType = ActionMapType<Payload>[keyof ActionMapType<Payload>];
 const initialState: AuthStateType = {
   user: null,
   loading: true,
-  phone: ''
+  phone: '',
 };
 
 const reducer = (state: AuthStateType, action: ActionsType) => {
   if (action.type === Types.INITIAL) {
     return {
       loading: false,
-      user: action.payload.user,
-      phone:''
-    };
-  }
-  if (action.type === Types.LOGIN) {
-    return {
-      ...state,
-      user: action.payload.user,
+      user: action.payload?.user || state.user || null,
+      phone: '',
     };
   }
   if (action.type === Types.REGISTER) {
@@ -87,10 +82,28 @@ const reducer = (state: AuthStateType, action: ActionsType) => {
       user: null,
     };
   }
+  if (action.type === Types.SESSION) {
+    return {
+      ...state,
+      user: action.payload.user,
+    };
+  }
   return state;
 };
 
 // ----------------------------------------------------------------------
+type User = {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  email: string;
+};
+type Session = User & {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpireAt: string;
+  refreshTokenExpireAt: string;
+};
 
 type Props = {
   children: React.ReactNode;
@@ -98,153 +111,196 @@ type Props = {
 
 export function AuthProvider({ children }: Readonly<Props>) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const pathname = usePathname();
 
-  const initialize = useCallback(async () => {
-    try {
-     const lang: string = Cookie.get('Language') || 'en';
-       Cookie.set('Language', lang);
-      const accessToken = getCookie(ACCESS_TOKEN);
-      const user = JSON.parse(getCookie(USER_KEY) as string) ?? {};
-      if (accessToken && isValidToken(user?.refreshTokenExpireAt)) {
-       setSession(accessToken, user);
-
-        dispatch({
-          type: Types.INITIAL,
-          payload: {
-            user: {
-              ...user,
-              accessToken,
-            },
-          },
-        });
-      } else {
-        dispatch({
-          type: Types.INITIAL,
-          payload: {
-            user: null,
-          },
-        });
-      }
-    } catch (error) {
-      console.error(error);
+  const logout = useCallback(() => {
+    console.log('logout');
+    (async () => {
+      deleteCookie(USER_KEY);
+      deleteCookie(ACCESS_TOKEN);
+      deleteCookie(REFRESH_TOKEN);
       dispatch({
-        type: Types.INITIAL,
-        payload: {
-          user: null,
-        },
+        type: Types.LOGOUT,
       });
-    }
+    })();
   }, []);
+
+  const newSession = useCallback(
+    ({
+      accessToken,
+      accessTokenExpireAt,
+      refreshToken,
+      refreshTokenExpireAt,
+      ...user
+    }: Session) => {
+      console.log('newSession');
+      (async () => {
+        setCookie(ACCESS_TOKEN, accessToken, {
+          expires: new Date(accessTokenExpireAt),
+          sameSite: 'strict',
+          secure: true,
+        });
+        setCookie(REFRESH_TOKEN, refreshToken, {
+          expires: new Date(refreshTokenExpireAt),
+          sameSite: 'strict',
+          secure: true,
+        });
+        axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+        setCookie(USER_KEY, JSON.stringify(user), { sameSite: 'strict', secure: true });
+
+        dispatch({
+          type: Types.SESSION,
+          payload: {
+            user,
+          },
+        });
+
+        const handleRefreshToken = async () => {
+          try {
+            const oldRefreshToken = getCookie(REFRESH_TOKEN);
+            const res = await axios.post(endpoints.auth.refreshToken, {
+              refreshToken: oldRefreshToken,
+            });
+            newSession(res.data);
+          } catch (error) {
+            logout();
+          }
+        };
+
+        setTimeout(
+          () => {
+            handleRefreshToken();
+          },
+          1000 * 60 * 25
+        );
+      })();
+    },
+    [logout]
+  );
+
+  const initialize = useCallback(() => {
+    console.log('initialize');
+    const user = getCookie(USER_KEY);
+    dispatch({
+      type: Types.INITIAL,
+      payload: user
+        ? {
+            user: JSON.parse(user),
+          }
+        : undefined,
+    });
+    if (pathname.includes(paths.auth.jwt.login)) {
+      return;
+    }
+
+    (async () => {
+      const oldRefreshToken = getCookie(REFRESH_TOKEN);
+      if (!oldRefreshToken) {
+        logout();
+      }
+
+      try {
+        const res = await axios.post(endpoints.auth.refreshToken, {
+          refreshToken: oldRefreshToken,
+        });
+        newSession(res.data);
+      } catch (error) {
+        logout();
+      }
+    })();
+  }, [logout, newSession, pathname]);
 
   useEffect(() => {
     initialize();
-  }, [initialize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // LOGIN
-  const login = useCallback(async (username: string, password: string) => {
-    const credentials = {
-      "email":username ,// "20123456",
-      "role": "admin",
-      "password": password //"Admin@12345"
-    };
+  const login = useCallback(
+    (username: string, password: string) => {
+      (async () => {
+        const credentials = {
+          email: username, // "20123456",
+          role: 'admin',
+          password,
+        };
 
-   const res = await axios.post(endpoints.auth.login,credentials );
-    const accessToken = res.data?.accessToken;
-    const {data} = res;
-    setSession(accessToken, data);
-   axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-    sessionStorage.setItem(USER_KEY, JSON.stringify(data));
-    setCookie(ACCESS_TOKEN, accessToken,{sameSite:'strict', secure: true});
-   setCookie(USER_KEY, JSON.stringify(data),{sameSite:'strict', secure: true});
-    dispatch({
-      type: Types.LOGIN,
-    payload: {
-        user: {
-          ...data,
-          accessToken,
-        },
-      },
-    });
-  }, []);
+        try {
+          const res = await axios.post(endpoints.auth.login, credentials);
+          newSession(res.data);
+        } catch (error) {
+          throw new Error(getErrorMessage(error));
+        }
+      })();
+    },
+    [newSession]
+  );
+
   const forgot = useCallback(async (phone: string) => {
-    sessionStorage.setItem('verify_phone', JSON.stringify(phone))
+    sessionStorage.setItem('verify_phone', JSON.stringify(phone));
     const credentials = {
-      "phoneNumber":phone ,// "20123456"   20123456  admin  Admin@12345,
-      "role": "admin",
-
+      phoneNumber: phone, // "20123456"   20123456  admin  Admin@12345,
+      role: 'admin',
     };
 
-   const res = await axios.post(endpoints.auth.forgot,credentials );
-   const {data} = res;
-
-  }, []);
-  const verify = useCallback(async (code:string) => {
-    const savedPhone = JSON.parse(sessionStorage.getItem('verify_phone') as string)
-    const credentials = {
-      "phoneNumber": state.phone || savedPhone,
-      "code":code
-    };
-
-    const res = await axios.post(endpoints.auth.verify,credentials );
-    const {data} = res;
-    sessionStorage.setItem('resetToken', JSON.stringify(data?.token));
-    console.log(data)
+    await axios.post(endpoints.auth.forgot, credentials);
   }, []);
 
-  const changePassword = useCallback(async ( password: string) => {
+  const verify = useCallback(
+    async (code: string) => {
+      const savedPhone = JSON.parse(sessionStorage.getItem('verify_phone') as string);
+      const credentials = {
+        phoneNumber: state.phone || savedPhone,
+        code,
+      };
+
+      const res = await axios.post(endpoints.auth.verify, credentials);
+      const { data } = res;
+      sessionStorage.setItem('resetToken', JSON.stringify(data?.token));
+      console.log(data);
+    },
+    [state.phone]
+  );
+
+  const changePassword = useCallback(async (password: string) => {
     const credentials = {
-      "newPassword": password
+      newPassword: password,
     };
-    const getResetToken = JSON.parse(sessionStorage.getItem('resetToken') as string)
+    const getResetToken = JSON.parse(sessionStorage.getItem('resetToken') as string);
     const headers = {
       headers: {
-
-        'Authorization': `Bearer ${getResetToken}`
-      }
-    }
-    const res = await axios.post(endpoints.auth.newPassword,credentials,headers );
-    const {data} = res;
-     sessionStorage.removeItem('resetToken');
+        Authorization: `Bearer ${getResetToken}`,
+      },
+    };
+    await axios.post(endpoints.auth.newPassword, credentials, headers);
+    sessionStorage.removeItem('resetToken');
   }, []);
 
   // REGISTER
   const register = useCallback(
-    async (email: string, password: string, firstName: string, lastName: string) => {
-      const data = {
-        email,
-        password,
-        firstName,
-        lastName,
-      };
+    (email: string, password: string, firstName: string, lastName: string) => {
+      (async () => {
+        const data = {
+          email,
+          password,
+          firstName,
+          lastName,
+        };
 
-      const res = await axios.post(endpoints.auth.register, data);
+        const res = await axios.post(endpoints.auth.register, data);
 
-      const { accessToken, user } = res.data;
+        newSession(res.data);
 
-      sessionStorage.setItem(ACCESS_TOKEN, accessToken);
-
-      dispatch({
-        type: Types.REGISTER,
-        payload: {
-          user: {
-            ...user,
-            accessToken,
+        dispatch({
+          type: Types.REGISTER,
+          payload: {
+            user: null,
           },
-        },
-      });
+        });
+      })();
     },
-    []
+    [newSession]
   );
-
-  // LOGOUT
-  const logout = useCallback(async () => {
-    setSession('', null);
-    deleteCookie('accessToken');
-    deleteCookie('user')
-    dispatch({
-      type: Types.LOGOUT,
-    });
-  }, []);
 
   // ----------------------------------------------------------------------
 
@@ -256,7 +312,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
     () => ({
       user: state.user,
       method: 'jwt',
-      phone:state.phone,
+      phone: state.phone,
       loading: status === 'loading',
       authenticated: status === 'authenticated',
       unauthenticated: status === 'unauthenticated',
@@ -267,9 +323,8 @@ export function AuthProvider({ children }: Readonly<Props>) {
       verify,
       changePassword,
       logout,
-
     }),
-    [login, logout,forgot, verify,changePassword, register, state.user, status]
+    [state.user, state.phone, status, login, register, forgot, verify, changePassword, logout]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

@@ -1,8 +1,9 @@
-import { deleteCookie, getCookie, setCookie } from 'cookies-next';
+import { getCookie, setCookie, deleteCookie } from 'cookies-next';
+
 import { paths } from 'src/routes/paths';
-import axiosInstance, { endpoints } from 'src/utils/axios';
 
 import axios from 'src/utils/axios';
+import axiosInstance, { endpoints } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -23,15 +24,15 @@ function jwtDecode(token: string) {
 // ----------------------------------------------------------------------
 
 export const isValidToken = (refreshTokenExpireAt: string) => {
- //  const user = JSON.parse(getCookie('user') as string);
+  //  const user = JSON.parse(getCookie('user') as string);
   if (!refreshTokenExpireAt) {
     return false;
   }
 
-//  const decoded = jwtDecode(accessToken);
+  //  const decoded = jwtDecode(accessToken);
   const TokenExpireAt = new Date(refreshTokenExpireAt);
   const now = new Date();
-  const check = TokenExpireAt <  now;
+  const check = TokenExpireAt < now;
   return !check;
 };
 
@@ -40,73 +41,66 @@ export const isValidToken = (refreshTokenExpireAt: string) => {
 export const tokenExpired = (user?: any) => {
   let check;
   // eslint-disable-next-line prefer-const
-  const storedUser = typeof getCookie('user') === 'string' && JSON.parse(getCookie('user') as string);
-  //console.log(storedUser) ;
+  const storedUser =
+    typeof getCookie('user') === 'string' && JSON.parse(getCookie('user') as string);
 
   if (!user?.accessTokenExpireAt && storedUser) {
     clearInterval(check);
     return;
   }
-const TokenExpireAt = new Date( user?.accessTokenExpireAt || storedUser?.accessTokenExpireAt ) ;
-  const refreshTokenExpireAt = new Date(user?.refreshTokenExpireAt || storedUser?.refreshTokenExpireAt) ;
+  const TokenExpireAt = new Date(user?.accessTokenExpireAt || storedUser?.accessTokenExpireAt);
+  const refreshTokenExpireAt = new Date(
+    user?.refreshTokenExpireAt || storedUser?.refreshTokenExpireAt
+  );
   const now = new Date();
 
-    if(now < refreshTokenExpireAt) {
-      if (now > TokenExpireAt) {
-        refreshToken(user?.refreshToken ) ;
-
-
-      }
-    }else {
-  //    alert('Token expired');
-      sessionStorage.removeItem('accessToken');
-      sessionStorage.removeItem('user');
-      deleteCookie("accessToken");
-      deleteCookie("user");
-      window.location.href = paths.auth.jwt.login;
+  if (now < refreshTokenExpireAt) {
+    if (now > TokenExpireAt) {
+      refreshToken(user?.refreshToken);
     }
+  } else {
+    //    alert('Token expired');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('user');
+    deleteCookie('accessToken');
+    deleteCookie('user');
+    window.location.href = paths.auth.jwt.login;
+  }
 
-    check = setInterval(tokenExpired, 3 * 60 * 1000);
-
-
+  check = setInterval(tokenExpired, 3 * 60 * 1000);
 };
 
 // ----------------------------------------------------------------------
 
-export const setSession = (accessToken: string , user:any) => {
+export const setSession = (accessToken: string, user: any) => {
+  sessionStorage.setItem('accessToken', accessToken);
 
-
-  sessionStorage.setItem('accessToken', accessToken  );
-
-  if (accessToken  ) {
-
-
+  if (accessToken) {
     axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     // This function below will handle when token is expired
-   // const { exp } = jwtDecode(accessToken); // ~3 days by minimals server
+    // const { exp } = jwtDecode(accessToken); // ~3 days by minimals server
     tokenExpired(user); // TODO: uncomment this line when deploy
   } else {
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('user');
-    deleteCookie("accessToken");
-    deleteCookie("user");
+    deleteCookie('accessToken');
+    deleteCookie('user');
 
     delete axios.defaults.headers.common.Authorization;
     window.location.href = paths.auth.jwt.login;
   }
 };
 
-export const refreshToken = async (token:string) => {
-
+export const refreshToken = async (token: string) => {
   const res = await axiosInstance.post(endpoints.auth.refreshToken, {
-  refreshToken: token,
+    refreshToken: token,
   });
-  const {accessToken } = res.data;
+  const { accessToken } = res.data;
   axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
   sessionStorage.setItem('accessToken', accessToken);
   sessionStorage.setItem('user', JSON.stringify(res.data));
-  setCookie("accessToken", accessToken,{sameSite:'strict', secure: true});
-  setCookie("user", JSON.stringify(res.data), {sameSite:'strict', secure: true});
+  setCookie('accessToken', accessToken, { sameSite: 'strict', secure: true });
+  setCookie('user', JSON.stringify(res.data), { sameSite: 'strict', secure: true });
   window.location.reload();
 };
 
