@@ -105,6 +105,7 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
     ),
     defaultValues: {
       variable: currentVariable || '',
+      effect: 0,
     },
   });
 
@@ -148,6 +149,10 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
 
   const submitAdd = useCallback(
     async (data: any) => {
+      if (['positive', 'negative'].includes(data.effect_type) && !data.effect) {
+        setError('effect', { message: t('Effect is required') });
+        return;
+      }
       const dataRange = {
         variableId: data?.variable?.id,
         minValue: data?.variable_value?.[0],
@@ -184,6 +189,10 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
   );
 
   const onSubmit = useCallback(async (data: any) => {
+    if (['positive', 'negative'].includes(data.effect_type) && !data.effect) {
+      setError('effect', { message: t('Effect is required') });
+      return;
+    }
     const dataFormRange = {
       scientificName: medicine?.id,
       formula: formula?.id,
