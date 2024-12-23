@@ -1,44 +1,39 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { enqueueSnackbar } from 'notistack';
+import { useRouter } from 'next/navigation';
+import { useState, useCallback } from 'react';
 
-import { Container, Typography } from '@mui/material';
+import { Grid, Container, Typography } from '@mui/material';
 
-import { fCurrency } from 'src/utils/format-number';
+import { paths } from 'src/routes/paths';
+
+import { useQueryString } from 'src/hooks/use-queryString';
 
 import { useTranslate } from 'src/locales';
+import { deletePackage } from 'src/actions/packages-actions';
 
 import { useTable } from 'src/components/table';
 import SharedTable from 'src/components/shared-table';
 import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
-import TableHeadActions, { TableFilter } from 'src/components/shared-table/table-head-actions';
-import FormProvider from 'src/components/hook-form/form-provider';
-import { useQueryString } from 'src/hooks/use-queryString';
-import { useRouter, useSearchParams } from 'next/navigation';
-
-import { Grid } from '@mui/material';
-import { useForm } from 'react-hook-form';
-
 // import PackagesDialog from '../packages-dialog';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { enqueueSnackbar } from 'notistack';
-import { deletePackage } from 'src/actions/packages-actions';
-import { Medicine } from 'src/types/medicine';
-import CustomAutocompleteView, { ITems } from 'src/components/AutoComplete/CutomAutocompleteView';
+import FormProvider from 'src/components/hook-form/form-provider';
 import RHFTextField from 'src/components/hook-form/rhf-text-field2';
+import TableHeadActions from 'src/components/shared-table/table-head-actions';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
+
+import { Medicine } from 'src/types/medicine';
+
 import MedicineDialog from '../medicine-dialog';
-import { paths } from 'src/routes/paths';
 
 const TABLE_HEAD = [
   { id: 'scientificName', label: 'Scientific Name' },
   { id: 'pharmacologicalGroup', label: 'Pharmacological Group' },
   { id: 'indication', label: 'Indication' },
   { id: 'formula', label: 'Formula' },
-
 ];
-
-const filters: TableFilter[] = [{ name: 'duration', label: 'Duration in days', type: 'number' }];
 
 interface Props {
   medicines: Medicine[];
@@ -56,31 +51,39 @@ export default function MedicineView({ medicines, count }: Props) {
 
   const { createQueryString } = useQueryString();
 
-  const searchParams = useSearchParams();
   // Table
   const table = useTable();
 
   const methods = useForm({
     defaultValues: {
       scientific_name: '',
-      formula: '' ,
-      indication:'' ,
-      pharmacological_group: '' ,
+      formula: '',
+      indication: '',
+      pharmacological_group: '',
     },
   });
 
-  const {
-    setValue,
-    getValues
-  } = methods;
+  const { setValue, getValues } = methods;
   const additionalTableProps = {
-     onRenderindication: (item: Medicine) => <Typography sx={{overflow: "hidden", textOverflow: "ellipsis", width: '150px'}} variant="body2">{item?.indication}</Typography>,
-     onRenderpharmacologicalGroup: (item: Medicine) => <Typography sx={{overflow: "hidden", textOverflow: "ellipsis", width: '150px'}} variant="body2">{item?.pharmacologicalGroup}</Typography>
-
-    };
-  const handleConfirmDelete = useCallback(async() => {
-
-    const res:any = await deletePackage(deleteItemId);
+    onRenderindication: (item: Medicine) => (
+      <Typography
+        sx={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '150px' }}
+        variant="body2"
+      >
+        {item?.indication}
+      </Typography>
+    ),
+    onRenderpharmacologicalGroup: (item: Medicine) => (
+      <Typography
+        sx={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '150px' }}
+        variant="body2"
+      >
+        {item?.pharmacologicalGroup}
+      </Typography>
+    ),
+  };
+  const handleConfirmDelete = useCallback(async () => {
+    const res: any = await deletePackage(deleteItemId);
     console.log(res);
 
     if (res?.error) {
@@ -106,24 +109,27 @@ export default function MedicineView({ medicines, count }: Props) {
       <FormProvider methods={methods}>
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={12} sm={6}>
-          <RHFTextField
+            <RHFTextField
               name="scientific_name"
               label={t('Scientific name')}
               placeholder={t('Scientific name')}
               onChange={(event) => {
                 setValue('scientific_name', event.target.value);
-                createQueryString([{name:'scientific_name', value:getValues('scientific_name')}], true);
+                createQueryString(
+                  [{ name: 'scientific_name', value: getValues('scientific_name') }],
+                  true
+                );
               }}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-          <RHFTextField
+            <RHFTextField
               name="formula"
               label={t('Formula')}
               placeholder={t('Formula')}
               onChange={(event) => {
                 setValue('formula', event.target.value);
-                createQueryString([{name:'formula', value:getValues('formula')}], true);
+                createQueryString([{ name: 'formula', value: getValues('formula') }], true);
               }}
             />
           </Grid>
@@ -134,7 +140,7 @@ export default function MedicineView({ medicines, count }: Props) {
               placeholder={t('Indication')}
               onChange={(event) => {
                 setValue('indication', event.target.value);
-                createQueryString([{name:'indication', value:getValues('indication')}], true);
+                createQueryString([{ name: 'indication', value: getValues('indication') }], true);
               }}
             />
           </Grid>
@@ -145,22 +151,20 @@ export default function MedicineView({ medicines, count }: Props) {
               placeholder={t('Pharmacological  group')}
               onChange={(event) => {
                 setValue('pharmacological_group', event.target.value);
-                createQueryString([{name:'pharmacological_group', value:getValues('pharmacological_group')}], true);
+                createQueryString(
+                  [{ name: 'pharmacological_group', value: getValues('pharmacological_group') }],
+                  true
+                );
               }}
             />
           </Grid>
         </Grid>
       </FormProvider>
       <SharedTable
-        additionalComponent={
-          <TableHeadActions
-
-          />
-        }
+        additionalComponent={<TableHeadActions />}
         dataFiltered={medicines}
         table={table}
         count={count}
-
         tableHeaders={TABLE_HEAD}
         additionalTableProps={additionalTableProps}
         enableAdd
@@ -174,10 +178,7 @@ export default function MedicineView({ medicines, count }: Props) {
           {
             label: t('Details'),
             icon: 'mdi:eye',
-            onClick: (item: Medicine) =>
-              router.push(
-                `${paths.dashboard.medicine}/${item.id}`
-              ),
+            onClick: (item: Medicine) => router.push(`${paths.dashboard.medicine}/${item.id}`),
           },
           {
             label: t('Edit'),
@@ -185,7 +186,7 @@ export default function MedicineView({ medicines, count }: Props) {
             onClick: (item: Medicine) => {
               setChoosenMedicine(item);
               setIsDialogOpen(true);
-            }
+            },
           },
           {
             label: t('View Trade names'),
@@ -193,10 +194,9 @@ export default function MedicineView({ medicines, count }: Props) {
             onClick: (item: Medicine) =>
               router.push(`${paths.dashboard.medicine}/trade-names/${item.id}`),
           },
-
         ]}
       />
-  {deleteItemId && (
+      {deleteItemId && (
         <ConfirmDialog
           open={!!deleteItemId}
           onClose={() => setDeleteItemId('')}
@@ -212,7 +212,7 @@ export default function MedicineView({ medicines, count }: Props) {
             setIsDialogOpen(false);
             setChoosenMedicine(undefined);
           }}
-         medicine={choosenMedicine}
+          medicine={choosenMedicine}
         />
       ) : null}
     </Container>

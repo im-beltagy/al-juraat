@@ -1,4 +1,4 @@
-import { fetchAllPackages, fetchPackages } from 'src/actions/packages-actions';
+import { fetchAllPackages } from 'src/actions/packages-actions';
 
 import PackagesView from 'src/sections/packages/view/packages-view';
 

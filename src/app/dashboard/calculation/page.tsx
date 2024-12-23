@@ -1,30 +1,28 @@
 // ----------------------------------------------------------------------
 
-import {  fetchVariables ,fetchFormulas, fetchIndications, fetchScientificNames, fetchDosage, fetchDominalVariables} from 'src/actions/equation-actions';
+import { fetchSingleMedicine } from 'src/actions/medicine';
 import {
-  fetchInitialDosage,
-  fetchCalculationFinalResult,
-} from 'src/actions/calculations-actions';
+  fetchDosage,
+  fetchFormulas,
+  fetchVariables,
+  fetchIndications,
+  fetchScientificNames,
+  fetchDominalVariables,
+} from 'src/actions/equation-actions';
 
 import CalculationView from 'src/sections/calculation/view/calculation-view';
+
 import { IVariable } from 'src/types/variables';
-import { Result } from '@mui/system/cssVars/useCurrentColorScheme';
-import { fetchSingleMedicine } from 'src/actions/medicine';
 
 export const metadata = {
   title: 'Calculations | Al-Juraat Al-Tibbiya',
 };
 
-const convertIntoItems = (data: { id: string; name: string }[]) =>
-  data?.map((item) => ({
-    id: item.id,
-    name: item.name,
-    name_ar: item.name,
-    name_en: item.name,
-  }));
-
 type SearchParams = {
-  [key in 'medicine' | 'formula' | 'indication' | 'step' | 'page' | 'limit' | 'equationId']: string | string[] | undefined;
+  [key in 'medicine' | 'formula' | 'indication' | 'step' | 'page' | 'limit' | 'equationId']:
+    | string
+    | string[]
+    | undefined;
 };
 
 export default async function Page({ searchParams }: { searchParams: SearchParams }) {
@@ -33,10 +31,8 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const indication =
     typeof searchParams.indication === 'string' ? searchParams.indication : undefined;
   const step = typeof searchParams.step === 'string' ? searchParams.step : undefined;
-  const page = typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
-  const limit = typeof searchParams.limit === 'string' ? Number(searchParams.limit) : 5;
-  const equationId = typeof searchParams.equationId === 'string' ? searchParams.equationId : undefined;
-
+  const equationId =
+    typeof searchParams.equationId === 'string' ? searchParams.equationId : undefined;
 
   const scientific_names = await fetchScientificNames();
   const variables = await fetchVariables();
@@ -45,21 +41,20 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   let indications;
 
   if (medicine) {
-    const Formulas_res = await fetchFormulas( medicine );
-    const Indications_res = await fetchIndications( medicine );
+    const Formulas_res = await fetchFormulas(medicine);
+    const Indications_res = await fetchIndications(medicine);
 
     formulas = Formulas_res;
     indications = Indications_res;
   }
   let medicineD;
   let initialDosage;
-  if (medicine && formula && indication && step == 'dominal-variables'  ) {
-    const res = await fetchDosage(medicine, formula,indication);
+  if (medicine && formula && indication && step === 'dominal-variables') {
+    const res = await fetchDosage(medicine, formula, indication);
 
     initialDosage = res;
     const medicineDetails = await fetchSingleMedicine(res?.medicineId);
     medicineD = medicineDetails;
-
   }
   let resultsRes: any;
   if (equationId) {
@@ -67,7 +62,6 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
     resultsRes = res;
   }
   return (
-
     <CalculationView
       medicines={scientific_names as string[]}
       variables={variables?.items as IVariable[]}

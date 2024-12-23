@@ -41,12 +41,10 @@ interface SharedTableProps {
   tableHeaders: TableHeader[];
   dataFiltered: any[];
   count: number;
-  enableSearchField?:boolean;
+  enableSearchField?: boolean;
   additionalTableProps: { [key: string]: (item: any) => void };
-  handleFilters?: (name: string, value: string) => void;
   onImport?: (formData: FormData) => void;
   onExport?: () => Promise<any>;
-  filters?: { name: string };
   enableActions?: boolean;
   enableExportImport?: boolean;
   enableAdd?: boolean;
@@ -80,8 +78,6 @@ const SharedTable = (props: SharedTableProps) => {
     enableSearchField,
     disablePagination,
     showFromClients,
-    handleFilters,
-    filters,
     count,
     enableExportImport = false,
     enableAdd = false,
@@ -102,7 +98,6 @@ const SharedTable = (props: SharedTableProps) => {
   const searchParams = useSearchParams();
   const { enqueueSnackbar } = useSnackbar();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const page =
     typeof searchParams?.get('page') === 'string' ? Number(searchParams?.get('page')) : 1;
   const limit =
@@ -164,7 +159,6 @@ const SharedTable = (props: SharedTableProps) => {
   };
   const handleImportItems = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    setIsLoading(true);
     if (file) {
       if (onImport) {
         try {
@@ -177,7 +171,6 @@ const SharedTable = (props: SharedTableProps) => {
           enqueueSnackbar(`${error?.message}`, { variant: 'error' });
         }
       }
-      setIsLoading(false);
     }
   };
   return (
@@ -204,21 +197,23 @@ const SharedTable = (props: SharedTableProps) => {
             flexGrow={1}
             sx={{ width: 1 }}
           >
-
-              <TextField
-                fullWidth
-                value={query}
-                onChange={handleSearchByName}
-                placeholder={`${t('search')}...`}
-                sx={{ maxWidth: 'max(15rem, 30%)' ,visibility:enableSearchField?"visible":"hidden" }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
+            <TextField
+              fullWidth
+              value={query}
+              onChange={handleSearchByName}
+              placeholder={`${t('search')}...`}
+              sx={{
+                maxWidth: 'max(15rem, 30%)',
+                visibility: enableSearchField ? 'visible' : 'hidden',
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
 
             <Stack direction="row" gap={1}>
               {additionalComponent && additionalComponent}
@@ -282,7 +277,6 @@ const SharedTable = (props: SharedTableProps) => {
               headLabel={enableActions ? [...tableHeaders, { id: '', label: '' }] : tableHeaders}
               rowCount={dataFiltered?.length}
               numSelected={table.selected.length}
-
             />
 
             <TableBody>

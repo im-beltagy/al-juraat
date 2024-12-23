@@ -5,9 +5,9 @@ import { Box, Stack, Container } from '@mui/system';
 
 import { useTranslate } from 'src/locales';
 
-import { RHFUploadAvatar } from 'src/components/hook-form';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
+
 import { Article } from 'src/types/articles';
 
 interface Props {

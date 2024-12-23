@@ -3,6 +3,7 @@
 import * as yup from 'yup';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { enqueueSnackbar } from 'notistack';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { Card } from '@mui/material';
@@ -10,16 +11,15 @@ import { Stack, Container } from '@mui/system';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import { useTranslate } from 'src/locales';
+import { editAbout } from 'src/actions/pages-actions';
 
 import { RHFTextarea } from 'src/components/hook-form';
 import { useSettingsContext } from 'src/components/settings';
 import FormProvider from 'src/components/hook-form/form-provider';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
-import { editAbout } from 'src/actions/pages-actions';
-import { enqueueSnackbar } from 'notistack';
 
 interface Props {
-  about?: {description:string,slug:string,title:string};
+  about?: { description: string; slug: string; title: string };
 }
 
 export default function AboutUsView({ about }: Props) {
@@ -40,17 +40,16 @@ export default function AboutUsView({ about }: Props) {
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
-  const onSubmit = useCallback( async(data: any) => {
-
-          const res = await editAbout(data);
-          if (res?.error) {
-            enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
-          } else {
-            enqueueSnackbar(t('Update success!'));
-          }
-
+  const onSubmit = useCallback(
+    async (data: any) => {
+      const res = await editAbout(data);
+      if (res?.error) {
+        enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+      } else {
+        enqueueSnackbar(t('Update success!'));
+      }
     },
-    [ about]
+    [t]
   );
 
   return (

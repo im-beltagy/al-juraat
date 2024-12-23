@@ -1,6 +1,7 @@
 import { fetchTerms } from 'src/actions/pages-actions';
 
 import TermsAndConditionsView from 'src/sections/terms/view/termsAndConditions';
+
 import { Slug } from 'src/types/pages';
 
 export const metadata = {

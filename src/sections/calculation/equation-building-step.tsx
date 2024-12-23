@@ -14,13 +14,12 @@ import { useTranslate } from 'src/locales';
 
 import { RHFAutocomplete } from 'src/components/hook-form';
 import FormProvider from 'src/components/hook-form/form-provider';
-import CustomAutocompleteView, { ITems } from 'src/components/AutoComplete/CutomAutocompleteView';
 
-import { IVariableItem, yupCalculationItem } from 'src/types/calculations';
+import { IVariable } from 'src/types/variables';
 
 import { useCalculationStore } from './calculation-store';
-import { IVariable } from 'src/types/variables';
-type ITem = {id:string,value:string};
+
+type ITem = { id: string; value: string };
 export interface Props {
   medicines: string[];
   formulas?: string[];
@@ -55,9 +54,9 @@ export default function EquationBuildingStep({
   const { medicineItem, formulaItem, indicationItem } = useMemo(
     () => ({
       // error here if no data back from api
-      medicineItem: medicines && medicines?.find((m) => m === medicine) || '',
-      formulaItem:formulas && formulas?.find((f) => f === formulaId) || '',
-      indicationItem: indications &&indications?.find((i) => i === indicationId) || '',
+      medicineItem: (medicines && medicines?.find((m) => m === medicine)) || '',
+      formulaItem: (formulas && formulas?.find((f) => f === formulaId)) || '',
+      indicationItem: (indications && indications?.find((i) => i === indicationId)) || '',
     }),
     [formulaId, formulas, indicationId, indications, medicine, medicines]
   );
@@ -65,29 +64,35 @@ export default function EquationBuildingStep({
   const methods = useForm({
     resolver: yupResolver(
       yup.object().shape({
-        medicine: yup.object({
-          id:yup.string(),
-          value:yup.string()
-      }).nullable(),
-        formula: yup.object({
-          id:yup.string(),
-          value:yup.string()
-      }).nullable(),
-        indication: yup.object({
-          id:yup.string(),
-          value:yup.string()
-      }).nullable(),
+        medicine: yup
+          .object({
+            id: yup.string(),
+            value: yup.string(),
+          })
+          .nullable(),
+        formula: yup
+          .object({
+            id: yup.string(),
+            value: yup.string(),
+          })
+          .nullable(),
+        indication: yup
+          .object({
+            id: yup.string(),
+            value: yup.string(),
+          })
+          .nullable(),
         variables: yup.array().nullable(),
       })
     ),
     defaultValues: {
-      medicine: {id:medicineItem, value:medicineItem} ,
-      formula: {id:formulaItem, value:formulaItem} ,
-      indication: {id:indicationItem, value:indicationItem}  ,
+      medicine: { id: medicineItem, value: medicineItem },
+      formula: { id: formulaItem, value: formulaItem },
+      indication: { id: indicationItem, value: indicationItem },
       variables:
         variables
           .filter((v) => allVariables?.some(({ id }) => id === v.id))
-          .map((item) => ({ ...item}) as IVariable) || {},
+          .map((item) => ({ ...item }) as IVariable) || {},
     },
   });
 
@@ -95,18 +100,15 @@ export default function EquationBuildingStep({
   const choosenFormula = methods.watch('formula');
   const choosenIndication = methods.watch('indication');
   const choosenMedicine = methods.watch('medicine');
-  const watching = methods.watch();
-  useEffect(()=>{
+  useEffect(() => {
     sessionStorage.setItem('medicine', JSON.stringify(choosenMedicine));
-    sessionStorage.setItem('formula', JSON.stringify(choosenFormula))
-    sessionStorage.setItem('indication', JSON.stringify(choosenIndication))
-    sessionStorage.setItem('selectedVariables', JSON.stringify(choosenVariables))
+    sessionStorage.setItem('formula', JSON.stringify(choosenFormula));
+    sessionStorage.setItem('indication', JSON.stringify(choosenIndication));
+    sessionStorage.setItem('selectedVariables', JSON.stringify(choosenVariables));
 
-  },[choosenVariables,choosenMedicine,choosenFormula,choosenFormula])
-  const {
-    setValue,
-    getValues
-  } = methods;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [choosenVariables, choosenMedicine, choosenFormula, choosenFormula]);
+  const { setValue } = methods;
 
   useEffect(() => {
     const refactoredVariables = variables.filter(
@@ -117,13 +119,13 @@ export default function EquationBuildingStep({
 
   useEffect(() => {
     if (medicineItem) {
-      setMedicine({id:medicineItem ||'', value:medicineItem||''});
+      setMedicine({ id: medicineItem || '', value: medicineItem || '' });
     }
     if (formulaItem) {
-      setFormula({id:formulaItem||'', value:formulaItem||''});
+      setFormula({ id: formulaItem || '', value: formulaItem || '' });
     }
     if (indicationItem) {
-      setIndication({id:indicationItem||'', value:indicationItem||''});
+      setIndication({ id: indicationItem || '', value: indicationItem || '' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -136,9 +138,7 @@ export default function EquationBuildingStep({
               name="medicine"
               label={t('Scientific name')}
               placeholder={t('Scientific name')}
-              options={medicines?.map((item)=>{
-                 return{id:item, value:item};
-                })}
+              options={medicines?.map((item) => ({ id: item, value: item }))}
               getOptionLabel={(option) => {
                 if (typeof option !== 'string') {
                   return option.id;
@@ -146,18 +146,17 @@ export default function EquationBuildingStep({
                 return '';
               }}
               isOptionEqualToValue={(option, value) => option.id === value.id}
-
-              onChange={(_event, newValue:any) => {
+              onChange={(_event, newValue: any) => {
                 if (newValue) {
-                  setValue('medicine', newValue as any)
-                   createQueryString([{ name: 'medicine', value: String(newValue.id)  }]);
-                 setMedicine(newValue as any );
+                  setValue('medicine', newValue as any);
+                  createQueryString([{ name: 'medicine', value: String(newValue.id) }]);
+                  setMedicine(newValue as any);
                 } else {
                   setMedicine();
                   setFormula();
-                  setValue('formula', null )
-                  setValue('indication', null )
-                  setValue('medicine', null )
+                  setValue('formula', null);
+                  setValue('indication', null);
+                  setValue('medicine', null);
                   setIndication();
                   createQueryString([{ name: 'medicine' }]);
                   createQueryString([{ name: 'formula' }]);
@@ -171,7 +170,7 @@ export default function EquationBuildingStep({
               name="formula"
               label={t('Formula')}
               placeholder={t('Formula')}
-              options={formulas?.map((item)=>( {id:item, value:item}) as ITem) || []}
+              options={formulas?.map((item) => ({ id: item, value: item }) as ITem) || []}
               getOptionLabel={(option) => {
                 if (typeof option !== 'string') {
                   return option.id;
@@ -179,16 +178,15 @@ export default function EquationBuildingStep({
                 return '';
               }}
               isOptionEqualToValue={(option, value) => option.id === value.id}
-
-              onChange={(_event, newValue:any) => {
+              onChange={(_event, newValue: any) => {
                 if (newValue) {
-                  setValue('formula', newValue)
+                  setValue('formula', newValue);
 
-                  createQueryString([{ name: 'formula', value: String(newValue.id)  }]);
+                  createQueryString([{ name: 'formula', value: String(newValue.id) }]);
 
                   setFormula(newValue);
                 } else {
-                  setValue('formula', null )
+                  setValue('formula', null);
                   setFormula();
                   createQueryString([{ name: 'formula' }]);
                 }
@@ -200,7 +198,7 @@ export default function EquationBuildingStep({
               name="indication"
               label={t('Indication')}
               placeholder={t('Indication')}
-              options={indications?.map((item)=>( {id:item, value:item}) as ITem) || []}
+              options={indications?.map((item) => ({ id: item, value: item }) as ITem) || []}
               getOptionLabel={(option) => {
                 if (typeof option !== 'string') {
                   return option.id;
@@ -208,14 +206,13 @@ export default function EquationBuildingStep({
                 return '';
               }}
               isOptionEqualToValue={(option, value) => option.id === value.id}
-
-              onChange={(_event, newValue:any) => {
+              onChange={(_event, newValue: any) => {
                 if (newValue) {
-                  setValue('indication', newValue)
+                  setValue('indication', newValue);
                   setIndication(newValue);
                   createQueryString([{ name: 'indication', value: String(newValue.id) }]);
                 } else {
-                  setValue('indication', null )
+                  setValue('indication', null);
                   setIndication();
                   createQueryString([{ name: 'indication' }]);
                 }
@@ -228,9 +225,7 @@ export default function EquationBuildingStep({
               label={t('Variables')}
               placeholder={t('Choose one or more variable')}
               multiple
-              options={variables.map(
-                (item) => ({ ...item}) as IVariable
-              )}
+              options={variables.map((item) => ({ ...item }) as IVariable)}
               getOptionLabel={(option) => {
                 if (typeof option !== 'string') {
                   return option.name;

@@ -1,7 +1,7 @@
 import { create, StateCreator } from 'zustand';
 
-import { IDosageItem, IVariableItem, CalculationItem } from 'src/types/calculations';
 import { IVariable } from 'src/types/variables';
+import { IDosageItem } from 'src/types/calculations';
 
 interface MedicineSlice {
   medicine?: {id:string, value:string};

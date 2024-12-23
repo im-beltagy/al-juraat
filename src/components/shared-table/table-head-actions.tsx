@@ -209,7 +209,7 @@ function FiltersAction({ filters }: FiltersProps) {
             />
           );
         default:
-          return <></>;
+          return null;
       }
     },
     [currentValue, t]

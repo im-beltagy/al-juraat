@@ -1,33 +1,31 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
+import { useState, useCallback } from 'react';
 
 import { Container } from '@mui/material';
 
 import { fCurrency } from 'src/utils/format-number';
 
 import { useTranslate } from 'src/locales';
+import { deletePackage } from 'src/actions/packages-actions';
 
 import { useTable } from 'src/components/table';
 import SharedTable from 'src/components/shared-table';
 import { useSettingsContext } from 'src/components/settings';
+import { ConfirmDialog } from 'src/components/custom-dialog';
+import TableHeadActions from 'src/components/shared-table/table-head-actions';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
-import TableHeadActions, { TableFilter } from 'src/components/shared-table/table-head-actions';
 
 import { Package } from 'src/types/packages';
 
 import PackagesDialog from '../packages-dialog';
-import { ConfirmDialog } from 'src/components/custom-dialog';
-import { enqueueSnackbar } from 'notistack';
-import { deletePackage } from 'src/actions/packages-actions';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name' },
   { id: 'price', label: 'Price' },
   { id: 'durationInDays', label: 'Duration in days' },
 ];
-
-const filters: TableFilter[] = [{ name: 'duration', label: 'Duration in days', type: 'number' }];
 
 interface Props {
   packages: Package[];
@@ -46,9 +44,8 @@ export default function PackagesView({ packages, count }: Props) {
   const table = useTable();
 
   const additionalTableProps = { onRenderprice: (item: Package) => fCurrency(item.price) };
-  const handleConfirmDelete = useCallback(async() => {
-
-    const res:any = await deletePackage(deleteItemId);
+  const handleConfirmDelete = useCallback(async () => {
+    const res: any = await deletePackage(deleteItemId);
     console.log(res);
 
     if (res?.error) {
@@ -73,11 +70,7 @@ export default function PackagesView({ packages, count }: Props) {
       <CustomBreadcrumbs heading={t('Packages')} links={[{}]} sx={{ mb: 3 }} />
 
       <SharedTable
-        additionalComponent={
-          <TableHeadActions
-
-          />
-        }
+        additionalComponent={<TableHeadActions />}
         dataFiltered={packages}
         table={table}
         count={count}
@@ -104,10 +97,9 @@ export default function PackagesView({ packages, count }: Props) {
             icon: 'heroicons:trash-solid',
             onClick: (item: Package) => setDeleteItemId(item.id),
           },
-
         ]}
       />
-  {deleteItemId && (
+      {deleteItemId && (
         <ConfirmDialog
           open={!!deleteItemId}
           onClose={() => setDeleteItemId('')}

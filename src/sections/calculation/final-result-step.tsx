@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { useMemo, useCallback } from 'react';
 
 import { Box } from '@mui/system';
-import { Grid, InputAdornment, Radio, Typography } from '@mui/material';
+import { Grid, Radio, Typography, InputAdornment } from '@mui/material';
 
 import { useQueryString } from 'src/hooks/use-queryString';
 
@@ -13,11 +13,10 @@ import SharedTable from 'src/components/shared-table';
 import FormProvider from 'src/components/hook-form/form-provider';
 import RHFTextField from 'src/components/hook-form/rhf-text-field-form';
 
-import { IDosageItem, ICalculationResult, ICalculationResultItem } from 'src/types/calculations';
+import { IDosageItem } from 'src/types/calculations';
+import { Result, IDominalVariables } from 'src/types/results';
 
 import { useCalculationStore } from './calculation-store';
-import { IEquationVariable } from 'src/types/variables';
-import { IDominalVariables, Result } from 'src/types/results';
 
 const TABLE_HEAD = [
   { id: 'variableName', label: 'Variable' },
@@ -33,10 +32,10 @@ export interface Props {
 
 export default function FinalResultStep({ initialDosage, results }: Props) {
   const { t } = useTranslate();
-  console.log(results)
+  console.log(results);
   const { medicine, formula, indication } = useCalculationStore((state) => ({
-    medicine: state.medicine ,
-    formula: state.formula ,
+    medicine: state.medicine,
+    formula: state.formula,
     indication: state.indication,
   }));
   const { createQueryString } = useQueryString();
@@ -51,18 +50,20 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
 
   const additionalTableProps = useMemo(
     () => ({
-      onRendervariableName:(item:IDominalVariables)=> <Typography variant="body2">{item?.variableName}</Typography> ,
+      onRendervariableName: (item: IDominalVariables) => (
+        <Typography variant="body2">{item?.variableName}</Typography>
+      ),
 
-
-        onRendervalue: (item: IDominalVariables) => {
+      onRendervalue: (item: IDominalVariables) => {
         if (typeof item?.value === 'string') {
           return item?.value;
         }
         return `${t('from')} ${item?.minValue} ${t('to')} ${item?.maxValue}`;
       },
       onRenderprimary: (item: IDominalVariables) =>
-      results?.dominalVariables?.[0]?.id ===  item?.id ? <Radio checked /> : null,
+        results?.dominalVariables?.[0]?.id === item?.id ? <Radio checked /> : null,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -80,13 +81,18 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <RHFTextField name="formula" label={t('Formula')} value={formula?.value  || results?.formula} disabled />
+            <RHFTextField
+              name="formula"
+              label={t('Formula')}
+              value={formula?.value || results?.formula}
+              disabled
+            />
           </Grid>
           <Grid item xs={12} sm={6}>
             <RHFTextField
               name="indication"
               label={t('Indication')}
-              value={indication?.value  || results?.indication}
+              value={indication?.value || results?.indication}
               disabled
             />
           </Grid>
@@ -95,10 +101,14 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
               name="dosage"
               label={t('Dosage')}
               type="number"
-              value={initialDosage?.dosage  || results?.initialDose}
-              InputProps={{ endAdornment:  initialDosage?.isWeightDependent?
-                <InputAdornment position="end">mg/kg</InputAdornment>:
-               <InputAdornment position="end">mg</InputAdornment>, }}
+              value={initialDosage?.dosage || results?.initialDose}
+              InputProps={{
+                endAdornment: initialDosage?.isWeightDependent ? (
+                  <InputAdornment position="end">mg/kg</InputAdornment>
+                ) : (
+                  <InputAdornment position="end">mg</InputAdornment>
+                ),
+              }}
               disabled
             />
           </Grid>
@@ -107,29 +117,26 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
 
       <Box mt={3} />
       <SharedTable
-
         dataFiltered={results?.dominalVariables || []}
         table={table}
         count={results?.dominalVariables?.length || 0}
         disablePagination
         tableHeaders={TABLE_HEAD}
         additionalTableProps={additionalTableProps}
-
         enableActions
         actions={[
           {
             label: t('Edit'),
             icon: 'solar:pen-bold',
             onClick: (item: IDominalVariables) => {
-
               createQueryString([
                 { name: 'step', value: 'dominal-variables' },
                 { name: 'variableId', value: item.variableId },
-              ])
-            }
+              ]);
+            },
           },
         ]}
-        />
+      />
     </>
   );
 }

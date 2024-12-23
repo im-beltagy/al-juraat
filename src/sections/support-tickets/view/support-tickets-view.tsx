@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Container } from '@mui/system';
@@ -8,10 +7,9 @@ import { Container } from '@mui/system';
 import { paths } from 'src/routes/paths';
 
 import { useTable } from 'src/components/table';
+import SharedTable from 'src/components/shared-table';
 import { useSettingsContext } from 'src/components/settings';
-import SharedTable, { TableHeader } from 'src/components/shared-table';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
-import TableHeadActions, { TableFilter } from 'src/components/shared-table/table-head-actions';
 
 import { SupportTicket } from 'src/types/support-tickets';
 
@@ -20,13 +18,6 @@ const TABLE_HEAD = [
   { id: 'name', label: 'User Name' },
   { id: 'email', label: 'Email' },
   { id: 'phone', label: 'Phone' },
-];
-
-const filters: TableFilter[] = [
-  { name: 'user_name', label: 'User Name', type: 'text' },
-  { name: 'email', label: 'Email', type: 'text' },
-  { name: 'phone', label: 'Phone', type: 'text' },
-  { name: 'subject', label: 'Subject', type: 'text' },
 ];
 
 interface Props {
@@ -40,8 +31,6 @@ export function SupportTicketsView({ supportTickets, count }: Props) {
 
   const table = useTable();
 
-  const [tableHead, setTableHead] = useState<TableHeader[]>(TABLE_HEAD);
-
   return (
     <Container
       maxWidth={settings.themeStretch ? false : 'xl'}
@@ -54,11 +43,10 @@ export function SupportTicketsView({ supportTickets, count }: Props) {
       <CustomBreadcrumbs heading="Support Tickets" links={[{}]} sx={{ mb: 3 }} />
 
       <SharedTable
-
         dataFiltered={supportTickets}
         table={table}
         count={count}
-        tableHeaders={tableHead}
+        tableHeaders={TABLE_HEAD}
         additionalTableProps={{}}
         enableActions
         actions={[

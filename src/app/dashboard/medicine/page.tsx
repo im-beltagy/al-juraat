@@ -1,5 +1,7 @@
 import { fetchMedicines } from 'src/actions/medicine';
+
 import MedicineView from 'src/sections/medicine/view/medicine-view';
+
 import { Medicine } from 'src/types/medicine';
 
 export const metadata = {

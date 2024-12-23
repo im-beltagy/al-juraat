@@ -1,12 +1,10 @@
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 import { alpha, useTheme } from '@mui/material/styles';
 
 import { useResponsive } from 'src/hooks/use-responsive';
 
 import { bgGradient } from 'src/theme/css';
-import { useTranslate } from 'src/locales';
 
 import Logo from 'src/components/logo';
 
@@ -19,8 +17,6 @@ type Props = {
 };
 
 export default function AuthClassicLayout({ children, image, title }: Props) {
-  const { t } = useTranslate();
-
   const theme = useTheme();
 
   const mdUp = useResponsive('up', 'md');
@@ -67,7 +63,7 @@ export default function AuthClassicLayout({ children, image, title }: Props) {
         }),
       }}
     >
-     {/*  <Typography variant="h3" sx={{ maxWidth: 480, textAlign: 'center' }}>
+      {/*  <Typography variant="h3" sx={{ maxWidth: 480, textAlign: 'center' }}>
         {t(
           title === 'register'
             ? 'Create an account to access Al-Juraat Al-Tibbiya'

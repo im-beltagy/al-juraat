@@ -14,12 +14,12 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { fData } from 'src/utils/format-number';
 
 import { useTranslate } from 'src/locales';
+import { addArticle, editArticle } from 'src/actions/articles-actions';
 
 import FormProvider from 'src/components/hook-form/form-provider';
-import { RHFTextarea, RHFTextField, RHFUploadAvatar } from 'src/components/hook-form';
+import { RHFTextField, RHFUploadAvatar } from 'src/components/hook-form';
 
 import { Article } from 'src/types/articles';
-import { addArticle, editArticle } from 'src/actions/articles-actions';
 
 interface Props {
   article?: Article;
@@ -52,30 +52,29 @@ export default function NewEditArticleForm({ article }: Props) {
   } = methods;
 
   const onSubmit = useCallback(
-    async(data: any) => {
+    async (data: any) => {
       const formData = new FormData();
 
       toFormData(data, formData);
 
-        if (article?.id) {
-          formData.append('id', article?.id);
-          const res = await editArticle(article?.id,formData);
-          if (res?.error) {
-            enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
-          } else {
-            enqueueSnackbar(t('Update success!'));
-          }
+      if (article?.id) {
+        formData.append('id', article?.id);
+        const res = await editArticle(article?.id, formData);
+        if (res?.error) {
+          enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
         } else {
-          const res = await addArticle(formData);
-          if (res?.error) {
-            enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
-          } else {
-            enqueueSnackbar(t('Added success!'));
-          }
+          enqueueSnackbar(t('Update success!'));
         }
-
+      } else {
+        const res = await addArticle(formData);
+        if (res?.error) {
+          enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+        } else {
+          enqueueSnackbar(t('Added success!'));
+        }
+      }
     },
-    [ article]
+    [article?.id, enqueueSnackbar, t]
   );
 
   const handleDrop = useCallback(
@@ -121,13 +120,12 @@ export default function NewEditArticleForm({ article }: Props) {
 
         <RHFTextField name="Title" label={t('Title')} placeholder={t('Title')} />
         <RHFTextField
-         rows={5}
-         name="Content"
-         multiline
-         label={t('Content')}
-         placeholder={t('Content')}
-         />
-
+          rows={5}
+          name="Content"
+          multiline
+          label={t('Content')}
+          placeholder={t('Content')}
+        />
 
         <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
           {t(article ? 'Edit' : 'Save')}

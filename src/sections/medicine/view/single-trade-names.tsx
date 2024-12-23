@@ -1,13 +1,13 @@
 'use client';
 
-import { Avatar, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import { Box, Stack, Container } from '@mui/system';
 
 import { useTranslate } from 'src/locales';
 
-import { RHFUploadAvatar } from 'src/components/hook-form';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
+
 import { TradeNames } from 'src/types/medicine';
 
 interface Props {
@@ -33,7 +33,7 @@ export default function SingleTradeNameView({ tradeName }: Props) {
 
       <Stack
             key={index}
-            component={'div'}
+            component="div"
             spacing={2}
             direction="column"
             alignItems="center"

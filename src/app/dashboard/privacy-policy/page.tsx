@@ -1,6 +1,7 @@
 import { fetchPrivacy } from 'src/actions/pages-actions';
 
 import PrivacyView from 'src/sections/privacy/view/privacy-view';
+
 import { Slug } from 'src/types/pages';
 
 export const metadata = {

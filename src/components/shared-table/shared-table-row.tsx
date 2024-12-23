@@ -38,7 +38,7 @@ const SharedTableRow = ({
   onEditRow,
   onDeleteRow,
 }: SharedTableRowProps) => {
-  const { sent, invoiceNumber, createDate, dueDate, status, invoiceTo, totalAmount } = row;
+  const { sent, createDate, dueDate, status, invoiceTo, totalAmount } = row;
   const confirm = useBoolean();
 
   const popover = usePopover();

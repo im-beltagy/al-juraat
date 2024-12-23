@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 
 import { useTranslate } from 'src/locales';
+import { deleteFQA } from 'src/actions/faq-actions';
 
 import { useSettingsContext } from 'src/components/settings';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -24,7 +25,6 @@ import { FAQItem } from 'src/types/faq';
 
 import EditFaqDialog from '../edit-faq-dialog';
 import NewEditFaqForm from '../new-edit-faq-form';
-import { deleteFQA } from 'src/actions/faq-actions';
 
 interface Props {
   items: FAQItem[];
@@ -50,8 +50,7 @@ export default function FAQView({ items }: Props) {
     },
     []
   );
-  const handleConfirmDelete = useCallback(async() => {
-
+  const handleConfirmDelete = useCallback(async () => {
     const res = await deleteFQA(deleteItemId);
 
     if (res?.error) {
@@ -62,7 +61,7 @@ export default function FAQView({ items }: Props) {
       });
     }
     setDeleteItemId('');
-  }, [deleteItemId]);
+  }, [deleteItemId, enqueueSnackbar]);
 
   return (
     <Container
@@ -104,12 +103,12 @@ export default function FAQView({ items }: Props) {
       </Stack>
 
       {deleteItemId && (
-         <ConfirmDialog
-         open={!!deleteItemId}
-         onClose={() => setDeleteItemId('')}
-         title="Delete"
-         content="Are you sure you want to delete this item?"
-         handleConfirmDelete={handleConfirmDelete}
+        <ConfirmDialog
+          open={!!deleteItemId}
+          onClose={() => setDeleteItemId('')}
+          title="Delete"
+          content="Are you sure you want to delete this item?"
+          handleConfirmDelete={handleConfirmDelete}
         />
       )}
 

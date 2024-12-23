@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Avatar, Container } from '@mui/material';
@@ -13,14 +12,13 @@ import { useTranslate } from 'src/locales';
 
 import Label from 'src/components/label';
 import { useTable } from 'src/components/table';
+import SharedTable from 'src/components/shared-table';
 import { useSettingsContext } from 'src/components/settings';
-import SharedTable, { TableHeader } from 'src/components/shared-table';
+import TableHeadActions from 'src/components/shared-table/table-head-actions';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
-import TableHeadActions, { TableFilter } from 'src/components/shared-table/table-head-actions';
 
 import { IUser } from 'src/types/users';
 import { Variable } from 'src/types/variables';
-import { getCookie } from 'cookies-next';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', static: true },
@@ -33,19 +31,6 @@ const TABLE_HEAD = [
   { id: 'accepted', label: 'Accepted' },
 ];
 
-const filters: TableFilter[] = [
-  { name: 'email', label: 'Email', type: 'text' },
-  {
-    name: 'accepted',
-    label: 'Accepted',
-    type: 'list',
-    options: [
-      { label: 'Accepted', value: 'true' },
-      { label: 'Not Accepted', value: 'false' },
-    ],
-  },
-];
-
 interface Props {
   users: IUser[];
   count: number;
@@ -56,13 +41,14 @@ export default function UsersView({ users, count }: Props) {
   const settings = useSettingsContext();
   // Table
   const table = useTable();
-  const [tableHead, setTableHead] = useState<TableHeader[]>(TABLE_HEAD);
 
   const additionalTableProps = {
     onRenderphone: (item: IUser) => <span dir="ltr">{item.phoneNumber}</span>,
     onRendermedical_id_photo: (item: IUser) => <Avatar src={`${item.medicalIdImageUrl}`} />,
-    onRendercreated_at: (item: IUser) => fDate((item.creationTime as string), 'dd-MM-yyyy'),
-    onRenderpackage_name: (item: IUser) => <Label color="info">{item.packageName || ". . ."}</Label>,
+    onRendercreated_at: (item: IUser) => fDate(item.creationTime as string, 'dd-MM-yyyy'),
+    onRenderpackage_name: (item: IUser) => (
+      <Label color="info">{item.packageName || '. . .'}</Label>
+    ),
     onRenderaccepted: (item: IUser) => (
       <Label color={item.isAccepted ? 'success' : 'error'}>
         {item.isAccepted ? 'Accepted' : 'Not Accepted'}
@@ -84,19 +70,12 @@ export default function UsersView({ users, count }: Props) {
       <CustomBreadcrumbs heading={t('Users')} links={[{}]} sx={{ mb: 3 }} />
 
       <SharedTable
-        additionalComponent={
-          <TableHeadActions
-            defaultTableHead={TABLE_HEAD}
-          /*   setTableHead={(newTableHead: TableHeader[]) => setTableHead(newTableHead)}
-            filters={filters.map((item) => ({ ...item, label: t(item.label) }) as TableFilter)}
-            handleExport={() => {}} */
-          />
-        }
+        additionalComponent={<TableHeadActions defaultTableHead={TABLE_HEAD} />}
         dataFiltered={users}
         table={table}
         count={count}
         enableSearchField
-        tableHeaders={tableHead}
+        tableHeaders={TABLE_HEAD}
         additionalTableProps={additionalTableProps}
         enableActions
         actions={[

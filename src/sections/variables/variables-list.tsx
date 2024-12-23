@@ -1,40 +1,24 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { enqueueSnackbar } from 'notistack';
 import { useState, useCallback } from 'react';
 
-import { paths } from 'src/routes/paths';
+import { deleteVariable } from 'src/actions/variables-actions';
 
 import { useTable } from 'src/components/table';
+import SharedTable from 'src/components/shared-table';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import SharedTable, { TableHeader } from 'src/components/shared-table';
-import TableHeadActions, { TableFilter } from 'src/components/shared-table/table-head-actions';
+import ViewValuesDialog from 'src/components/dialog/view-values-dialog';
+import TableHeadActions from 'src/components/shared-table/table-head-actions';
 
 import { IVariable } from 'src/types/variables';
-import { Typography } from '@mui/material';
-import ViewValuesDialog from 'src/components/dialog/view-values-dialog';
-import { deleteVariable } from 'src/actions/variables-actions';
-import { enqueueSnackbar } from 'notistack';
+
 import { VariablesEditForm } from './variable-edit';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', static: true },
   { id: 'type', label: 'Type' },
   { id: 'value', label: '(Max) Value' },
-];
-
-const filters: TableFilter[] = [
-  { name: 'name', label: 'Name', type: 'text' },
-  { name: 'age', label: 'Age', type: 'number' },
-  {
-    name: 'gender',
-    label: 'Gender',
-    type: 'list',
-    options: [
-      { value: 'male', label: 'Male' },
-      { value: 'female', label: 'Female' },
-    ],
-  },
 ];
 
 interface Props {
@@ -45,14 +29,11 @@ interface Props {
 export function VariablesList({ variables, count }: Props) {
   const table = useTable();
 
-  const [tableHead, setTableHead] = useState<TableHeader[]>(TABLE_HEAD);
-
   const additionalTableProps = {
-    onRendervalue: (item: IVariable) =>  (item?.maxValue ? item?.maxValue : `${item?.values[0]} . . .`),
+    onRendervalue: (item: IVariable) =>
+      item?.maxValue ? item?.maxValue : `${item?.values[0]} . . .`,
     onRendertype: (item: IVariable) => (item.type === 'List' ? 'List' : 'Range'),
   };
-
-  const router = useRouter();
 
   const [deleteItemId, setDeleteItemId] = useState('');
   const [listValues, setListValues] = useState(['']);
@@ -63,9 +44,8 @@ export function VariablesList({ variables, count }: Props) {
     setOpenView(false);
 
     setListValues(['']);
-  }, [openView]);
-  const handleConfirmDelete = useCallback(async() => {
-
+  }, []);
+  const handleConfirmDelete = useCallback(async () => {
     const res = await deleteVariable(deleteItemId);
     console.log(res);
 
@@ -81,26 +61,19 @@ export function VariablesList({ variables, count }: Props) {
   return (
     <>
       <SharedTable
-        additionalComponent={
-          <TableHeadActions
-            defaultTableHead={TABLE_HEAD}
-           /*  setTableHead={(newTableHead: TableHeader[]) => setTableHead(newTableHead)}
-            filters={filters.map((item) => ({ ...item, label: item.label }) as TableFilter)}
-            handleExport={() => {}} */
-          />
-        }
+        additionalComponent={<TableHeadActions defaultTableHead={TABLE_HEAD} />}
         dataFiltered={variables}
         table={table}
         count={count}
-        tableHeaders={tableHead}
+        tableHeaders={TABLE_HEAD}
         additionalTableProps={additionalTableProps}
         enableActions
         actions={[
           {
             label: 'Edit',
             icon: 'solar:pen-bold',
-            onClick: async(item: IVariable) => {
-             await setSelectedVariable(item);
+            onClick: async (item: IVariable) => {
+              await setSelectedVariable(item);
               setOpenEdit(true);
             },
           },
@@ -111,8 +84,8 @@ export function VariablesList({ variables, count }: Props) {
           },
           {
             label: 'view',
-            icon:'mdi:eye',
-            hideActionIf: (item: IVariable) => item?.type === 'List' ? false : true,
+            icon: 'mdi:eye',
+            hideActionIf: (item: IVariable) => item?.type !== 'List',
             onClick: (item: IVariable) => {
               setListValues(item.values);
               setOpenView(true);
@@ -121,7 +94,7 @@ export function VariablesList({ variables, count }: Props) {
         ]}
       />
 
-    {deleteItemId && (
+      {deleteItemId && (
         <ConfirmDialog
           open={!!deleteItemId}
           onClose={() => setDeleteItemId('')}
@@ -130,7 +103,7 @@ export function VariablesList({ variables, count }: Props) {
           handleConfirmDelete={handleConfirmDelete}
         />
       )}
-          {listValues && (
+      {listValues && (
         <ViewValuesDialog
           open={openView}
           onClose={() => setOpenView(false)}
@@ -139,7 +112,7 @@ export function VariablesList({ variables, count }: Props) {
           handleClose={handleListValuesClose}
         />
       )}
-         {selectedVariable?.name && (
+      {selectedVariable?.name && (
         <VariablesEditForm
           open={openEdit}
           onClose={() => setOpenEdit(false)}

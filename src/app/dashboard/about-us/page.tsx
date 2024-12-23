@@ -1,5 +1,7 @@
 import { fetchAbout } from 'src/actions/pages-actions';
+
 import AboutUsView from 'src/sections/about-us/view/aboutUs';
+
 import { Slug } from 'src/types/pages';
 
 export const metadata = {

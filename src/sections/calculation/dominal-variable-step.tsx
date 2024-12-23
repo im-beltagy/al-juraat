@@ -19,25 +19,23 @@ import {
   InputAdornment,
 } from '@mui/material';
 
+import { useQueryString } from 'src/hooks/use-queryString';
+
 import { useTranslate } from 'src/locales';
+import {
+  createEquation,
+  addDominalVariables,
+  editDominalVariables,
+} from 'src/actions/equation-actions';
 
 import FormProvider from 'src/components/hook-form/form-provider';
 import { RHFTextField, RHFRadioGroup, RHFAutocomplete } from 'src/components/hook-form';
-import CustomAutocompleteView from 'src/components/AutoComplete/CutomAutocompleteView';
 
-import { requiredYupItem } from 'src/types/autoComplete';
-import { IDosageItem, IVariableItem, yupCalculationItem } from 'src/types/calculations';
-import { useCalculationStore } from './calculation-store';
 import { IVariable } from 'src/types/variables';
-import { useQueryString } from 'src/hooks/use-queryString';
-import {
-  addDominalVariables,
-  createEquation,
-  editDominalVariables,
-} from 'src/actions/equation-actions';
+import { IDosageItem } from 'src/types/calculations';
 import { IDominalVariables } from 'src/types/results';
-import axiosInstance, { endpoints } from 'src/utils/axios';
-import { getCookie } from 'cookies-next';
+
+import { useCalculationStore } from './calculation-store';
 
 const EFFECT_TYPES = ['Positive', 'Negative', 'No effect'];
 type ITems = {
@@ -86,6 +84,7 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
     if (!searchParams.get('indication')) {
       createQueryString([{ name: 'indication', value: String(getSelectedIndication?.id) }]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getSelectedFormula, getSelectedIndication]);
 
   const methods = useForm({
@@ -145,8 +144,6 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
     setResult(Math.round(val));
   }, [initialDosage?.dosage, effect, effectType]);
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const submitAdd = useCallback(
     async (data: any) => {
       if (['positive', 'negative'].includes(data.effect_type) && !data.effect) {
@@ -157,18 +154,28 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
         variableId: data?.variable?.id,
         minValue: data?.variable_value?.[0],
         maxValue: data?.variable_value?.[1],
-        effect: data?.effect_type == 'no effect' ? null : data?.effect,
+        effect: data?.effect_type === 'no effect' ? null : data?.effect,
         effectType:
-          data?.effect_type == 'positive' ? true : data?.effect_type == 'no effect' ? null : false,
-        noEffect: data?.effect_type == 'no effect' ? true : null,
+          // eslint-disable-next-line no-nested-ternary
+          data?.effect_type === 'positive'
+            ? true
+            : data?.effect_type === 'no effect'
+              ? null
+              : false,
+        noEffect: data?.effect_type === 'no effect' ? true : null,
       };
       const dataList = {
         variableId: data?.variable?.id,
         value: data?.variable_value?.id,
-        effect: data?.effect_type == 'no effect' ? null : data?.effect,
+        effect: data?.effect_type === 'no effect' ? null : data?.effect,
         effectType:
-          data?.effect_type == 'positive' ? true : data?.effect_type == 'no effect' ? null : false,
-        noEffect: data?.effect_type == 'no effect' ? true : null,
+          // eslint-disable-next-line no-nested-ternary
+          data?.effect_type === 'positive'
+            ? true
+            : data?.effect_type === 'no effect'
+              ? null
+              : false,
+        noEffect: data?.effect_type === 'no effect' ? true : null,
       };
 
       const res = await addDominalVariables(
@@ -185,109 +192,135 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
         });
       }
     },
-    [searchParams]
+    [searchParams, setError, t]
   );
 
-  const onSubmit = useCallback(async (data: any) => {
-    if (['positive', 'negative'].includes(data.effect_type) && !data.effect) {
-      setError('effect', { message: t('Effect is required') });
-      return;
-    }
-    const dataFormRange = {
-      scientificName: medicine?.id,
-      formula: formula?.id,
-      indication: indication?.id,
-      initialDose: initialDosage?.dosage,
-      dominalVariables: [
-        {
-          variableId: data?.variable?.id,
+  const onSubmit = useCallback(
+    async (data: any) => {
+      if (['positive', 'negative'].includes(data.effect_type) && !data.effect) {
+        setError('effect', { message: t('Effect is required') });
+        return;
+      }
+      const dataFormRange = {
+        scientificName: medicine?.id,
+        formula: formula?.id,
+        indication: indication?.id,
+        initialDose: initialDosage?.dosage,
+        dominalVariables: [
+          {
+            variableId: data?.variable?.id,
+            variableName: data?.variable?.name,
+            type: data?.variable?.type,
+            minValue: data?.variable_value?.[0],
+            maxValue: data?.variable_value?.[1],
+            effect: data?.effect_type === 'no effect' ? null : data?.effect,
+            effectType:
+              // eslint-disable-next-line no-nested-ternary
+              data?.effect_type === 'positive'
+                ? true
+                : data?.effect_type === 'no effect'
+                  ? null
+                  : false,
+            noEffect: data?.effect_type === 'no effect' ? true : null,
+          },
+        ],
+      };
+      const dataFormList = {
+        scientificName: medicine?.id,
+        formula: formula?.id,
+        indication: indication?.id,
+        initialDose: initialDosage?.dosage,
+        dominalVariables: [
+          {
+            variableId: data?.variable?.id,
+            type: data?.variable?.type,
+            variableName: data?.variable?.name,
+            value: data?.variable_value?.id,
+            effect: data?.effect_type === 'no effect' ? null : data?.effect,
+            effectType:
+              // eslint-disable-next-line no-nested-ternary
+              data?.effect_type === 'positive'
+                ? true
+                : data?.effect_type === 'no effect'
+                  ? null
+                  : false,
+            noEffect: data?.effect_type === 'no effect' ? true : null,
+          },
+        ],
+      };
+      if (searchParams.get('variableId')) {
+        const dataRange = {
+          id: currentVariable?.id,
+          variableId: currentVariable?.variableId,
           variableName: data?.variable?.name,
-          type: data?.variable?.type,
           minValue: data?.variable_value?.[0],
           maxValue: data?.variable_value?.[1],
-          effect: data?.effect_type == 'no effect' ? null : data?.effect,
+          effect: data?.effect_type === 'no effect' ? null : data?.effect,
           effectType:
-            data?.effect_type == 'positive'
+            // eslint-disable-next-line no-nested-ternary
+            data?.effect_type === 'positive'
               ? true
-              : data?.effect_type == 'no effect'
+              : data?.effect_type === 'no effect'
                 ? null
                 : false,
-          noEffect: data?.effect_type == 'no effect' ? true : null,
-        },
-      ],
-    };
-    const dataFormList = {
-      scientificName: medicine?.id,
-      formula: formula?.id,
-      indication: indication?.id,
-      initialDose: initialDosage?.dosage,
-      dominalVariables: [
-        {
-          variableId: data?.variable?.id,
-          type: data?.variable?.type,
+          noEffect: data?.effect_type === 'no effect' ? true : null,
+        };
+        const dataList = {
+          id: currentVariable?.id,
+          variableId: currentVariable?.variableId,
           variableName: data?.variable?.name,
           value: data?.variable_value?.id,
-          effect: data?.effect_type == 'no effect' ? null : data?.effect,
+          effect: data?.effect_type === 'no effect' ? null : data?.effect,
           effectType:
-            data?.effect_type == 'positive'
+            // eslint-disable-next-line no-nested-ternary
+            data?.effect_type === 'positive'
               ? true
-              : data?.effect_type == 'no effect'
+              : data?.effect_type === 'no effect'
                 ? null
                 : false,
-          noEffect: data?.effect_type == 'no effect' ? true : null,
-        },
-      ],
-    };
-    if (searchParams.get('variableId')) {
-      const dataRange = {
-        id: currentVariable?.id,
-        variableId: currentVariable?.variableId,
-        variableName: data?.variable?.name,
-        minValue: data?.variable_value?.[0],
-        maxValue: data?.variable_value?.[1],
-        effect: data?.effect_type == 'no effect' ? null : data?.effect,
-        effectType:
-          data?.effect_type == 'positive' ? true : data?.effect_type == 'no effect' ? null : false,
-        noEffect: data?.effect_type == 'no effect' ? true : null,
-      };
-      const dataList = {
-        id: currentVariable?.id,
-        variableId: currentVariable?.variableId,
-        variableName: data?.variable?.name,
-        value: data?.variable_value?.id,
-        effect: data?.effect_type == 'no effect' ? null : data?.effect,
-        effectType:
-          data?.effect_type == 'positive' ? true : data?.effect_type == 'no effect' ? null : false,
-        noEffect: data?.effect_type == 'no effect' ? true : null,
-      };
+          noEffect: data?.effect_type === 'no effect' ? true : null,
+        };
 
-      const res = await editDominalVariables(
-        data?.variable?.type !== 'Range' ? dataList : dataRange
-      );
-      if (res?.error) {
-        enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+        const res = await editDominalVariables(
+          data?.variable?.type !== 'Range' ? dataList : dataRange
+        );
+        if (res?.error) {
+          enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+        } else {
+          enqueueSnackbar('Updated success!', {
+            variant: 'success',
+          });
+        }
       } else {
-        enqueueSnackbar('Updated success!', {
-          variant: 'success',
-        });
-      }
-    } else {
-      const res = await createEquation(
-        data?.variable?.type !== 'Range' ? dataFormList : dataFormRange
-      );
-      if (res?.error) {
-        enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
-      } else {
-        createQueryString([{ name: 'equationId', value: String(res?.id) }]);
-        enqueueSnackbar('Created success!', {
-          variant: 'success',
-        });
-        if (!searchParams.get('equationId')) {
+        const res = await createEquation(
+          data?.variable?.type !== 'Range' ? dataFormList : dataFormRange
+        );
+        if (res?.error) {
+          enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
+        } else {
           createQueryString([{ name: 'equationId', value: String(res?.id) }]);
+          enqueueSnackbar('Created success!', {
+            variant: 'success',
+          });
+          if (!searchParams.get('equationId')) {
+            createQueryString([{ name: 'equationId', value: String(res?.id) }]);
+          }
         }
       }
-    }
-  }, []);
+    },
+    [
+      createQueryString,
+      currentVariable?.id,
+      currentVariable?.variableId,
+      formula?.id,
+      indication?.id,
+      initialDosage?.dosage,
+      medicine?.id,
+      searchParams,
+      setError,
+      t,
+    ]
+  );
 
   return (
     <>
@@ -338,7 +371,7 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
 
               options={allVariables || (getSelectedVariables as IVariable)}
               getOptionLabel={(option: any) => {
-                if (typeof option?.name == 'string') {
+                if (typeof option?.name === 'string') {
                   return option?.name;
                 }
                 return '';
@@ -389,7 +422,7 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
                   })) || []) as ITems[]
                 }
                 getOptionLabel={(option: any) => {
-                  if (typeof option?.value == 'string') {
+                  if (typeof option?.value === 'string') {
                     return option?.value;
                   }
                   return '';

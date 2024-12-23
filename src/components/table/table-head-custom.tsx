@@ -5,6 +5,7 @@ import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import { Theme, SxProps } from '@mui/material/styles';
 import TableSortLabel from '@mui/material/TableSortLabel';
+
 import { useTranslate } from 'src/locales';
 
 // ----------------------------------------------------------------------

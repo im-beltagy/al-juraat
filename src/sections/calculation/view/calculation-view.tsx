@@ -1,7 +1,7 @@
 'use client';
 
+import React, { ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
-import React, { ReactNode, useEffect } from 'react';
 
 import { Container } from '@mui/system';
 import { Box, Step, Button, Stepper, StepLabel } from '@mui/material';
@@ -11,19 +11,17 @@ import { useQueryString } from 'src/hooks/use-queryString';
 import { useTranslate } from 'src/locales';
 
 import { useSettingsContext } from 'src/components/settings';
-import { ITems } from 'src/components/AutoComplete/CutomAutocompleteView';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
 
-import { IDosageItem, IVariableItem, ICalculationResult } from 'src/types/calculations';
+import { Result } from 'src/types/results';
+import { Medicine } from 'src/types/medicine';
+import { IVariable } from 'src/types/variables';
+import { IDosageItem } from 'src/types/calculations';
 
 import FinalResultStep from '../final-result-step';
 import CustomPatientStep from '../custom-patient-step';
-import { useCalculationStore } from '../calculation-store';
- import DominalVariableStep from '../dominal-variable-step';
+import DominalVariableStep from '../dominal-variable-step';
 import EquationBuildingStep from '../equation-building-step';
-import { IVariable } from 'src/types/variables';
-import { Result } from 'src/types/results';
-import { Medicine } from 'src/types/medicine';
 
 const titles = ['Equation Building', 'Calculation', 'Final Result', 'Custom Patient'];
 const stepsTitles = [
@@ -41,7 +39,7 @@ interface Props {
   variables: IVariable[];
   initialDosage?: IDosageItem;
   results: Result;
-  medicineDetails:Medicine;
+  medicineDetails: Medicine;
 }
 
 export default function CalculationView({
@@ -51,19 +49,15 @@ export default function CalculationView({
   variables,
   initialDosage,
   results,
-  medicineDetails
+  medicineDetails,
 }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
   const searchParams = useSearchParams();
-  console.log(searchParams.get('step'))
+  console.log(searchParams.get('step'));
   const activeStep = searchParams.get('step') || steps[0];
   const stepIndex = steps.indexOf(activeStep);
-  const saveVariable = results && sessionStorage.setItem('variable', JSON.stringify(results));
-  const { setMedicine, setFormula, setIndication } = useCalculationStore(
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    ({ setMedicine, setFormula, setIndication }) => ({ setMedicine, setFormula, setIndication })
-  );
+
   return (
     <Container
       maxWidth={settings.themeStretch ? false : 'xl'}
@@ -75,7 +69,7 @@ export default function CalculationView({
     >
       <CustomBreadcrumbs heading={t(titles[stepIndex])} links={[{}]} sx={{ mb: 3 }} />
 
-      <StepperView activeStep={activeStep} >
+      <StepperView activeStep={activeStep}>
         <Box mt={3} />
         {stepIndex === 0 ? (
           <EquationBuildingStep
@@ -86,8 +80,11 @@ export default function CalculationView({
           />
         ) : null}
         {stepIndex === 1 ? (
-
-          <DominalVariableStep variables={variables} initialDosage={initialDosage} medicineIsWeight={medicineDetails?.isWeightDependent} />
+          <DominalVariableStep
+            variables={variables}
+            initialDosage={initialDosage}
+            medicineIsWeight={medicineDetails?.isWeightDependent}
+          />
         ) : null}
         {stepIndex === 2 ? (
           <FinalResultStep initialDosage={initialDosage} results={results} />
@@ -121,13 +118,13 @@ function StepperView({ activeStep, children }: StepperViewProps) {
     createQueryString([{ name: 'step', value: steps[stepIndex - 1] }, { name: 'variable' }], true);
   };
 
-
   const getSelectedMedicine = JSON.parse(sessionStorage.getItem('medicine') as string);
   const getSelectedFormula = JSON.parse(sessionStorage.getItem('formula') as string);
   const getSelectedIndication = JSON.parse(sessionStorage.getItem('indication') as string);
   const getSelectedVariables = JSON.parse(sessionStorage.getItem('selectedVariables') as string);
-  const isNextValid = getSelectedMedicine && getSelectedFormula &&getSelectedIndication &&getSelectedVariables;
-  const isPrevValid =  !searchParams.get('formula')&& searchParams.get('step') == "final-result" ;
+  const isNextValid =
+    getSelectedMedicine && getSelectedFormula && getSelectedIndication && getSelectedVariables;
+  const isPrevValid = !searchParams.get('formula') && searchParams.get('step') === 'final-result';
 
   return (
     <>
@@ -153,14 +150,14 @@ function StepperView({ activeStep, children }: StepperViewProps) {
           <Button
             variant="contained"
             color="primary"
-            disabled={stepIndex == 0 ||isPrevValid }
+            disabled={stepIndex === 0 || isPrevValid}
             onClick={handleBack}
             sx={{ mr: 1 }}
           >
             {t('Prev')}
           </Button>
           <Button variant="contained" color="primary" disabled={!isNextValid} onClick={handleNext}>
-            {t(searchParams.get('step') == 'final-result'? 'Create custom patient' : 'Next')}
+            {t(searchParams.get('step') === 'final-result' ? 'Create custom patient' : 'Next')}
           </Button>
         </Box>
       ) : null}

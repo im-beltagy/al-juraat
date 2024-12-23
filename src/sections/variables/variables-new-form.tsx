@@ -2,24 +2,21 @@
 
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
+import { enqueueSnackbar } from 'notistack';
 import { useSearchParams } from 'next/navigation';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { Grid, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 
-import { paths } from 'src/routes/paths';
-
 import { useQueryString } from 'src/hooks/use-queryString';
 
-import { invalidatePath } from 'src/actions/cache-invalidation';
+import { addVariable } from 'src/actions/variables-actions';
 
 import FormProvider from 'src/components/hook-form/form-provider';
 import RHFTextField from 'src/components/hook-form/rhf-text-field-form';
 import { MultiValuesTextField } from 'src/components/hook-form/multi-values-text-field';
 import CustomAutocompleteView, { ITems } from 'src/components/AutoComplete/CutomAutocompleteView';
-import { addVariable } from 'src/actions/variables-actions';
-import { enqueueSnackbar } from 'notistack';
 
 const VARIABLE_TYPES = [
   { label: 'Range', value: 'range' },

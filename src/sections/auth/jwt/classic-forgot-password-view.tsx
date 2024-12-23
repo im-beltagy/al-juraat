@@ -8,17 +8,17 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useRouter } from 'src/routes/hooks';
 
 import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
+import { countries } from 'src/assets/data';
 import { PasswordIcon } from 'src/assets/icons';
+import { useAuthContext } from 'src/auth/hooks';
 
 import Iconify from 'src/components/iconify';
-import FormProvider, { RHFAutocomplete, RHFTextField } from 'src/components/hook-form';
-import { countries } from 'src/assets/data';
-import { useAuthContext } from 'src/auth/hooks';
+import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ export default function ClassicForgotPasswordView() {
 
   const defaultValues = {
     phone: '',
-    country:''
+    country: '',
   };
   const router = useRouter();
 
@@ -42,17 +42,15 @@ export default function ClassicForgotPasswordView() {
 
   const {
     handleSubmit,
-    setValue,
-    getValues,
     formState: { isSubmitting },
   } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const code = countries?.find((item)=>item.label === data?.country)
-    const phone =  code?.phone.concat(data?.phone) as string;
+      const code = countries?.find((item) => item.label === data?.country);
+      const phone = code?.phone.concat(data?.phone) as string;
       await forgot?.(phone);
-      router.push(`${paths.auth.jwt.verify}`)
+      router.push(`${paths.auth.jwt.verify}`);
     } catch (error) {
       console.error(error);
     }
@@ -60,15 +58,15 @@ export default function ClassicForgotPasswordView() {
 
   const renderForm = (
     <Stack spacing={3} alignItems="center">
-          <RHFAutocomplete
-                  name="country"
-                  type="country"
-                  fullWidth
-                  label="Country"
-                  placeholder="Choose a country"
-                  options={countries.map((option) => option.label)}
-                  getOptionLabel={(option) => option}
-                />
+      <RHFAutocomplete
+        name="country"
+        type="country"
+        fullWidth
+        label="Country"
+        placeholder="Choose a country"
+        options={countries.map((option) => option.label)}
+        getOptionLabel={(option) => option}
+      />
 
       <RHFTextField name="phone" label="Phone number" />
       <LoadingButton
@@ -105,8 +103,8 @@ export default function ClassicForgotPasswordView() {
         <Typography variant="h3">Forgot your password?</Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          Please enter the phone number  associated with your account and We will send messaget to you with otp
-          code for change password.
+          Please enter the phone number associated with your account and We will send messaget to
+          you with otp code for change password.
         </Typography>
       </Stack>
     </>

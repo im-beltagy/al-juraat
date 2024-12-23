@@ -1,13 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { enqueueSnackbar } from 'notistack';
 import { useState, useCallback } from 'react';
 
-import { Avatar, TextField } from '@mui/material';
-import { Stack, Container } from '@mui/system';
+import { Container } from '@mui/system';
 
+import { paths } from 'src/routes/paths';
 
 import { useTranslate } from 'src/locales';
+import { deleteTradeName } from 'src/actions/tradeNames-actions';
 
 import { useTable } from 'src/components/table';
 import SharedTable from 'src/components/shared-table';
@@ -17,10 +19,8 @@ import TableHeadActions from 'src/components/shared-table/table-head-actions';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcrumbs';
 
 import { TradeNames } from 'src/types/medicine';
+
 import TradeNamesDialog from '../tradeNames-dialog';
-import { deleteTradeName } from 'src/actions/tradeNames-actions';
-import { enqueueSnackbar } from 'notistack';
-import { paths } from 'src/routes/paths';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name' },
