@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 
 import { Box } from '@mui/system';
 import { Grid, Radio, Typography, InputAdornment } from '@mui/material';
@@ -14,6 +14,7 @@ import FormProvider from 'src/components/hook-form/form-provider';
 import RHFTextField from 'src/components/hook-form/rhf-text-field-form';
 
 import { IDosageItem } from 'src/types/calculations';
+import { IEquationVariable } from 'src/types/variables';
 import { Result, IDominalVariables } from 'src/types/results';
 
 import { useCalculationStore } from './calculation-store';
@@ -32,12 +33,17 @@ export interface Props {
 
 export default function FinalResultStep({ initialDosage, results }: Props) {
   const { t } = useTranslate();
-  console.log(results);
-  const { medicine, formula, indication } = useCalculationStore((state) => ({
-    medicine: state.medicine,
-    formula: state.formula,
-    indication: state.indication,
-  }));
+  const {
+    medicine,
+    formula,
+    indication,
+    initialDosage: storeDosage,
+    setMedicine,
+    setFormula,
+    setIndication,
+    setEquationVariable,
+    setInitialDosage,
+  } = useCalculationStore();
   const { createQueryString } = useQueryString();
 
   const methods = useForm();
@@ -67,6 +73,33 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
     []
   );
 
+  useEffect(() => {
+    setMedicine({ id: results?.scientificName, value: results?.scientificName });
+    setFormula({ id: results?.formula, value: results?.formula });
+    setIndication({ id: results?.indication, value: results?.indication });
+
+    createQueryString([
+      {
+        name: 'medicine',
+        value: results?.scientificName,
+      },
+      {
+        name: 'formula',
+        value: results?.formula,
+      },
+      {
+        name: 'indication',
+        value: results?.indication,
+      },
+    ]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [results?.id]);
+  useEffect(() => {
+    setInitialDosage(initialDosage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialDosage]);
+
   return (
     <>
       <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -76,23 +109,18 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
             <RHFTextField
               name="medicine"
               label={t('Scientific name')}
-              value={medicine?.value || results?.scientificName}
+              value={medicine?.value}
               disabled
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <RHFTextField
-              name="formula"
-              label={t('Formula')}
-              value={formula?.value || results?.formula}
-              disabled
-            />
+            <RHFTextField name="formula" label={t('Formula')} value={formula?.value} disabled />
           </Grid>
           <Grid item xs={12} sm={6}>
             <RHFTextField
               name="indication"
               label={t('Indication')}
-              value={indication?.value || results?.indication}
+              value={indication?.value}
               disabled
             />
           </Grid>
@@ -101,9 +129,9 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
               name="dosage"
               label={t('Dosage')}
               type="number"
-              value={initialDosage?.dosage || results?.initialDose}
+              value={storeDosage?.dosage}
               InputProps={{
-                endAdornment: initialDosage?.isWeightDependent ? (
+                endAdornment: storeDosage?.isWeightDependent ? (
                   <InputAdornment position="end">mg/kg</InputAdornment>
                 ) : (
                   <InputAdornment position="end">mg</InputAdornment>
@@ -128,11 +156,9 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
           {
             label: t('Edit'),
             icon: 'solar:pen-bold',
-            onClick: (item: IDominalVariables) => {
-              createQueryString([
-                { name: 'step', value: 'dominal-variables' },
-                { name: 'variableId', value: item.variableId },
-              ]);
+            onClick: (item: IEquationVariable) => {
+              createQueryString([{ name: 'step', value: 'dominal-variables' }]);
+              setEquationVariable(item);
             },
           },
         ]}

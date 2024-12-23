@@ -1,5 +1,3 @@
-// ----------------------------------------------------------------------
-
 import { fetchSingleMedicine } from 'src/actions/medicine';
 import {
   fetchDosage,
@@ -30,46 +28,41 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const formula = typeof searchParams.formula === 'string' ? searchParams.formula : undefined;
   const indication =
     typeof searchParams.indication === 'string' ? searchParams.indication : undefined;
-  const step = typeof searchParams.step === 'string' ? searchParams.step : undefined;
   const equationId =
     typeof searchParams.equationId === 'string' ? searchParams.equationId : undefined;
 
-  const scientific_names = await fetchScientificNames();
+  const scientifiNames = await fetchScientificNames();
   const variables = await fetchVariables();
 
   let formulas;
   let indications;
-
   if (medicine) {
-    const Formulas_res = await fetchFormulas(medicine);
-    const Indications_res = await fetchIndications(medicine);
-
-    formulas = Formulas_res;
-    indications = Indications_res;
+    formulas = await fetchFormulas(medicine);
+    indications = await fetchIndications(medicine);
   }
-  let medicineD;
+
+  let medicineDetails;
   let initialDosage;
-  if (medicine && formula && indication && step === 'dominal-variables') {
-    const res = await fetchDosage(medicine, formula, indication);
-
-    initialDosage = res;
-    const medicineDetails = await fetchSingleMedicine(res?.medicineId);
-    medicineD = medicineDetails;
+  if (medicine && formula && indication) {
+    const dosage = await fetchDosage(medicine, formula, indication);
+    initialDosage = dosage;
+    medicineDetails = await fetchSingleMedicine(dosage?.medicineId);
   }
-  let resultsRes: any;
+
+  let results;
   if (equationId) {
     const res = await fetchDominalVariables(equationId);
-    resultsRes = res;
+    results = res;
   }
   return (
     <CalculationView
-      medicines={scientific_names as string[]}
+      medicines={scientifiNames as string[]}
       variables={variables?.items as IVariable[]}
       formulas={formulas as string[]}
       indications={indications as string[]}
       initialDosage={initialDosage}
-      medicineDetails={medicineD}
-      results={resultsRes}
+      medicineDetails={medicineDetails}
+      results={results}
     />
   );
 }

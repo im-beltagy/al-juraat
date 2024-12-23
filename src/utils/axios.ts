@@ -96,6 +96,7 @@ export const endpoints = {
       `api/v1/Admin/variables?SkipCount=${
         limit * (page - 1)
       }&MaxResultCount=${limit}&FilterByName=${search}`,
+    single: (id: string) => `/api/v1/Admin/variables/${id}`,
     delete: (id: string) => `/api/v1/Admin/variables/${id}`,
     add: () => `/api/v1/Admin/variables`,
     edit: (id: string) => `/api/v1/Admin/variables/${id}`,

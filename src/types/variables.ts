@@ -14,23 +14,23 @@ export type Variable = {
     }
 );
 
-export type IVariable =  {
+export type IVariable = {
   id: string;
   name: string;
   type: string;
   maxValue: number;
-  values: [
-    string
-  ]
-}
+  values: [string];
+};
 export type IEquationVariable = {
   id: string;
   variableId: string;
   variableName: string;
+  type: string;
   value: string;
   minValue: number;
   maxValue: number;
   effect: number;
+  noEffect: boolean;
   result: number;
-  effectType: boolean
-}
+  effectType: boolean;
+};

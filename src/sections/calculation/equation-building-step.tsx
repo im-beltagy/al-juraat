@@ -43,13 +43,7 @@ export default function EquationBuildingStep({
   const indicationId = searchParams.get('indication');
 
   const { setMedicine, setFormula, setIndication, setAllVariables, allVariables } =
-    useCalculationStore((store) => ({
-      setMedicine: store.setMedicine,
-      setFormula: store.setFormula,
-      setIndication: store.setIndication,
-      setAllVariables: store.setAllVariables,
-      allVariables: store.allVariables,
-    }));
+    useCalculationStore();
 
   const { medicineItem, formulaItem, indicationItem } = useMemo(
     () => ({
@@ -96,19 +90,8 @@ export default function EquationBuildingStep({
     },
   });
 
-  const choosenVariables = methods.watch('variables');
-  const choosenFormula = methods.watch('formula');
-  const choosenIndication = methods.watch('indication');
-  const choosenMedicine = methods.watch('medicine');
-  useEffect(() => {
-    sessionStorage.setItem('medicine', JSON.stringify(choosenMedicine));
-    sessionStorage.setItem('formula', JSON.stringify(choosenFormula));
-    sessionStorage.setItem('indication', JSON.stringify(choosenIndication));
-    sessionStorage.setItem('selectedVariables', JSON.stringify(choosenVariables));
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [choosenVariables, choosenMedicine, choosenFormula, choosenFormula]);
-  const { setValue } = methods;
+  const { setValue, watch } = methods;
+  const choosenVariables = watch('variables');
 
   useEffect(() => {
     const refactoredVariables = variables.filter(
@@ -149,18 +132,20 @@ export default function EquationBuildingStep({
               onChange={(_event, newValue: any) => {
                 if (newValue) {
                   setValue('medicine', newValue as any);
-                  createQueryString([{ name: 'medicine', value: String(newValue.id) }]);
                   setMedicine(newValue as any);
+                  createQueryString([{ name: 'medicine', value: String(newValue.id) }]);
                 } else {
-                  setMedicine();
-                  setFormula();
                   setValue('formula', null);
                   setValue('indication', null);
                   setValue('medicine', null);
+                  setMedicine();
+                  setFormula();
                   setIndication();
-                  createQueryString([{ name: 'medicine' }]);
-                  createQueryString([{ name: 'formula' }]);
-                  createQueryString([{ name: 'indication' }]);
+                  createQueryString([
+                    { name: 'medicine' },
+                    { name: 'formula' },
+                    { name: 'indication' },
+                  ]);
                 }
               }}
             />
@@ -181,10 +166,8 @@ export default function EquationBuildingStep({
               onChange={(_event, newValue: any) => {
                 if (newValue) {
                   setValue('formula', newValue);
-
-                  createQueryString([{ name: 'formula', value: String(newValue.id) }]);
-
                   setFormula(newValue);
+                  createQueryString([{ name: 'formula', value: String(newValue.id) }]);
                 } else {
                   setValue('formula', null);
                   setFormula();

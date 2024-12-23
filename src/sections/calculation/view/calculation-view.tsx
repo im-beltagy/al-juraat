@@ -21,6 +21,7 @@ import { IDosageItem } from 'src/types/calculations';
 import FinalResultStep from '../final-result-step';
 import CustomPatientStep from '../custom-patient-step';
 import DominalVariableStep from '../dominal-variable-step';
+import { useCalculationStore } from '../calculation-store';
 import EquationBuildingStep from '../equation-building-step';
 
 const titles = ['Equation Building', 'Calculation', 'Final Result', 'Custom Patient'];
@@ -54,7 +55,6 @@ export default function CalculationView({
   const { t } = useTranslate();
   const settings = useSettingsContext();
   const searchParams = useSearchParams();
-  console.log(searchParams.get('step'));
   const activeStep = searchParams.get('step') || steps[0];
   const stepIndex = steps.indexOf(activeStep);
 
@@ -79,13 +79,7 @@ export default function CalculationView({
             variables={variables}
           />
         ) : null}
-        {stepIndex === 1 ? (
-          <DominalVariableStep
-            variables={variables}
-            initialDosage={initialDosage}
-            medicineIsWeight={medicineDetails?.isWeightDependent}
-          />
-        ) : null}
+        {stepIndex === 1 ? <DominalVariableStep initialDosage={initialDosage} /> : null}
         {stepIndex === 2 ? (
           <FinalResultStep initialDosage={initialDosage} results={results} />
         ) : null}
@@ -118,12 +112,9 @@ function StepperView({ activeStep, children }: StepperViewProps) {
     createQueryString([{ name: 'step', value: steps[stepIndex - 1] }, { name: 'variable' }], true);
   };
 
-  const getSelectedMedicine = JSON.parse(sessionStorage.getItem('medicine') as string);
-  const getSelectedFormula = JSON.parse(sessionStorage.getItem('formula') as string);
-  const getSelectedIndication = JSON.parse(sessionStorage.getItem('indication') as string);
-  const getSelectedVariables = JSON.parse(sessionStorage.getItem('selectedVariables') as string);
-  const isNextValid =
-    getSelectedMedicine && getSelectedFormula && getSelectedIndication && getSelectedVariables;
+  const { medicine, formula, indication, allVariables } = useCalculationStore();
+
+  const isNextValid = medicine && formula && indication && allVariables?.length;
   const isPrevValid = !searchParams.get('formula') && searchParams.get('step') === 'final-result';
 
   return (

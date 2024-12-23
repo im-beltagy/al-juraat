@@ -23,9 +23,12 @@ export default async function OverviewAppPage({ searchParams }: Props) {
   const limit = typeof searchParams.limit === 'string' ? Number(searchParams.limit) : 5;
   const search = typeof searchParams.search === 'string' ? searchParams.search : '';
 
-  const variables = await fetchVariables( page, limit,search );
+  const variables = await fetchVariables(page, limit, search);
 
   return (
-    <VariablesView variables={variables?.items as IVariable[]} count={Number(variables?.totalCount)} />
+    <VariablesView
+      variables={variables?.items as IVariable[]}
+      count={Number(variables?.totalCount)}
+    />
   );
 }

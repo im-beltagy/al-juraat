@@ -1,8 +1,8 @@
 'use client';
 
 import * as yup from 'yup';
+import { useSnackbar } from 'notistack';
 import { useForm } from 'react-hook-form';
-import { enqueueSnackbar } from 'notistack';
 import { useSearchParams } from 'next/navigation';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useState, useEffect, useCallback } from 'react';
@@ -21,7 +21,10 @@ import {
 
 import { useQueryString } from 'src/hooks/use-queryString';
 
+import { getErrorMessage } from 'src/utils/axios';
+
 import { useTranslate } from 'src/locales';
+import { fetchSingleVariable } from 'src/actions/variables-actions';
 import {
   createEquation,
   addDominalVariables,
@@ -31,61 +34,42 @@ import {
 import FormProvider from 'src/components/hook-form/form-provider';
 import { RHFTextField, RHFRadioGroup, RHFAutocomplete } from 'src/components/hook-form';
 
-import { IVariable } from 'src/types/variables';
 import { IDosageItem } from 'src/types/calculations';
-import { IDominalVariables } from 'src/types/results';
 
 import { useCalculationStore } from './calculation-store';
 
 const EFFECT_TYPES = ['Positive', 'Negative', 'No effect'];
-type ITems = {
-  id: string;
-  value: string;
-};
 export interface Props {
-  variables: IVariable[];
   initialDosage?: IDosageItem;
-  medicineIsWeight: boolean;
 }
 
-export default function DominalVariableStep({ variables, initialDosage, medicineIsWeight }: Props) {
+export default function DominalVariableStep({ initialDosage }: Props) {
   const { t } = useTranslate();
   const searchParams = useSearchParams();
   const { createQueryString } = useQueryString();
+  const { enqueueSnackbar } = useSnackbar();
 
-  const getSelectedMedicine = JSON.parse(sessionStorage.getItem('medicine') as string);
-  const getSelectedFormula = JSON.parse(sessionStorage.getItem('formula') as string);
-  const getSelectedIndication = JSON.parse(sessionStorage.getItem('indication') as string);
-  const getSelectedVariables = JSON.parse(sessionStorage.getItem('selectedVariables') as string);
-  const getVariable = JSON.parse(sessionStorage.getItem('variable') as string);
+  const {
+    medicine,
+    formula,
+    indication,
+    variable,
+    setVariable,
+    equationVariable,
+    allVariables,
+    setAllVariables,
+    initialDosage: storeDosage,
+  } = useCalculationStore();
 
-  const { medicine, formula, indication, variable, setVariable, allVariables } =
-    useCalculationStore((state) => ({
-      medicine: state.medicine || {
-        id: getSelectedMedicine?.id,
-        value: getSelectedMedicine?.value,
-      },
-      formula: state.formula || { id: getSelectedFormula?.id, value: getSelectedFormula?.value },
-      indication: state.indication || {
-        id: getSelectedIndication?.id,
-        value: getSelectedIndication?.value,
-      },
-      variable: state.variable,
-      setVariable: state.setVariable,
-      allVariables: state.allVariables || getSelectedVariables,
-    }));
-  const currentVariable = getVariable?.dominalVariables?.find(
-    (item: IDominalVariables) => item?.variableId === searchParams.get('variableId')
-  );
   useEffect(() => {
     if (!searchParams.get('formula')) {
-      createQueryString([{ name: 'formula', value: String(getSelectedFormula?.id) }]);
+      createQueryString([{ name: 'formula', value: String(formula?.id) }]);
     }
     if (!searchParams.get('indication')) {
-      createQueryString([{ name: 'indication', value: String(getSelectedIndication?.id) }]);
+      createQueryString([{ name: 'indication', value: String(indication?.id) }]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getSelectedFormula, getSelectedIndication]);
+  }, [formula, indication]);
 
   const methods = useForm({
     resolver: yupResolver(
@@ -96,16 +80,12 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
             ? yup
                 .array(yup.number().required(t('Value is required')))
                 .required(t('Value is required'))
-            : yup.object({ id: yup.string(), value: yup.string() }),
+            : yup.string(),
         effect: yup.number().required(t('Effect is required')),
         effect_type: yup.string().required(t('Effect type is required')),
         noEffect: yup.mixed().nullable(),
       })
     ),
-    defaultValues: {
-      variable: currentVariable || '',
-      effect: 0,
-    },
   });
 
   const {
@@ -116,18 +96,56 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
     formState: { errors, isSubmitting },
     setError,
   } = methods;
+
   // Handle Range Variable Value
-  const [variableValue, setVariableValue] = useState<
-    number[] | { value: string; id: string } | null
-  >([0, 0]);
-  const handleChangeVariableValue = (event: Event, newValue: number | number[] | ITems) => {
+  const [variableValue, setVariableValue] = useState<number[] | string | null>([
+    equationVariable?.minValue || 0,
+    equationVariable?.maxValue || 0,
+  ]);
+  const handleChangeVariableValue = (
+    _event: Event | null,
+    newValue: number | number[] | string
+  ) => {
     if (typeof newValue === 'number') {
       setVariableValue([newValue, newValue]);
     } else if (Array.isArray(newValue)) {
       setVariableValue([newValue[0], newValue[1]]);
       setValue('variable_value', [newValue[0], newValue[1]]);
+    } else {
+      setVariableValue(newValue);
+      setValue('variable_value', newValue);
     }
   };
+
+  useEffect(() => {
+    (async function fetchVariable() {
+      if (equationVariable?.variableId) {
+        try {
+          const res = await fetchSingleVariable(equationVariable?.variableId);
+          setVariable(res);
+          setAllVariables([res]);
+          setValue('variable', res);
+          handleChangeVariableValue(
+            null,
+            res.type === 'Range'
+              ? [equationVariable?.minValue, equationVariable?.maxValue]
+              : equationVariable.value
+          );
+          setValue('effect', equationVariable.effect);
+          setValue(
+            'effect_type',
+            EFFECT_TYPES[
+              // eslint-disable-next-line no-nested-ternary
+              equationVariable.noEffect ? 2 : equationVariable.effectType ? 0 : 1
+            ].toLocaleLowerCase()
+          );
+        } catch (error) {
+          enqueueSnackbar(getErrorMessage(error), { variant: 'error' });
+        }
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [equationVariable]);
 
   // Effect Result
   const [result, setResult] = useState<number | null>(null);
@@ -192,7 +210,7 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
         });
       }
     },
-    [searchParams, setError, t]
+    [enqueueSnackbar, searchParams, setError, t]
   );
 
   const onSubmit = useCallback(
@@ -248,10 +266,10 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
           },
         ],
       };
-      if (searchParams.get('variableId')) {
+      if (equationVariable) {
         const dataRange = {
-          id: currentVariable?.id,
-          variableId: currentVariable?.variableId,
+          id: equationVariable?.id,
+          variableId: equationVariable?.variableId,
           variableName: data?.variable?.name,
           minValue: data?.variable_value?.[0],
           maxValue: data?.variable_value?.[1],
@@ -263,13 +281,13 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
               : data?.effect_type === 'no effect'
                 ? null
                 : false,
-          noEffect: data?.effect_type === 'no effect' ? true : null,
+          noEffect: data?.effect_type === 'no effect',
         };
         const dataList = {
-          id: currentVariable?.id,
-          variableId: currentVariable?.variableId,
+          id: equationVariable?.id,
+          variableId: equationVariable?.variableId,
           variableName: data?.variable?.name,
-          value: data?.variable_value?.id,
+          value: data?.variable_value,
           effect: data?.effect_type === 'no effect' ? null : data?.effect,
           effectType:
             // eslint-disable-next-line no-nested-ternary
@@ -278,9 +296,8 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
               : data?.effect_type === 'no effect'
                 ? null
                 : false,
-          noEffect: data?.effect_type === 'no effect' ? true : null,
+          noEffect: data?.effect_type === 'no effect',
         };
-
         const res = await editDominalVariables(
           data?.variable?.type !== 'Range' ? dataList : dataRange
         );
@@ -310,8 +327,8 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
     },
     [
       createQueryString,
-      currentVariable?.id,
-      currentVariable?.variableId,
+      enqueueSnackbar,
+      equationVariable,
       formula?.id,
       indication?.id,
       initialDosage?.dosage,
@@ -321,7 +338,6 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
       t,
     ]
   );
-
   return (
     <>
       <FormProvider methods={methods} onSubmit={handleSubmit(addVariable ? submitAdd : onSubmit)}>
@@ -350,9 +366,9 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
               name="dosage"
               label={t('Dosage')}
               type="tel"
-              value={initialDosage?.dosage || 100}
+              value={(initialDosage || storeDosage)?.dosage}
               InputProps={{
-                endAdornment: initialDosage?.isWeightDependent ? (
+                endAdornment: (initialDosage || storeDosage)?.isWeightDependent ? (
                   <InputAdornment position="end">mg/kg</InputAdornment>
                 ) : (
                   <InputAdornment position="end">mg</InputAdornment>
@@ -363,31 +379,39 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <RHFAutocomplete
-              name="variable"
-              label={t('Variable')}
-              placeholder={t('Variable')}
-              //  disabled={!!currentVariable}
+            {equationVariable ? (
+              <TextField
+                label={t('Variable')}
+                placeholder={t('Variable')}
+                value={equationVariable.variableName}
+                fullWidth
+                disabled
+              />
+            ) : (
+              <RHFAutocomplete
+                name="variable"
+                label={t('Variable')}
+                placeholder={t('Variable')}
+                options={allVariables || []}
+                getOptionLabel={(option: any) => {
+                  if (typeof option?.name === 'string') {
+                    return option?.name;
+                  }
+                  return '';
+                }}
+                onChange={(event, item: any) => {
+                  if (item) {
+                    setVariable(item);
+                    setValue('variable', item);
+                  } else {
+                    setVariable();
+                  }
 
-              options={allVariables || (getSelectedVariables as IVariable)}
-              getOptionLabel={(option: any) => {
-                if (typeof option?.name === 'string') {
-                  return option?.name;
-                }
-                return '';
-              }}
-              onChange={(event, item: any) => {
-                if (item) {
-                  setVariable(item);
-                  setValue('variable', item);
-                } else {
-                  setVariable();
-                }
-
-                setVariableValue(null);
-                setValue('variable_value', { id: '', value: '' });
-              }}
-            />
+                  setVariableValue(null);
+                  setValue('variable_value', '');
+                }}
+              />
+            )}
           </Grid>
 
           <Grid item xs={12} sm={6} sx={{ alignSelf: 'center' }}>
@@ -415,18 +439,7 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
                 name="variable_value"
                 label="Value"
                 placeholder="Value"
-                options={
-                  (variable?.values?.map((item) => ({
-                    id: item,
-                    value: item,
-                  })) || []) as ITems[]
-                }
-                getOptionLabel={(option: any) => {
-                  if (typeof option?.value === 'string') {
-                    return option?.value;
-                  }
-                  return '';
-                }}
+                options={variable?.values || []}
                 onChange={(_event, item: any) => {
                   if (item) {
                     setValue('variable_value', item);
@@ -435,6 +448,7 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
                     setVariableValue(null);
                   }
                 }}
+                value={equationVariable?.value}
               />
             ) : (
               <>
@@ -453,6 +467,7 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
               label={t('Effect')}
               type="number"
               InputProps={{ endAdornment: '%' }}
+              defaultValue={equationVariable?.effect}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -464,6 +479,14 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
                 value: item.toLocaleLowerCase(),
               }))}
               row
+              defaultValue={
+                equationVariable
+                  ? EFFECT_TYPES[
+                      // eslint-disable-next-line no-nested-ternary
+                      equationVariable.noEffect ? 2 : equationVariable.effectType ? 0 : 1
+                    ].toLocaleLowerCase()
+                  : undefined
+              }
             />
           </Grid>
 
@@ -496,7 +519,7 @@ export default function DominalVariableStep({ variables, initialDosage, medicine
             </LoadingButton>
             <LoadingButton
               onClick={() => setAddVariable(true)}
-              disabled={!searchParams.get('equationId')}
+              disabled={!searchParams.get('equationId') || !!equationVariable}
               type="submit"
               variant="contained"
               color="primary"
