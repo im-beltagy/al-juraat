@@ -148,6 +148,7 @@ export const endpoints = {
     add: () => `/api/v1/Admin/medicines/create`,
     details: (id: string) => `/api/v1/Admin/medicines/${id}`,
     edit: (id: string) => `/api/v1/Admin/medicines/${id}`,
+    delete: (id: string) => `/api/v1/Admin/medicines/${id}`,
   },
   tradeNames: {
     list: (id: string, page: number, limit: number) =>

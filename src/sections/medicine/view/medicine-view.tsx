@@ -12,12 +12,11 @@ import { paths } from 'src/routes/paths';
 import { useQueryString } from 'src/hooks/use-queryString';
 
 import { useTranslate } from 'src/locales';
-import { deletePackage } from 'src/actions/packages-actions';
+import { deleteMedicine } from 'src/actions/medicine';
 
 import { useTable } from 'src/components/table';
 import SharedTable from 'src/components/shared-table';
 import { useSettingsContext } from 'src/components/settings';
-// import PackagesDialog from '../packages-dialog';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import FormProvider from 'src/components/hook-form/form-provider';
 import RHFTextField from 'src/components/hook-form/rhf-text-field2';
@@ -43,7 +42,7 @@ interface Props {
 export default function MedicineView({ medicines, count }: Props) {
   const { t } = useTranslate();
   const settings = useSettingsContext();
-  const [deleteItemId, setDeleteItemId] = useState('');
+  const [deleteItemId, setDeleteItemId] = useState<null | string>(null);
   const router = useRouter();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -83,8 +82,9 @@ export default function MedicineView({ medicines, count }: Props) {
     ),
   };
   const handleConfirmDelete = useCallback(async () => {
-    const res: any = await deletePackage(deleteItemId);
-    console.log(res);
+    if (!deleteItemId) return;
+
+    const res: any = await deleteMedicine(deleteItemId);
 
     if (res?.error) {
       enqueueSnackbar(`${res?.error || 'there is something wrong!'}`, { variant: 'error' });
@@ -93,7 +93,7 @@ export default function MedicineView({ medicines, count }: Props) {
         variant: 'success',
       });
     }
-    setDeleteItemId('');
+    setDeleteItemId(null);
   }, [deleteItemId]);
 
   return (
@@ -194,12 +194,17 @@ export default function MedicineView({ medicines, count }: Props) {
             onClick: (item: Medicine) =>
               router.push(`${paths.dashboard.medicine}/trade-names/${item.id}`),
           },
+          {
+            label: t('Delete'),
+            icon: 'heroicons:trash-solid',
+            onClick: (item: Medicine) => setDeleteItemId(item.id),
+          },
         ]}
       />
       {deleteItemId && (
         <ConfirmDialog
           open={!!deleteItemId}
-          onClose={() => setDeleteItemId('')}
+          onClose={() => setDeleteItemId(null)}
           title="Delete"
           content="Are you sure you want to delete this item?"
           handleConfirmDelete={handleConfirmDelete}
