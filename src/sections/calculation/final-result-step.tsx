@@ -43,6 +43,7 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
     setIndication,
     setEquationVariable,
     setInitialDosage,
+    setCustomPatientAvailable,
   } = useCalculationStore();
   const { createQueryString } = useQueryString();
 
@@ -61,7 +62,7 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
       ),
 
       onRendervalue: (item: IDominalVariables) => {
-        if (typeof item?.value === 'string') {
+        if (item?.type === 'List') {
           return item?.value;
         }
         return `${t('from')} ${item?.minValue} ${t('to')} ${item?.maxValue}`;
@@ -77,24 +78,28 @@ export default function FinalResultStep({ initialDosage, results }: Props) {
     setMedicine({ id: results?.scientificName, value: results?.scientificName });
     setFormula({ id: results?.formula, value: results?.formula });
     setIndication({ id: results?.indication, value: results?.indication });
+    setCustomPatientAvailable(results?.dominalVariables?.length > 1);
 
-    createQueryString([
-      {
-        name: 'medicine',
-        value: results?.scientificName,
-      },
-      {
-        name: 'formula',
-        value: results?.formula,
-      },
-      {
-        name: 'indication',
-        value: results?.indication,
-      },
-    ]);
+    createQueryString(
+      [
+        {
+          name: 'medicine',
+          value: results?.scientificName,
+        },
+        {
+          name: 'formula',
+          value: results?.formula,
+        },
+        {
+          name: 'indication',
+          value: results?.indication,
+        },
+      ],
+      true
+    );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [results?.id]);
+  }, [results]);
   useEffect(() => {
     setInitialDosage(initialDosage);
     // eslint-disable-next-line react-hooks/exhaustive-deps

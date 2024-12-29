@@ -184,7 +184,7 @@ export default function DominalVariableStep({ initialDosage }: Props) {
       };
       const dataList = {
         variableId: data?.variable?.id,
-        value: data?.variable_value?.id,
+        value: data?.variable_value,
         effect: data?.effect_type === 'no effect' ? null : data?.effect,
         effectType:
           // eslint-disable-next-line no-nested-ternary
@@ -253,7 +253,7 @@ export default function DominalVariableStep({ initialDosage }: Props) {
             variableId: data?.variable?.id,
             type: data?.variable?.type,
             variableName: data?.variable?.name,
-            value: data?.variable_value?.id,
+            value: data?.variable_value,
             effect: data?.effect_type === 'no effect' ? null : data?.effect,
             effectType:
               // eslint-disable-next-line no-nested-ternary

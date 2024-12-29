@@ -24,6 +24,9 @@ interface MedicineSlice {
 
   initialDosage?: IDosageItem;
   setInitialDosage: (newVal?: IDosageItem) => void;
+
+  customPatientAvailable?: boolean;
+  setCustomPatientAvailable: (newVal: boolean) => void;
 }
 
 const createMedicineSlice: StateCreator<MedicineSlice, [], [], MedicineSlice> = (set) => ({
@@ -34,6 +37,7 @@ const createMedicineSlice: StateCreator<MedicineSlice, [], [], MedicineSlice> = 
   setEquationVariable: (newVal) => set((state) => ({ equationVariable: newVal })),
   setInitialDosage: (newVal) => set((state) => ({ initialDosage: newVal })),
   setAllVariables: (newVal) => set((state) => ({ allVariables: newVal })),
+  setCustomPatientAvailable: (newVal) => set((state) => ({ customPatientAvailable: newVal })),
 });
 
 export const useCalculationStore = create<MedicineSlice>()((...set) => ({

@@ -112,7 +112,8 @@ function StepperView({ activeStep, children }: StepperViewProps) {
     createQueryString([{ name: 'step', value: steps[stepIndex - 1] }, { name: 'variable' }], true);
   };
 
-  const { medicine, formula, indication, allVariables } = useCalculationStore();
+  const { medicine, formula, indication, allVariables, customPatientAvailable } =
+    useCalculationStore();
 
   const isNextValid = medicine && formula && indication && allVariables?.length;
   const isPrevValid = !searchParams.get('formula') && searchParams.get('step') === 'final-result';
@@ -147,7 +148,14 @@ function StepperView({ activeStep, children }: StepperViewProps) {
           >
             {t('Prev')}
           </Button>
-          <Button variant="contained" color="primary" disabled={!isNextValid} onClick={handleNext}>
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={
+              searchParams.get('step') === 'final-result' ? !customPatientAvailable : !isNextValid
+            }
+            onClick={handleNext}
+          >
             {t(searchParams.get('step') === 'final-result' ? 'Create custom patient' : 'Next')}
           </Button>
         </Box>
