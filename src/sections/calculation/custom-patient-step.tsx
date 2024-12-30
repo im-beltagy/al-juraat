@@ -6,12 +6,13 @@ import { useMemo, useState, useCallback } from 'react';
 
 import { Stack } from '@mui/system';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Grid, Checkbox, Typography } from '@mui/material';
+import { Grid, Checkbox, MenuItem, Typography } from '@mui/material';
 
 import { useTranslate } from 'src/locales';
 import { addCustomDosage } from 'src/actions/equation-actions';
 
 import { useTable } from 'src/components/table';
+import { RHFSelect } from 'src/components/hook-form';
 import SharedTable from 'src/components/shared-table';
 import FormProvider from 'src/components/hook-form/form-provider';
 import RHFTextField from 'src/components/hook-form/rhf-text-field2';
@@ -19,6 +20,7 @@ import RHFTextField from 'src/components/hook-form/rhf-text-field2';
 import { IDosageItem } from 'src/types/calculations';
 import { Result, IDominalVariables } from 'src/types/results';
 
+import { frequency } from '../medicine/medicine-dialog';
 import { useCalculationStore } from './calculation-store';
 
 const TABLE_HEAD = [
@@ -45,10 +47,12 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
   const defaultValues = {
     description: '',
     n_dosage: 0,
+    frequency: undefined as unknown as 1,
   };
   const variableSchema = yup.object().shape({
     description: yup.string().required(t('Description is required')),
     n_dosage: yup.number().required(t('Dosage is required')),
+    frequency: yup.mixed<1 | 2 | 3 | 4 | 5>().required(t('Frequency is required')),
   });
 
   const methods = useForm({
@@ -154,9 +158,38 @@ export default function CustomPatientStep({ initialDosage, results }: Props) {
           my={3}
           alignItems="flex-start"
           justifyContent="space-between"
+          flexWrap="wrap"
         >
-          <Stack direction="row" spacing={1} alignItems="flex-start">
-            <RHFTextField name="n_dosage" label={t('New Dosage')} placeholder={t('New Dosage')} />
+          <Stack direction="row" spacing={1} alignItems="flex-start" flexWrap="wrap">
+            <Stack direction="row" flexGrow={1} maxWidth="25rem">
+              <RHFTextField
+                name="n_dosage"
+                label={t('New Dosage')}
+                placeholder={t('New Dosage')}
+                sx={{
+                  '& .MuiInputBase-root': {
+                    borderStartEndRadius: 0,
+                    borderEndEndRadius: 0,
+                    height: '100%',
+                  },
+                }}
+              />
+
+              <RHFSelect
+                name="frequency"
+                label={t('Frequency')}
+                placeholder={t('Frequency')}
+                sx={{
+                  '& .MuiInputBase-root': { borderStartStartRadius: 0, borderEndStartRadius: 0 },
+                }}
+              >
+                {frequency.map((item: { value: number; label: string }, index: number) => (
+                  <MenuItem key={index} value={item?.value}>
+                    {item?.label}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+            </Stack>
 
             <RHFTextField
               multiline

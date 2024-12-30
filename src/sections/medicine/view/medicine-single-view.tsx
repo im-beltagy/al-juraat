@@ -11,6 +11,8 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs/custom-breadcru
 
 import { Medicine } from 'src/types/medicine';
 
+import { frequency } from '../medicine-dialog';
+
 interface Props {
   medicine: Medicine;
 }
@@ -51,16 +53,7 @@ export default function SingleMedicineView({ medicine }: Props) {
             </Stack>
 
             <Stack spacing={1} alignItems={{ xs: 'flex-start', md: 'flex-end' }}>
-              {/*   <Label
-              variant="soft"
-              color={
-                'success'
-              }
-            >
-              Paid
-            </Label>
-
-            <Typography variant="h6">INV-1704</Typography> */}
+              {}
             </Stack>
 
             <Stack sx={{ typography: 'body2' }}>
@@ -110,9 +103,39 @@ export default function SingleMedicineView({ medicine }: Props) {
               </Typography>
               {medicine?.notes || '- - -'}
             </Stack>
+            <Stack sx={{ typography: 'body2' }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Initial Dose * Frequency
+              </Typography>
+
+              {renderDose({
+                initialDose: medicine.initialDose,
+                frequencyNumber: medicine.frequency,
+                isWeightDependent: medicine.isWeightDependent,
+              })}
+            </Stack>
           </Box>
         </Card>
       </Stack>
     </Container>
   );
+}
+
+function renderDose({
+  initialDose,
+  frequencyNumber,
+  isWeightDependent,
+}: {
+  initialDose: number | undefined;
+  frequencyNumber: 1 | 2 | 3 | 4 | 5 | undefined;
+  isWeightDependent: boolean;
+}) {
+  const doseString = `${initialDose} ${isWeightDependent ? 'mg/kg' : 'mg'}`;
+  const frequencyString = frequency.find((item) => item.value === frequencyNumber)?.label || '';
+
+  if (!initialDose) return '- - -';
+
+  if (!frequencyString) return doseString;
+
+  return `${doseString} * ${frequencyString}`;
 }
