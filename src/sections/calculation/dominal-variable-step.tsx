@@ -48,6 +48,7 @@ export default function DominalVariableStep({ initialDosage }: Props) {
   const searchParams = useSearchParams();
   const { createQueryString } = useQueryString();
   const { enqueueSnackbar } = useSnackbar();
+  const [currentEffectType, setCurrentEffectType] = useState<undefined | string>();
 
   const {
     medicine,
@@ -81,7 +82,10 @@ export default function DominalVariableStep({ initialDosage }: Props) {
                 .array(yup.number().required(t('Value is required')))
                 .required(t('Value is required'))
             : yup.string(),
-        effect: yup.number().required(t('Effect is required')),
+        effect:
+          currentEffectType === 'no effect'
+            ? yup.number()
+            : yup.number().required(t('Effect is required')),
         effect_type: yup.string().required(t('Effect type is required')),
         noEffect: yup.mixed().nullable(),
       })
@@ -487,6 +491,10 @@ export default function DominalVariableStep({ initialDosage }: Props) {
                     ].toLocaleLowerCase()
                   : undefined
               }
+              onChange={(_e, value) => {
+                setCurrentEffectType(value);
+                setValue('effect_type', value);
+              }}
             />
           </Grid>
 
