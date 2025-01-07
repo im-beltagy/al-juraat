@@ -71,9 +71,8 @@ export const addMedicine = async (data: any): Promise<any> => {
     invalidatePath(`/medicine`);
     return res.data;
   } catch (error) {
-    console.log('erere', error);
     return {
-      error: getErrorMessage(error),
+      error: getErrorMessage(error.error),
     };
   }
 };
